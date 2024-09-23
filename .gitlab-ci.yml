@@ -1,0 +1,25 @@
+include:
+  - project : devsecops-blueprint/pipeline-template
+    ref : release/v1.0.1
+    file : "/language/go/workflow.yml"
+
+variables:
+  PROJECT_NAME: "idp"
+  LINT_REPORT_FILE: "boilerplate-go-${CI_COMMIT_SHA}-${CI_COMMIT_TIMESTAMP}"
+  GO_DOCKER_VERSION: "1.21"
+  UNIT_TEST_DIR: "./..."
+  DAST_API_SCAN: "false"
+  DOCKERFILE_PATH: "./Dockerfile"
+  S2I: "true"
+  S2I_JFROG: "true"
+
+sonarqube:
+  allow_failure: true
+
+dockerize:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+push-image-jfrog:
+  rules:
+    - if: $CI_COMMIT_BRANCH

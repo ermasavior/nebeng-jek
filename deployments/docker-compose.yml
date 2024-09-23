@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:alpine3.20
+    container_name: "postgres_container"
+    command: postgres -c 'max_connections=500'
+    environment:
+      POSTGRES_DB: rides_db
+      POSTGRES_USER: rides_username
+      POSTGRES_PASSWORD: rides_password
+    expose:
+      - "5432"
+    ports:
+      - "5436:5432"
+    restart: always
+    volumes:
+      - ../data/pg:/var/lib/postgresql/data
+      - ../data/init-sql:/docker-entrypoint-initdb.d
+    networks:
+      local:
+  redis:
+    image: "redis:alpine"
+    container_name: "redis_container"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ../data/redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      local:
+
+volumes:
+  postgres:
+  redis_data:
+    driver: local
+
+networks:
+  local:
