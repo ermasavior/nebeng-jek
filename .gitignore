@@ -7,3 +7,5 @@ api/.idea/
 secrets/*
 .env
 data/pg
+
+*.out

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"context"
-	productsHandler "nebeng-jek/internal/modules/products/handler"
+	ridesHandler "nebeng-jek/internal/rides/handler"
 	"nebeng-jek/pkg/configs"
 	db "nebeng-jek/pkg/db/postgres"
 	pkgHttp "nebeng-jek/pkg/http"
@@ -46,7 +46,7 @@ func main() {
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	productsHandler.RegisterProductHandler(srv.Router.Group("/products"), pgDb, redisClient)
+	ridesHandler.RegisterRidesHandler(srv.Router.Group("/"), redisClient)
 
 	httpServer := srv.Start()
 

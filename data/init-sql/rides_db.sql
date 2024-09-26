@@ -2,6 +2,7 @@
 CREATE TABLE drivers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    password_hash TEXT,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     vehicle_type INT,
     vehicle_plate VARCHAR(20) NOT NULL UNIQUE,
@@ -12,6 +13,7 @@ CREATE TABLE drivers (
 CREATE TABLE riders (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    password_hash TEXT,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

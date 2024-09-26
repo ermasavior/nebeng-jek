@@ -1,9 +1,9 @@
 package redis
 
 import (
-	"nebeng-jek/pkg/logger"
 	"context"
 	"fmt"
+	"nebeng-jek/pkg/logger"
 	"strconv"
 	"strings"
 	"time"
@@ -70,17 +70,6 @@ func InitConnection(redisDB, redisHost, redisPort, redisPassword string, appConf
 	return &RedisClient{Client: client}
 }
 
-type Collections interface {
-	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
-	EvalSha(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
-	Del(ctx context.Context, keys ...string) *redis.IntCmd
-	Conn(ctx context.Context) *redis.Conn
-	Get(ctx context.Context, key string) *redis.StringCmd
-	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
-
-	Close() error
-}
-
 func (r *RedisClient) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd {
 	return r.Client.(*redis.Client).SetNX(ctx, key, value, expiration)
 }
@@ -103,6 +92,18 @@ func (r *RedisClient) Get(ctx context.Context, key string) *redis.StringCmd {
 
 func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
 	return r.Client.(*redis.Client).Set(ctx, key, value, expiration)
+}
+
+func (r *RedisClient) GeoAdd(ctx context.Context, key string, geoLocation ...*redis.GeoLocation) *redis.IntCmd {
+	return r.Client.(*redis.Client).GeoAdd(ctx, key, geoLocation...)
+}
+
+func (r *RedisClient) GeoRadius(ctx context.Context, key string, longitude, latitude float64, query *redis.GeoRadiusQuery) *redis.GeoLocationCmd {
+	return r.Client.(*redis.Client).GeoRadius(ctx, key, longitude, latitude, query)
+}
+
+func (r *RedisClient) ZRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd {
+	return r.Client.(*redis.Client).ZRem(ctx, key, members...)
 }
 
 func (r *RedisClient) Close() error {
