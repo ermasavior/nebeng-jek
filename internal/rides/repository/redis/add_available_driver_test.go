@@ -18,9 +18,7 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := ridesRepo{
-		cache: redisMock,
-	}
+	repositoryMock := NewRidesRepository(redisMock)
 
 	var (
 		msisdn   = "0811111"

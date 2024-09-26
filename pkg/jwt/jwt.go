@@ -8,15 +8,30 @@ import (
 
 var mySecretKey = []byte("your_secret_key")
 
+type jwtGenerator struct {
+	expiryTime time.Duration
+	secretKey  []byte
+}
+
+func NewJWTGenerator(exp time.Duration, secret string) JWTInterface {
+	return &jwtGenerator{
+		expiryTime: 24 * time.Hour, // exp,
+		secretKey:  []byte(secret),
+	}
+}
+
 // GenerateJWT generates a new JWT token
-func GenerateJWT(key, value string) (string, error) {
+func (j *jwtGenerator) GenerateJWT(keyValues map[string]interface{}) (string, error) {
 	claims := jwt.MapClaims{
-		key:   value,
-		"exp": time.Now().Add(time.Hour * 1).Unix(), // Token expires in 1 hour
+		"exp": time.Now().Add(j.expiryTime).Unix(),
+	}
+
+	for k, v := range keyValues {
+		claims[k] = v
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString(mySecretKey)
+	signedToken, err := token.SignedString(j.secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -24,12 +39,12 @@ func GenerateJWT(key, value string) (string, error) {
 }
 
 // ValidateJWT validates the token and returns the claims
-func ValidateJWT(tokenStr string) (jwt.MapClaims, error) {
+func (j *jwtGenerator) ValidateJWT(tokenStr string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return mySecretKey, nil
+		return j.secretKey, nil
 	})
 
 	if err != nil {

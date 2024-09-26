@@ -19,9 +19,7 @@ func TestUsecase_SetDriverAvailability(t *testing.T) {
 	defer ctrl.Finish()
 
 	repoMock := mockRepo.NewMockRidesRepository(ctrl)
-	usecaseMock := ridesUsecase{
-		Repo: repoMock,
-	}
+	usecaseMock := NewRidesUsecase(repoMock)
 
 	var (
 		msisdn = "0811111"

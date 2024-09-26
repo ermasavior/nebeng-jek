@@ -4,8 +4,10 @@ import (
 	"nebeng-jek/internal/rides/handler/middleware"
 	repo_redis "nebeng-jek/internal/rides/repository/redis"
 	"nebeng-jek/internal/rides/usecase"
+	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/redis"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -15,6 +17,8 @@ type ridesHandler struct {
 	upgrader websocket.Upgrader
 	Usecase  usecase.RidesUsecase
 }
+
+var j = jwt.NewJWTGenerator(24*time.Hour, "PASSWORD")
 
 func RegisterRidesHandler(router *gin.RouterGroup, redis redis.Collections) {
 	pRepository := repo_redis.NewRidesRepository(redis)
@@ -31,10 +35,12 @@ func RegisterRidesHandler(router *gin.RouterGroup, redis redis.Collections) {
 		Usecase: pUsecase,
 	}
 
-	router.GET("/dummy/login", LoginHandler)
+	mid := middleware.NewRidesMiddleware(j)
 
-	router.Use(middleware.LoginDriverMiddleware)
+	router.GET("/dummy/login", h.LoginHandler)
 
-	router.GET("/ws/drivers", h.DriverAllocation)
+	router.Use(mid.LoginDriverMiddleware)
+
+	// router.GET("/ws/drivers", h.DriverAllocation)
 	router.PUT("/drivers/availability", h.SetDriverAvailability)
 }

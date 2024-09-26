@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"nebeng-jek/pkg/jwt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +12,7 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-func LoginHandler(c *gin.Context) {
+func (p *ridesHandler) LoginHandler(c *gin.Context) {
 	var creds Credentials
 	if err := json.NewDecoder(c.Request.Body).Decode(&creds); err != nil {
 		http.Error(c.Writer, "Bad Request", http.StatusBadRequest)
@@ -26,7 +25,9 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	token, err := jwt.GenerateJWT("msisdn", creds.MSISDN)
+	token, err := j.GenerateJWT(map[string]interface{}{
+		"msisdn": creds.MSISDN,
+	})
 	if err != nil {
 		http.Error(c.Writer, "Internal Server Error", http.StatusInternalServerError)
 		return

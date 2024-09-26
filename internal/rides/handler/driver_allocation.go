@@ -1,58 +1,50 @@
 package handler
 
-import (
-	"fmt"
-	"log"
-	"nebeng-jek/pkg/logger"
+// const (
+// 	EventNotifyDriverNewCustomer = "notify_driver_new_customer"
+// )
 
-	"github.com/gin-gonic/gin"
-)
+// type DriverAllocationMessage struct {
+// 	Event string      `json:"event"`
+// 	Data  interface{} `json:"data"`
+// }
 
-const (
-	EventNotifyDriverNewCustomer = "notify_driver_new_customer"
-)
+// type Coordinate struct {
+// 	Latitude  float64 `json:"latitude"`
+// 	Longitude float64 `json:"longitude"`
+// }
 
-type DriverAllocationMessage struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
-}
+// type NewCustomerMessage struct {
+// 	TripID         string     `json:"trip_id"`
+// 	Distance       float32    `json:"distance"`
+// 	PickupLocation Coordinate `json:"pickup_location"`
+// 	Destination    Coordinate `json:"destination"`
+// }
 
-type Coordinate struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-}
+// func (h *ridesHandler) DriverAllocation(c *gin.Context) {
+// 	conn, err := h.upgrader.Upgrade(c.Writer, c.Request, nil)
+// 	if err != nil {
+// 		logger.Error(c.Request.Context(), "error upgrade to websocket", map[string]interface{}{
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
+// 	defer conn.Close()
 
-type NewCustomerMessage struct {
-	TripID         string     `json:"trip_id"`
-	Distance       float32    `json:"distance"`
-	PickupLocation Coordinate `json:"pickup_location"`
-	Destination    Coordinate `json:"destination"`
-}
+// 	go func() {
+// 		for {
+// 			messageType, message, err := conn.ReadMessage()
+// 			if err != nil {
+// 				log.Println("Error reading message:", err)
+// 				break
+// 			}
 
-func (p *ridesHandler) DriverAllocation(c *gin.Context) {
-	conn, err := p.upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		logger.Error(c.Request.Context(), "error upgrade to websocket", map[string]interface{}{
-			"error": err.Error(),
-		})
-		return
-	}
-	defer conn.Close()
+// 			fmt.Printf("Received: %s\n", message)
 
-	go func() {
-		for {
-			messageType, message, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("Error reading message:", err)
-				break
-			}
-
-			fmt.Printf("Received: %s\n", message)
-
-			if err := conn.WriteMessage(messageType, message); err != nil {
-				log.Println("Error writing message:", err)
-				break
-			}
-		}
-	}()
-}
+// 			if err := conn.WriteMessage(messageType, message); err != nil {
+// 				log.Println("Error writing message:", err)
+// 				break
+// 			}
+// 		}
+// 	}()
+// }
