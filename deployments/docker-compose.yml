@@ -14,7 +14,7 @@ services:
       - "5436:5432"
     restart: always
     volumes:
-      - ../data/pg:/var/lib/postgresql/data
+      - /data/rides/pg:/var/lib/postgresql/data
       - ../data/init-sql:/docker-entrypoint-initdb.d
     networks:
       local:
@@ -24,15 +24,26 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ../data/redis_data:/data
+      - /data/rides/redis-data:/data
     command: ["redis-server", "--appendonly", "yes"]
     networks:
       local:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"  # RabbitMQ messaging port
+      - "15672:15672"  # RabbitMQ management console
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit_username
+      RABBITMQ_DEFAULT_PASS: rabbit_password
+    volumes:
+      - /data/rides/rabbitmq-data:/var/lib/rabbitmq
 
 volumes:
   postgres:
   redis_data:
     driver: local
+  rabbitmq-data:
 
 networks:
   local:

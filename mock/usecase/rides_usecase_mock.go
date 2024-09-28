@@ -35,6 +35,21 @@ func (m *MockRidesUsecase) EXPECT() *MockRidesUsecaseMockRecorder {
 	return m.recorder
 }
 
+// CreateNewRide mocks base method.
+func (m *MockRidesUsecase) CreateNewRide(arg0 context.Context, arg1 model.CreateNewRideRequest) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateNewRide", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewRide indicates an expected call of CreateNewRide.
+func (mr *MockRidesUsecaseMockRecorder) CreateNewRide(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewRide", reflect.TypeOf((*MockRidesUsecase)(nil).CreateNewRide), arg0, arg1)
+}
+
 // SetDriverAvailability mocks base method.
 func (m *MockRidesUsecase) SetDriverAvailability(arg0 context.Context, arg1 model.SetDriverAvailabilityRequest) error {
 	m.ctrl.T.Helper()

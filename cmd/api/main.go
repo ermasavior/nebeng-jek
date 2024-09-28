@@ -7,6 +7,7 @@ import (
 
 	"context"
 	ridesHandler "nebeng-jek/internal/rides/handler"
+	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/configs"
 	db "nebeng-jek/pkg/db/postgres"
 	pkgHttp "nebeng-jek/pkg/http"
@@ -44,9 +45,20 @@ func main() {
 	redisClient := redis.InitConnection(cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
 		cfg.RedisPassword, cfg.RedisAppConfig)
 
+	amqpConn, err := amqp.InitAMQPConnection(cfg.AMQPURL)
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp", map[string]interface{}{logger.ErrorKey: err})
+	}
+
+	rideChannel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer rideChannel.Close()
+
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	ridesHandler.RegisterRidesHandler(srv.Router.Group("/"), redisClient)
+	ridesHandler.RegisterRidesHandler(srv.Router.Group("/"), redisClient, pgDb, rideChannel)
 
 	httpServer := srv.Start()
 

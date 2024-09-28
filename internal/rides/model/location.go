@@ -1,16 +1,13 @@
 package model
 
-import "fmt"
-
 const (
 	KeyAvailableDrivers = "available_drivers"
+
+	NearestRadius     = 1
+	NearestRadiusUnit = "km"
 )
 
 type Coordinate struct {
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-}
-
-func SetDriverKey(msisdn string) string {
-	return fmt.Sprintf("driver:%s", msisdn)
+	Longitude float64 `json:"longitude" binding:"required"`
+	Latitude  float64 `json:"latitude" binding:"required"`
 }
