@@ -1,13 +1,23 @@
 package usecase
 
-import "nebeng-jek/internal/rides/repository"
+import (
+	"nebeng-jek/internal/rides/repository"
+)
 
 type ridesUsecase struct {
-	Repo repository.RidesRepository
+	locationRepo repository.RidesLocationRepository
+	ridesRepo    repository.RidesRepository
+	ridesPubSub  repository.RidesPubsubRepository
 }
 
-func NewRidesUsecase(repo repository.RidesRepository) RidesUsecase {
+func NewRidesUsecase(
+	locationRepo repository.RidesLocationRepository,
+	ridesRepo repository.RidesRepository,
+	ridesPubSub repository.RidesPubsubRepository) RidesUsecase {
+
 	return &ridesUsecase{
-		Repo: repo,
+		locationRepo: locationRepo,
+		ridesRepo:    ridesRepo,
+		ridesPubSub:  ridesPubSub,
 	}
 }

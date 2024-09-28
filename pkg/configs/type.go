@@ -15,6 +15,7 @@ type Config struct {
 	RedisPort      string `env:"REDIS_PORT"`
 	RedisPassword  string `env:"REDIS_PASSWORD"`
 	RedisAppConfig string `env:"REDIS_APP_CONFIG"`
+	AMQPURL        string `env:"AMQP_URL"`
 }
 
 type ConfigLoader struct {

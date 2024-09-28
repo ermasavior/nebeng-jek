@@ -34,7 +34,7 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 	t.Run("success - should execute redis GEOADD", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
-			Name:      "driver:" + msisdn,
+			Name:      msisdn,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)
@@ -47,7 +47,7 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
 		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
-			Name:      "driver:" + msisdn,
+			Name:      msisdn,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)

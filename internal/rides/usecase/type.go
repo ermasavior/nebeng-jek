@@ -7,4 +7,5 @@ import (
 
 type RidesUsecase interface {
 	SetDriverAvailability(context.Context, model.SetDriverAvailabilityRequest) error
+	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
 }

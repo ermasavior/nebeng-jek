@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *ridesHandler) SetDriverAvailability(c *gin.Context) {
-	req := model.SetDriverAvailabilityRequest{}
+func (h *ridesHandler) CreateNewRide(c *gin.Context) {
+	req := model.CreateNewRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		err = c.Error(err)
 		c.JSON(
@@ -21,7 +21,7 @@ func (h *ridesHandler) SetDriverAvailability(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	err := h.usecase.SetDriverAvailability(ctx, req)
+	id, err := h.usecase.CreateNewRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, err.Error(), nil)
 		err = c.Error(err)
@@ -32,5 +32,5 @@ func (h *ridesHandler) SetDriverAvailability(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(nil))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(id))
 }
