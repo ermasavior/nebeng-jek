@@ -3,10 +3,11 @@ package amqp
 import (
 	"context"
 	"encoding/json"
-	constants "nebeng-jek/internal/pkg/constants/pubsub"
+	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/amqp"
+	"nebeng-jek/pkg/logger"
 
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -15,7 +16,22 @@ type ridesRepo struct {
 	chann amqp.AMQPChannel
 }
 
-func NewRidesRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
+func NewRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
+	err := chann.ExchangeDeclare(
+		constants.RideRequestsExchange,
+		"fanout", // exchange type: fanout
+		true,     // durable
+		false,    // auto-deleted
+		false,    // internal
+		false,    // no-wait
+		nil,      // arguments
+	)
+	if err != nil {
+		logger.Fatal(context.Background(), "failed to declare an amqp exchange", map[string]interface{}{
+			"error": err,
+		})
+	}
+
 	return &ridesRepo{
 		chann: chann,
 	}
@@ -28,10 +44,10 @@ func (r *ridesRepo) BroadcastRideToDrivers(ctx context.Context, msg model.RideRe
 	}
 
 	err = r.chann.Publish(
-		constants.RideRequestsFanout, // exchange name
-		"",                           // routing key (ignored for fanout)
-		false,                        // mandatory
-		false,                        // immediate
+		constants.RideRequestsExchange, // exchange name
+		"",                             // routing key (ignored for fanout)
+		false,                          // mandatory
+		false,                          // immediate
 		amqp091.Publishing{
 			ContentType: constants.TypeApplicationJSON, // Set content type to JSON
 			Body:        msgBytes,                      // JSON message body

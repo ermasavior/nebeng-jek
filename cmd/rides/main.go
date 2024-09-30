@@ -23,7 +23,8 @@ func main() {
 	cfg := configs.NewConfig(configs.ConfigLoader{
 		Env:           projectEnv,
 		ConsulAddress: consulAddress,
-	})
+	}, "./configs/rides")
+
 	err := logger.NewLogger(cfg.AppName, cfg.AppEnv)
 	if err != nil {
 		logger.Fatal(context.Background(), "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
@@ -50,15 +51,15 @@ func main() {
 		logger.Fatal(context.Background(), "error initializing amqp", map[string]interface{}{logger.ErrorKey: err})
 	}
 
-	rideChannel, err := amqpConn.Channel()
+	ridesChannel, err := amqpConn.Channel()
 	if err != nil {
 		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
 	}
-	defer rideChannel.Close()
+	defer ridesChannel.Close()
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	ridesHandler.RegisterRidesHandler(srv.Router.Group("/"), redisClient, pgDb, rideChannel)
+	ridesHandler.RegisterHandler(srv.Router.Group("/"), redisClient, pgDb, ridesChannel)
 
 	httpServer := srv.Start()
 

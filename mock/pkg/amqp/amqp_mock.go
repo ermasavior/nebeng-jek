@@ -72,6 +72,21 @@ func (m *MockAMQPChannel) EXPECT() *MockAMQPChannelMockRecorder {
 	return m.recorder
 }
 
+// Consume mocks base method.
+func (m *MockAMQPChannel) Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp091.Table) (<-chan amqp091.Delivery, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Consume", queue, consumer, autoAck, exclusive, noLocal, noWait, args)
+	ret0, _ := ret[0].(<-chan amqp091.Delivery)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Consume indicates an expected call of Consume.
+func (mr *MockAMQPChannelMockRecorder) Consume(queue, consumer, autoAck, exclusive, noLocal, noWait, args interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Consume", reflect.TypeOf((*MockAMQPChannel)(nil).Consume), queue, consumer, autoAck, exclusive, noLocal, noWait, args)
+}
+
 // ExchangeDeclare mocks base method.
 func (m *MockAMQPChannel) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp091.Table) error {
 	m.ctrl.T.Helper()
@@ -98,4 +113,33 @@ func (m *MockAMQPChannel) Publish(exchange, key string, mandatory, immediate boo
 func (mr *MockAMQPChannelMockRecorder) Publish(exchange, key, mandatory, immediate, msg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockAMQPChannel)(nil).Publish), exchange, key, mandatory, immediate, msg)
+}
+
+// QueueBind mocks base method.
+func (m *MockAMQPChannel) QueueBind(name, key, exchange string, noWait bool, args amqp091.Table) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueueBind", name, key, exchange, noWait, args)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// QueueBind indicates an expected call of QueueBind.
+func (mr *MockAMQPChannelMockRecorder) QueueBind(name, key, exchange, noWait, args interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueBind", reflect.TypeOf((*MockAMQPChannel)(nil).QueueBind), name, key, exchange, noWait, args)
+}
+
+// QueueDeclare mocks base method.
+func (m *MockAMQPChannel) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp091.Table) (amqp091.Queue, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueueDeclare", name, durable, autoDelete, exclusive, noWait, args)
+	ret0, _ := ret[0].(amqp091.Queue)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// QueueDeclare indicates an expected call of QueueDeclare.
+func (mr *MockAMQPChannelMockRecorder) QueueDeclare(name, durable, autoDelete, exclusive, noWait, args interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueDeclare", reflect.TypeOf((*MockAMQPChannel)(nil).QueueDeclare), name, durable, autoDelete, exclusive, noWait, args)
 }

@@ -21,7 +21,7 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 	locationRepoMock := mockRepo.NewMockRidesLocationRepository(ctrl)
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
-	usecaseMock := NewRidesUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock)
+	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock)
 
 	var (
 		msisdn     = "0811111"

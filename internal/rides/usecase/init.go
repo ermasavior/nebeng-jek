@@ -10,7 +10,7 @@ type ridesUsecase struct {
 	ridesPubSub  repository.RidesPubsubRepository
 }
 
-func NewRidesUsecase(
+func NewUsecase(
 	locationRepo repository.RidesLocationRepository,
 	ridesRepo repository.RidesRepository,
 	ridesPubSub repository.RidesPubsubRepository) RidesUsecase {

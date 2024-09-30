@@ -13,7 +13,7 @@ type ridesRepo struct {
 	cache pkgRedis.Collections
 }
 
-func NewRidesRepository(cache pkgRedis.Collections) repository.RidesLocationRepository {
+func NewRepository(cache pkgRedis.Collections) repository.RidesLocationRepository {
 	return &ridesRepo{
 		cache: cache,
 	}

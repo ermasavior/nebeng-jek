@@ -10,12 +10,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func (c *ConfigLoader) loadFromEnvFile() *Config {
+func (c *ConfigLoader) loadFromEnvFile(envFilePath string) *Config {
 	var err error
 	if c.Env == "" {
-		err = godotenv.Load("./configs/.env")
+		err = godotenv.Load(envFilePath + "/.env")
 	} else {
-		err = godotenv.Load(fmt.Sprintf("./configs/%s.env", c.Env))
+		err = godotenv.Load(fmt.Sprintf("%s/%s.env", envFilePath, c.Env))
 	}
 
 	// log file is optional
