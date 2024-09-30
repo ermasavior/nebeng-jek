@@ -2,7 +2,7 @@ package configs
 
 import "log"
 
-func NewConfig(c ConfigLoader) *Config {
+func NewConfig(c ConfigLoader, envFilePath string) *Config {
 	if c.ConsulAddress != "" {
 		conf, err := c.loadFromConsul()
 		if err != nil {
@@ -11,5 +11,5 @@ func NewConfig(c ConfigLoader) *Config {
 		return conf
 	}
 
-	return c.loadFromEnvFile()
+	return c.loadFromEnvFile(envFilePath)
 }

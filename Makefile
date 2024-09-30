@@ -1,11 +1,14 @@
 init:
 	chmod +x init-project.sh && ./init-project.sh
 
-run:
-	go run cmd/api/main.go
+run-rides:
+	go run cmd/rides/main.go
+
+run-drivers:
+	go run cmd/drivers/main.go
 
 build:
-	go build -a -ldflags "-linkmode external -extldflags '-static' -s -w" -o bin/api cmd/api/main.go
+	go build -a -ldflags "-linkmode external -extldflags '-static' -s -w" -o bin/rides cmd/rides/main.go
 
 tidy:
 	go mod tidy

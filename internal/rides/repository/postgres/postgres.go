@@ -12,7 +12,7 @@ type ridesRepo struct {
 	db *sqlx.DB
 }
 
-func NewRidesRepository(db *sqlx.DB) repository.RidesRepository {
+func NewRepository(db *sqlx.DB) repository.RidesRepository {
 	return &ridesRepo{
 		db: db,
 	}

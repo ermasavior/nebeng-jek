@@ -17,7 +17,7 @@ func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := NewRidesRepository(redisMock)
+	repositoryMock := NewRepository(redisMock)
 
 	var (
 		location = model.Coordinate{
