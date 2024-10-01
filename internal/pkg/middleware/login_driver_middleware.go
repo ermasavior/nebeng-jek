@@ -20,7 +20,7 @@ func NewRidesMiddleware(jwtGen jwt.JWTInterface) ridesMiddleware {
 	}
 }
 
-func (r *ridesMiddleware) LoginDriverMiddleware(c *gin.Context) {
+func (r *ridesMiddleware) AuthJWTMiddleware(c *gin.Context) {
 	token := strings.ReplaceAll(c.GetHeader("Authorization"), "Bearer ", "")
 	if token == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, httpUtils.NewFailedResponse(http.StatusUnauthorized, "no token provided"))

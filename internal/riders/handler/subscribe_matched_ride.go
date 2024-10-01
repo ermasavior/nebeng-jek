@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"nebeng-jek/internal/drivers/model"
 	"nebeng-jek/internal/pkg/constants"
+	"nebeng-jek/internal/riders/model"
 	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/logger"
 	pkg_ws "nebeng-jek/pkg/websocket"
@@ -12,9 +12,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (h *driversHandler) SubscribeNewRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
+func (h *ridersHandler) SubscribeMatchedRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
 	err := ridesChannel.ExchangeDeclare(
-		constants.RideRequestsExchange,
+		constants.MatchedRideExchange,
 		"fanout", // exchange type: fanout
 		true,     // durable
 		false,    // auto-deleted
@@ -43,9 +43,9 @@ func (h *driversHandler) SubscribeNewRides(ctx context.Context, ridesChannel amq
 	}
 
 	err = ridesChannel.QueueBind(
-		q.Name,                         // queue name
-		"",                             // routing key
-		constants.RideRequestsExchange, // exchange
+		q.Name,                        // queue name
+		"",                            // routing key
+		constants.MatchedRideExchange, // exchange
 		false,
 		nil,
 	)
@@ -71,51 +71,49 @@ func (h *driversHandler) SubscribeNewRides(ctx context.Context, ridesChannel amq
 	}
 
 	for msg := range msgs {
-		var data model.NewRideRequestMessage
+		var data model.MatchedRideMessage
 		err := json.Unmarshal(msg.Body, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{"error": err})
 		}
 
-		h.broadcastToActiveDrivers(ctx, data)
+		h.broadcastToRider(ctx, data)
 	}
 }
 
-func (h *driversHandler) broadcastToActiveDrivers(ctx context.Context, msg model.NewRideRequestMessage) {
-	for driver := range msg.AvailableDrivers {
-		conn, ok := h.connStorage.Load(driver)
-		if !ok {
-			return
-		}
+func (h *ridersHandler) broadcastToRider(ctx context.Context, msg model.MatchedRideMessage) {
+	conn, ok := h.connStorage.Load(msg.RiderMSISDN)
+	if !ok {
+		return
+	}
 
-		wsConn, ok := conn.(pkg_ws.WebsocketInterface)
-		if !ok {
-			logger.Error(ctx, "error loading driver connection websocket", nil)
-			return
-		}
+	wsConn, ok := conn.(pkg_ws.WebsocketInterface)
+	if !ok {
+		logger.Error(ctx, "error loading rider connection websocket", nil)
+		return
+	}
 
-		broadcastMsg := model.DriverMessage{
-			Event: model.EventNewRideRequest,
-			Data: model.NewRideRequestBroadcast{
-				RideID:         msg.RideID,
-				Rider:          msg.Rider,
-				PickupLocation: msg.PickupLocation,
-				Destination:    msg.Destination,
-			},
-		}
-		msgBytes, err := json.Marshal(broadcastMsg)
-		if err != nil {
-			logger.Error(ctx, "error unmarshalling message broadcast", map[string]interface{}{
-				"error": err,
-			})
-			return
-		}
+	broadcastMsg := model.RiderMessage{
+		Event: model.EventMatchedRide,
+		Data: model.MatchedRideBroadcast{
+			RideID:         msg.RideID,
+			Driver:         msg.Driver,
+			PickupLocation: msg.PickupLocation,
+			Destination:    msg.Destination,
+		},
+	}
+	msgBytes, err := json.Marshal(broadcastMsg)
+	if err != nil {
+		logger.Error(ctx, "error unmarshalling message broadcast", map[string]interface{}{
+			"error": err,
+		})
+		return
+	}
 
-		if err := wsConn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
-			logger.Error(ctx, "error broadcasting to drivers via websocket", map[string]interface{}{
-				"error": err,
-			})
-			return
-		}
+	if err := wsConn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
+		logger.Error(ctx, "error broadcasting to riders via websocket", map[string]interface{}{
+			"error": err,
+		})
+		return
 	}
 }

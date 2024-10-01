@@ -1,6 +1,8 @@
 package constants
 
 const (
-	TypeApplicationJSON  = "application/json"
-	RideRequestsExchange = "ride_requests_fanout"
+	TypeApplicationJSON = "application/json"
+
+	RideRequestsExchange = "ride_requests"
+	MatchedRideExchange  = "matched_ride"
 )

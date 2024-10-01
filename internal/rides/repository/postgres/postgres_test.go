@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRepository_GetRiderIDByMSISDN(t *testing.T) {
+func TestRepository_GetRiderDataByMSISDN(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -27,18 +27,24 @@ func TestRepository_GetRiderIDByMSISDN(t *testing.T) {
 
 	ctx := context.Background()
 	msisdn := "08111111"
-	expectedID := int64(999)
+	expectedData := model.RiderData{
+		ID:          int64(999),
+		Name:        "Melati",
+		PhoneNumber: "0822222",
+	}
 
 	expectedQuery := queryGetRiderByMSISDN
 
 	t.Run("should execute get query", func(t *testing.T) {
 		sqlMock.ExpectQuery(expectedQuery).
 			WithArgs(msisdn).
-			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(expectedID))
+			WillReturnRows(sqlmock.NewRows([]string{"id", "name", "phone_number"}).
+				AddRow(expectedData.ID, expectedData.Name, expectedData.PhoneNumber),
+			)
 
-		id, err := repoMock.GetRiderIDByMSISDN(ctx, msisdn)
+		actualData, err := repoMock.GetRiderDataByMSISDN(ctx, msisdn)
 
-		assert.Equal(t, expectedID, id)
+		assert.Equal(t, expectedData, actualData)
 		assert.Nil(t, err)
 	})
 
@@ -48,9 +54,9 @@ func TestRepository_GetRiderIDByMSISDN(t *testing.T) {
 			WithArgs(msisdn).
 			WillReturnError(rowErr)
 
-		id, err := repoMock.GetRiderIDByMSISDN(ctx, msisdn)
+		id, err := repoMock.GetRiderDataByMSISDN(ctx, msisdn)
 
-		assert.Equal(t, int64(0), id)
+		assert.Equal(t, model.RiderData{}, id)
 		assert.NotNil(t, err)
 	})
 }

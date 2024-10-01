@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type driversHandler struct {
+type ridersHandler struct {
 	upgrader websocket.Upgrader
 	jwt      jwt.JWTInterface
 
@@ -21,7 +21,7 @@ type driversHandler struct {
 }
 
 func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
-	h := &driversHandler{
+	h := &ridersHandler{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -34,9 +34,9 @@ func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
 	mid := middleware.NewRidesMiddleware(h.jwt)
 
 	router.Use(mid.AuthJWTMiddleware)
-	router.GET("/ws/drivers", h.DriverAllocationWebsocket)
+	router.GET("/ws/riders", h.RiderWebsocket)
 
 	go func() {
-		h.SubscribeNewRides(context.Background(), ridesChannel)
+		h.SubscribeMatchedRides(context.Background(), ridesChannel)
 	}()
 }

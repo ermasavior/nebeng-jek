@@ -18,13 +18,13 @@ func NewRepository(db *sqlx.DB) repository.RidesRepository {
 	}
 }
 
-func (r *ridesRepo) GetRiderIDByMSISDN(ctx context.Context, msisdn string) (int64, error) {
-	var id int64
-	err := r.db.GetContext(ctx, &id, queryGetRiderByMSISDN, msisdn)
+func (r *ridesRepo) GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error) {
+	var data model.RiderData
+	err := r.db.GetContext(ctx, &data, queryGetRiderByMSISDN, msisdn)
 	if err != nil {
-		return 0, err
+		return data, err
 	}
-	return id, nil
+	return data, nil
 }
 
 func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {

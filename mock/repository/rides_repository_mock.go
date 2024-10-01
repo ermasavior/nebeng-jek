@@ -116,19 +116,19 @@ func (mr *MockRidesRepositoryMockRecorder) CreateNewRide(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewRide", reflect.TypeOf((*MockRidesRepository)(nil).CreateNewRide), arg0, arg1)
 }
 
-// GetRiderIDByMSISDN mocks base method.
-func (m *MockRidesRepository) GetRiderIDByMSISDN(ctx context.Context, msisdn string) (int64, error) {
+// GetRiderDataByMSISDN mocks base method.
+func (m *MockRidesRepository) GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRiderIDByMSISDN", ctx, msisdn)
-	ret0, _ := ret[0].(int64)
+	ret := m.ctrl.Call(m, "GetRiderDataByMSISDN", ctx, msisdn)
+	ret0, _ := ret[0].(model.RiderData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRiderIDByMSISDN indicates an expected call of GetRiderIDByMSISDN.
-func (mr *MockRidesRepositoryMockRecorder) GetRiderIDByMSISDN(ctx, msisdn interface{}) *gomock.Call {
+// GetRiderDataByMSISDN indicates an expected call of GetRiderDataByMSISDN.
+func (mr *MockRidesRepositoryMockRecorder) GetRiderDataByMSISDN(ctx, msisdn interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderIDByMSISDN", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderIDByMSISDN), ctx, msisdn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderDataByMSISDN", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderDataByMSISDN), ctx, msisdn)
 }
 
 // MockRidesPubsubRepository is a mock of RidesPubsubRepository interface.

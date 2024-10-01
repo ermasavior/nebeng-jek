@@ -40,9 +40,13 @@ func TestSubscribeNewRides(t *testing.T) {
 		go h.SubscribeNewRides(context.Background(), amqpMock)
 
 		// Simulate a message being received
-		msgBody, _ := json.Marshal(model.RideRequestMessage{
-			RideID:  111,
-			RiderID: 999,
+		msgBody, _ := json.Marshal(model.NewRideRequestMessage{
+			RideID: 111,
+			Rider: model.RiderData{
+				ID:     666,
+				Name:   "Mel",
+				MSISDN: "0812222",
+			},
 			AvailableDrivers: map[string]bool{
 				"081": true,
 			},
@@ -60,8 +64,12 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 
 	ctx := context.TODO()
 
-	riderID := int64(111)
 	rideID := int64(666)
+	riderData := model.RiderData{
+		ID:     1111,
+		Name:   "Mel",
+		MSISDN: "082222",
+	}
 	pickupLocation := model.Coordinate{
 		Latitude:  1,
 		Longitude: 2,
@@ -75,9 +83,9 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 		"0813": true,
 	}
 
-	msg := model.RideRequestMessage{
+	msg := model.NewRideRequestMessage{
 		RideID:           rideID,
-		RiderID:          riderID,
+		Rider:            riderData,
 		PickupLocation:   pickupLocation,
 		Destination:      destination,
 		AvailableDrivers: availableDrivers,
@@ -93,11 +101,11 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 	connStorage.Store("0813", mockConn2)
 
 	t.Run("write message to websocket available drivers", func(t *testing.T) {
-		broadcastMsg := model.DriverAllocationMessage{
+		broadcastMsg := model.DriverMessage{
 			Event: model.EventNewRideRequest,
 			Data: model.NewRideRequestBroadcast{
 				RideID:         rideID,
-				RiderID:        riderID,
+				Rider:          riderData,
 				PickupLocation: pickupLocation,
 				Destination:    destination,
 			},

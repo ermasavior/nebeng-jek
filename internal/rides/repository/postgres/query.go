@@ -2,7 +2,7 @@ package repository_postgres
 
 const (
 	queryGetRiderByMSISDN = `
-		SELECT id FROM riders
+		SELECT id, name, phone_number FROM riders
 		WHERE phone_number = $1
 	`
 	queryInsertNewRide = `

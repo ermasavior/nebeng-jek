@@ -12,7 +12,7 @@ type CreateNewRideRequest struct {
 
 type RideRequestMessage struct {
 	RideID           int64           `json:"ride_id"`
-	RiderID          int64           `json:"rider_id"`
+	Rider            RiderData       `json:"rider"`
 	PickupLocation   Coordinate      `json:"pickup_location"`
 	Destination      Coordinate      `json:"destination"`
 	AvailableDrivers map[string]bool `json:"available_drivers"`
