@@ -11,7 +11,7 @@ import (
 func (u *ridesUsecase) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {
 	msisdn := pkgContext.GetMSISDNFromContext(ctx)
 
-	riderID, err := u.ridesRepo.GetRiderIDByMSISDN(ctx, msisdn)
+	rider, err := u.ridesRepo.GetRiderDataByMSISDN(ctx, msisdn)
 	if err != nil {
 		logger.Error(ctx, "error get rider data", map[string]interface{}{
 			"msisdn": msisdn,
@@ -20,8 +20,7 @@ func (u *ridesUsecase) CreateNewRide(ctx context.Context, req model.CreateNewRid
 		return 0, pkgError.NewInternalServerError(err, "error get rider data")
 	}
 
-	req.RiderID = riderID
-
+	req.RiderID = rider.ID
 	rideID, err := u.ridesRepo.CreateNewRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error create new ride", map[string]interface{}{
@@ -50,7 +49,7 @@ func (u *ridesUsecase) CreateNewRide(ctx context.Context, req model.CreateNewRid
 
 	err = u.ridesPubSub.BroadcastRideToDrivers(ctx, model.RideRequestMessage{
 		RideID:           rideID,
-		RiderID:          riderID,
+		Rider:            rider,
 		PickupLocation:   req.PickupLocation,
 		Destination:      req.Destination,
 		AvailableDrivers: mapDrivers,

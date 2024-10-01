@@ -12,7 +12,7 @@ type RidesLocationRepository interface {
 }
 
 type RidesRepository interface {
-	GetRiderIDByMSISDN(ctx context.Context, msisdn string) (int64, error)
+	GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error)
 	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
 }
 

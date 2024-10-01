@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	driversHandler "nebeng-jek/internal/drivers/handler"
+	ridersHandler "nebeng-jek/internal/riders/handler"
 	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/configs"
 	pkgHttp "nebeng-jek/pkg/http"
@@ -21,7 +21,7 @@ func main() {
 	cfg := configs.NewConfig(configs.ConfigLoader{
 		Env:           projectEnv,
 		ConsulAddress: consulAddress,
-	}, "./configs/drivers")
+	}, "./configs/riders")
 
 	err := logger.NewLogger(cfg.AppName, cfg.AppEnv)
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	driversHandler.RegisterHandler(srv.Router.Group("/"), ridesChannel)
+	ridersHandler.RegisterHandler(srv.Router.Group("/"), ridesChannel)
 
 	httpServer := srv.Start()
 

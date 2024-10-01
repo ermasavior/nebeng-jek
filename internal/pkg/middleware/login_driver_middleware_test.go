@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMiddleware_LoginDriverMiddleware(t *testing.T) {
+func TestMiddleware_AuthJWTMiddleware(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -30,7 +30,7 @@ func TestMiddleware_LoginDriverMiddleware(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.Use(mid.LoginDriverMiddleware)
+	router.Use(mid.AuthJWTMiddleware)
 	router.GET(path)
 
 	t.Run("failed - return status unauthorized 401 - no auth header", func(t *testing.T) {

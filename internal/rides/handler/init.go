@@ -32,7 +32,7 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 	j := jwt.NewJWTGenerator(24*time.Hour, "PASSWORD")
 	mid := middleware.NewRidesMiddleware(j)
 
-	router.Use(mid.LoginDriverMiddleware)
+	router.Use(mid.AuthJWTMiddleware)
 
 	router.PUT("/drivers/availability", h.SetDriverAvailability)
 	router.POST("/riders/rides", h.CreateNewRide)

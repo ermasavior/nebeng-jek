@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"nebeng-jek/internal/riders/model"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -11,10 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDriverAllocationConnection(t *testing.T) {
+func TestRiderAllocationConnection(t *testing.T) {
 	path := "/ws"
 
-	handler := driversHandler{
+	handler := ridersHandler{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -24,7 +25,7 @@ func TestDriverAllocationConnection(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.GET(path, handler.DriverAllocationWebsocket)
+	router.GET(path, handler.RiderWebsocket)
 
 	server := httptest.NewServer(router)
 	defer server.Close()
@@ -40,7 +41,7 @@ func TestDriverAllocationConnection(t *testing.T) {
 	assert.NoError(t, err)
 	defer ws.Close()
 
-	msg := DriverMessage{
+	msg := model.RiderMessage{
 		Event: "test",
 	}
 	err = ws.WriteJSON(msg)
