@@ -27,9 +27,9 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 		msisdn    = "0811111"
 		rideID    = int64(111)
 		riderData = model.RiderData{
-			ID:          1111,
-			Name:        "Melati",
-			PhoneNumber: "0812222",
+			ID:     1111,
+			Name:   "Melati",
+			MSISDN: "0812222",
 		}
 		driverList = []string{"021111", "021112"}
 		driverMap  = map[string]bool{
@@ -54,14 +54,14 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 
 	t.Run("success - should create new ride and publish message broadcast", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
+
+		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
+			Return(driverList, nil)
 		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
-
-		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
-			Return(driverList, nil)
 
 		ridesPubsubMock.EXPECT().BroadcastRideToDrivers(ctx, model.RideRequestMessage{
 			RideID:           rideID,
@@ -84,9 +84,30 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error get rider data"), err)
 	})
 
+	t.Run("failed - should return error when get nearest available driver", func(t *testing.T) {
+		expectedErr := errors.New("error from repo")
+		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
+		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
+			Return(nil, expectedErr)
+
+		_, err := usecaseMock.CreateNewRide(ctx, req)
+		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error get nearest available drivers"), err)
+	})
+
+	t.Run("failed - not found - should return error not found when there is no available driver", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
+		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
+			Return([]string{}, nil)
+
+		_, err := usecaseMock.CreateNewRide(ctx, req)
+		assert.Equal(t, pkgError.NewNotFound(nil, "no nearest driver available, try again later"), err)
+	})
+
 	t.Run("failed - should return error when create new ride is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
+		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
+			Return(driverList, nil)
 		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
@@ -97,48 +118,16 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error create new ride"), err)
 	})
 
-	t.Run("failed - should return error when get nearest available driver", func(t *testing.T) {
-		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
-		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
-			RiderID:        riderData.ID,
-			PickupLocation: req.PickupLocation,
-			Destination:    req.Destination,
-		}).Return(rideID, nil)
-
-		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
-			Return(nil, expectedErr)
-
-		_, err := usecaseMock.CreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error get nearest available drivers"), err)
-	})
-
-	t.Run("failed - not found - should return error not found when there is no available driver", func(t *testing.T) {
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
-		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
-			RiderID:        riderData.ID,
-			PickupLocation: req.PickupLocation,
-			Destination:    req.Destination,
-		}).Return(rideID, nil)
-
-		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
-			Return([]string{}, nil)
-
-		_, err := usecaseMock.CreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewNotFound(nil, "no nearest driver available"), err)
-	})
-
 	t.Run("failed - should return error when fail broadcasting ride to drivers", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, msisdn).Return(riderData, nil)
+		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
+			Return(driverList, nil)
 		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
-
-		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
-			Return(driverList, nil)
 
 		ridesPubsubMock.EXPECT().BroadcastRideToDrivers(ctx, model.RideRequestMessage{
 			RideID:           rideID,

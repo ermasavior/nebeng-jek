@@ -8,7 +8,7 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) SetDriverAvailability(ctx context.Context, req model.SetDriverAvailabilityRequest) error {
+func (u *ridesUsecase) SetDriverAvailability(ctx context.Context, req model.SetDriverAvailabilityRequest) *pkgError.AppError {
 	msisdn := pkgContext.GetMSISDNFromContext(ctx)
 	if req.IsAvailable {
 		err := u.locationRepo.AddAvailableDriver(ctx, msisdn, req.CurrentLocation)

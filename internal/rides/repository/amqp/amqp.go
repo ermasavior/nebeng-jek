@@ -19,15 +19,22 @@ type ridesRepo struct {
 func NewRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
 	err := chann.ExchangeDeclare(
 		constants.RideRequestsExchange,
-		"fanout", // exchange type: fanout
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		constants.ExchangeTypeFanout, // exchange type: fanout
+		true,                         // durable
+		false,                        // auto-deleted
+		false,                        // internal
+		false,                        // no-wait
+		nil,                          // arguments
 	)
 	if err != nil {
-		logger.Fatal(context.Background(), "failed to declare an amqp exchange", map[string]interface{}{
+		logger.Fatal(context.Background(), "failed to declare ride request exchange", map[string]interface{}{
+			"error": err,
+		})
+	}
+
+	err = chann.ExchangeDeclare(constants.MatchedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil)
+	if err != nil {
+		logger.Fatal(context.Background(), "failed to declare matched ride exchange", map[string]interface{}{
 			"error": err,
 		})
 	}
@@ -53,6 +60,23 @@ func (r *ridesRepo) BroadcastRideToDrivers(ctx context.Context, msg model.RideRe
 			Body:        msgBytes,                      // JSON message body
 		},
 	)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ridesRepo) BroadcastMatchedRideToRider(ctx context.Context, msg model.MatchedRideMessage) error {
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = r.chann.Publish(constants.MatchedRideExchange, "", false, false, amqp091.Publishing{
+		ContentType: constants.TypeApplicationJSON,
+		Body:        msgBytes,
+	})
 
 	if err != nil {
 		return err

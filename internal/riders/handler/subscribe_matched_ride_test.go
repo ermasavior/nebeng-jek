@@ -28,7 +28,7 @@ func TestSubscribeMatchedRides(t *testing.T) {
 	t.Run("consume message from AMQP", func(t *testing.T) {
 		msgs := make(chan amqp091.Delivery)
 
-		amqpMock.EXPECT().ExchangeDeclare(constants.MatchedRideExchange, "fanout", true, false, false, false, nil).
+		amqpMock.EXPECT().ExchangeDeclare(constants.MatchedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 			Return(nil)
 		amqpMock.EXPECT().QueueDeclare("", false, false, true, false, nil).
 			Return(amqp091.Queue{}, nil)

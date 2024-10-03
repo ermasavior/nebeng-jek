@@ -15,12 +15,12 @@ import (
 func (h *driversHandler) SubscribeNewRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
 	err := ridesChannel.ExchangeDeclare(
 		constants.RideRequestsExchange,
-		"fanout", // exchange type: fanout
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
+		constants.ExchangeTypeFanout, // exchange type: fanout
+		true,                         // durable
+		false,                        // auto-deleted
+		false,                        // internal
+		false,                        // no-wait
+		nil,                          // arguments
 	)
 	if err != nil {
 		logger.Fatal(context.Background(), "failed to declare an amqp exchange", map[string]interface{}{

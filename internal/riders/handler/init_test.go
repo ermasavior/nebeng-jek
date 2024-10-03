@@ -18,7 +18,7 @@ func TestRegisterHandler(t *testing.T) {
 
 	// mock subscribe new rides
 	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
-	amqpMock.EXPECT().ExchangeDeclare(constants.MatchedRideExchange, "fanout", true, false, false, false, nil).
+	amqpMock.EXPECT().ExchangeDeclare(constants.MatchedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil).AnyTimes()
 	amqpMock.EXPECT().QueueDeclare(gomock.Any(), false, false, true, false, nil).
 		Return(amqp091.Queue{}, nil).AnyTimes()
