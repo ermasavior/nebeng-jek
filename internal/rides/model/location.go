@@ -8,6 +8,6 @@ const (
 )
 
 type Coordinate struct {
-	Longitude float64 `json:"longitude" binding:"required"`
-	Latitude  float64 `json:"latitude" binding:"required"`
+	Longitude float64 `json:"longitude" db:"longitude" binding:"required"`
+	Latitude  float64 `json:"latitude" db:"latitude" binding:"required"`
 }

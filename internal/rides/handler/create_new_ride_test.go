@@ -73,7 +73,23 @@ func TestHandler_CreateNewRide(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("failed - usecase returns error", func(t *testing.T) {
+	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
+		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
+
+		mockUsecase.EXPECT().CreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)
+
+		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		resBody := httpUtils.Response{}
+		_ = json.NewDecoder(w.Body).Decode(&resBody)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		assert.Equal(t, expectedError.Message, resBody.Meta.Message)
+	})
+
+	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
 
 		mockUsecase.EXPECT().CreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)

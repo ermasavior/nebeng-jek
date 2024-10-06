@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"nebeng-jek/internal/drivers/model"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -40,7 +41,7 @@ func TestDriverAllocationConnection(t *testing.T) {
 	assert.NoError(t, err)
 	defer ws.Close()
 
-	msg := DriverMessage{
+	msg := model.DriverMessage{
 		Event: "test",
 	}
 	err = ws.WriteJSON(msg)

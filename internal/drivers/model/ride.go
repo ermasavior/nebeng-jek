@@ -1,7 +1,8 @@
 package model
 
 const (
-	EventNewRideRequest = "new_ride_request"
+	EventNewRideRequest    = "new_ride_request"
+	EventRideReadyToPickup = "ride_ready_to_pickup"
 )
 
 type Coordinate struct {
@@ -22,4 +23,12 @@ type NewRideRequestMessage struct {
 	PickupLocation   Coordinate      `json:"pickup_location"`
 	Destination      Coordinate      `json:"destination"`
 	AvailableDrivers map[string]bool `json:"available_drivers"`
+}
+
+type RideReadyToPickupMessage struct {
+	RideID         int64      `json:"ride_id"`
+	PickupLocation Coordinate `json:"pickup_location"`
+	Destination    Coordinate `json:"destination"`
+	RiderMSISDN    string     `json:"rider_msisdn"`
+	DriverMSISDN   string     `json:"driver_msisdn"`
 }

@@ -15,7 +15,11 @@ func TestRegisterHandler(t *testing.T) {
 	defer ctrl.Finish()
 
 	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
-	amqpMock.EXPECT().ExchangeDeclare(constants.RideRequestsExchange, "fanout", true, false, false, false, nil).
+	amqpMock.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		Return(nil)
+	amqpMock.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		Return(nil)
+	amqpMock.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
 
 	router := gin.New()
@@ -31,6 +35,16 @@ func TestRegisterHandler(t *testing.T) {
 			Method:  "POST",
 			Path:    "/riders/rides",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).CreateNewRide-fm",
+		},
+		{
+			Method:  "POST",
+			Path:    "/riders/rides/confirm",
+			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideRider-fm",
+		},
+		{
+			Method:  "POST",
+			Path:    "/drivers/rides/confirm",
+			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideDriver-fm",
 		},
 	}
 

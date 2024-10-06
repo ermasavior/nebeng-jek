@@ -18,11 +18,11 @@ func TestRegisterHandler(t *testing.T) {
 
 	// mock subscribe new rides
 	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
-	amqpMock.EXPECT().ExchangeDeclare(constants.RideRequestsExchange, "fanout", true, false, false, false, nil).
+	amqpMock.EXPECT().ExchangeDeclare(gomock.Any(), constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil).AnyTimes()
 	amqpMock.EXPECT().QueueDeclare(gomock.Any(), false, false, true, false, nil).
 		Return(amqp091.Queue{}, nil).AnyTimes()
-	amqpMock.EXPECT().QueueBind(gomock.Any(), gomock.Any(), constants.RideRequestsExchange, gomock.Any(), nil).
+	amqpMock.EXPECT().QueueBind(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), nil).
 		Return(nil).AnyTimes()
 	amqpMock.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
 		Return(nil, nil).AnyTimes()

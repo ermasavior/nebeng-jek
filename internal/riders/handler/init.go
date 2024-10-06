@@ -33,10 +33,8 @@ func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
 
 	mid := middleware.NewRidesMiddleware(h.jwt)
 
-	router.Use(mid.AuthJWTMiddleware)
-	router.GET("/ws/riders", h.RiderWebsocket)
+	router.GET("/ws/riders", mid.AuthJWTMiddleware, h.RiderWebsocket)
 
-	go func() {
-		h.SubscribeMatchedRides(context.Background(), ridesChannel)
-	}()
+	go h.SubscribeDriverAcceptedRides(context.Background(), ridesChannel)
+	go h.SubscribeReadyToPickupRides(context.Background(), ridesChannel)
 }
