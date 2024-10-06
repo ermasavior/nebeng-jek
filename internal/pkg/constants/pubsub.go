@@ -4,6 +4,7 @@ const (
 	TypeApplicationJSON = "application/json"
 	ExchangeTypeFanout  = "fanout"
 
-	RideRequestsExchange = "ride_requests"
-	MatchedRideExchange  = "matched_ride"
+	NewRideRequestsExchange    = "new_ride_requests"
+	DriverAcceptedRideExchange = "driver_accepted_ride"
+	RideReadyToPickupExchange  = "ride_ready_to_pickup"
 )

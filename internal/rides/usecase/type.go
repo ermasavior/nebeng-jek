@@ -10,4 +10,5 @@ type RidesUsecase interface {
 	SetDriverAvailability(context.Context, model.SetDriverAvailabilityRequest) *pkgError.AppError
 	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, *pkgError.AppError)
 	ConfirmRideDriver(context.Context, model.ConfirmRideDriverRequest) *pkgError.AppError
+	ConfirmRideRider(context.Context, model.ConfirmRideRiderRequest) *pkgError.AppError
 }

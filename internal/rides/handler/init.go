@@ -38,5 +38,5 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 	router.POST("/drivers/rides/confirm", h.ConfirmRideDriver)
 
 	router.POST("/riders/rides", h.CreateNewRide)
-	// router.POST("/riders/rides/confirm", h.RiderRideConfirmation)
+	router.POST("/riders/rides/confirm", h.ConfirmRideRider)
 }

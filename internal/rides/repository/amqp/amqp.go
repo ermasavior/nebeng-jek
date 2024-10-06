@@ -18,7 +18,7 @@ type ridesRepo struct {
 
 func NewRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
 	err := chann.ExchangeDeclare(
-		constants.RideRequestsExchange,
+		constants.NewRideRequestsExchange,
 		constants.ExchangeTypeFanout, // exchange type: fanout
 		true,                         // durable
 		false,                        // auto-deleted
@@ -32,7 +32,14 @@ func NewRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
 		})
 	}
 
-	err = chann.ExchangeDeclare(constants.MatchedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil)
+	err = chann.ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil)
+	if err != nil {
+		logger.Fatal(context.Background(), "failed to declare matched ride exchange", map[string]interface{}{
+			"error": err,
+		})
+	}
+
+	err = chann.ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil)
 	if err != nil {
 		logger.Fatal(context.Background(), "failed to declare matched ride exchange", map[string]interface{}{
 			"error": err,
@@ -51,10 +58,10 @@ func (r *ridesRepo) BroadcastRideToDrivers(ctx context.Context, msg model.RideRe
 	}
 
 	err = r.chann.Publish(
-		constants.RideRequestsExchange, // exchange name
-		"",                             // routing key (ignored for fanout)
-		false,                          // mandatory
-		false,                          // immediate
+		constants.NewRideRequestsExchange, // exchange name
+		"",                                // routing key (ignored for fanout)
+		false,                             // mandatory
+		false,                             // immediate
 		amqp091.Publishing{
 			ContentType: constants.TypeApplicationJSON, // Set content type to JSON
 			Body:        msgBytes,                      // JSON message body
@@ -73,7 +80,24 @@ func (r *ridesRepo) BroadcastMatchedRideToRider(ctx context.Context, msg model.M
 		return err
 	}
 
-	err = r.chann.Publish(constants.MatchedRideExchange, "", false, false, amqp091.Publishing{
+	err = r.chann.Publish(constants.DriverAcceptedRideExchange, "", false, false, amqp091.Publishing{
+		ContentType: constants.TypeApplicationJSON,
+		Body:        msgBytes,
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ridesRepo) BroadcastRideReadyToPickup(ctx context.Context, msg model.RideReadyToPickupMessage) error {
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = r.chann.Publish(constants.RideReadyToPickupExchange, "", false, false, amqp091.Publishing{
 		ContentType: constants.TypeApplicationJSON,
 		Body:        msgBytes,
 	})

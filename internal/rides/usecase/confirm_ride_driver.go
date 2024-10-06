@@ -50,11 +50,9 @@ func (u *ridesUsecase) ConfirmRideDriver(ctx context.Context, req model.ConfirmR
 	}
 
 	err = u.ridesPubSub.BroadcastMatchedRideToRider(ctx, model.MatchedRideMessage{
-		RideID:         rideData.RideID,
-		Driver:         driver,
-		PickupLocation: rideData.PickupLocation,
-		Destination:    rideData.Destination,
-		RiderMSISDN:    riderMSISDN,
+		RideID:      rideData.RideID,
+		Driver:      driver,
+		RiderMSISDN: riderMSISDN,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting matched ride to rider", map[string]interface{}{

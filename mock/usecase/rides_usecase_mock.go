@@ -50,6 +50,20 @@ func (mr *MockRidesUsecaseMockRecorder) ConfirmRideDriver(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmRideDriver", reflect.TypeOf((*MockRidesUsecase)(nil).ConfirmRideDriver), arg0, arg1)
 }
 
+// ConfirmRideRider mocks base method.
+func (m *MockRidesUsecase) ConfirmRideRider(arg0 context.Context, arg1 model.ConfirmRideRiderRequest) *error.AppError {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfirmRideRider", arg0, arg1)
+	ret0, _ := ret[0].(*error.AppError)
+	return ret0
+}
+
+// ConfirmRideRider indicates an expected call of ConfirmRideRider.
+func (mr *MockRidesUsecaseMockRecorder) ConfirmRideRider(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmRideRider", reflect.TypeOf((*MockRidesUsecase)(nil).ConfirmRideRider), arg0, arg1)
+}
+
 // CreateNewRide mocks base method.
 func (m *MockRidesUsecase) CreateNewRide(arg0 context.Context, arg1 model.CreateNewRideRequest) (int64, *error.AppError) {
 	m.ctrl.T.Helper()

@@ -15,8 +15,8 @@ import (
 
 type driversHandler struct {
 	upgrader websocket.Upgrader
-	jwt      jwt.JWTInterface
 
+	jwt         jwt.JWTInterface
 	connStorage *sync.Map
 }
 
@@ -33,10 +33,8 @@ func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
 
 	mid := middleware.NewRidesMiddleware(h.jwt)
 
-	router.Use(mid.AuthJWTMiddleware)
-	router.GET("/ws/drivers", h.DriverAllocationWebsocket)
+	router.GET("/ws/drivers", mid.AuthJWTMiddleware, h.DriverAllocationWebsocket)
 
-	go func() {
-		h.SubscribeNewRides(context.Background(), ridesChannel)
-	}()
+	go h.SubscribeNewRideRequests(context.Background(), ridesChannel)
+	go h.SubscribeReadyToPickupRides(context.Background(), ridesChannel)
 }

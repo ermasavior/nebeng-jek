@@ -1,16 +1,12 @@
 package handler
 
 import (
+	"nebeng-jek/internal/drivers/model"
 	pkg_context "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
-
-type DriverMessage struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
-}
 
 func (h *driversHandler) DriverAllocationWebsocket(c *gin.Context) {
 	conn, err := h.upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -30,7 +26,7 @@ func (h *driversHandler) DriverAllocationWebsocket(c *gin.Context) {
 	}()
 
 	for {
-		var msg DriverMessage
+		var msg model.DriverMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			logger.Error(c.Request.Context(), "error reading message from driver", map[string]interface{}{

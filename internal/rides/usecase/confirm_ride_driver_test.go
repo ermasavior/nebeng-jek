@@ -66,11 +66,9 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMatchedRideToRider(ctx, model.MatchedRideMessage{
-			RideID:         rideData.RideID,
-			Driver:         driverData,
-			PickupLocation: rideData.PickupLocation,
-			Destination:    rideData.Destination,
-			RiderMSISDN:    riderMSISDN,
+			RideID:      rideData.RideID,
+			Driver:      driverData,
+			RiderMSISDN: riderMSISDN,
 		}).Return(nil)
 
 		err := usecaseMock.ConfirmRideDriver(ctx, req)
@@ -120,5 +118,26 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 		err := usecaseMock.ConfirmRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get rider msisdn"))
+	})
+
+	t.Run("failed - broadcast message returns error", func(t *testing.T) {
+		expectedErr := errors.New("error from repo")
+		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(driverData, nil)
+		ridesRepoMock.EXPECT().ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
+			DriverID: driverData.ID,
+			RideID:   req.RideID,
+			IsAccept: true,
+		}).Return(rideData, nil)
+
+		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
+
+		ridesPubsubMock.EXPECT().BroadcastMatchedRideToRider(ctx, model.MatchedRideMessage{
+			RideID:      rideData.RideID,
+			Driver:      driverData,
+			RiderMSISDN: riderMSISDN,
+		}).Return(expectedErr)
+
+		err := usecaseMock.ConfirmRideDriver(ctx, req)
+		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error broadcasting matched ride to rider"))
 	})
 }

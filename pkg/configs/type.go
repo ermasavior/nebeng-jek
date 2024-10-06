@@ -16,6 +16,7 @@ type Config struct {
 	RedisPassword  string `env:"REDIS_PASSWORD"`
 	RedisAppConfig string `env:"REDIS_APP_CONFIG"`
 	AMQPURL        string `env:"AMQP_URL"`
+	RidesAPIKey    string `env:"RIDES_API_KEY"`
 }
 
 type ConfigLoader struct {
