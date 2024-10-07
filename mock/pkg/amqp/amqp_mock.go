@@ -5,6 +5,7 @@
 package mock_amqp
 
 import (
+	amqp "nebeng-jek/pkg/amqp"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,10 +36,10 @@ func (m *MockAMQPConnection) EXPECT() *MockAMQPConnectionMockRecorder {
 }
 
 // Channel mocks base method.
-func (m *MockAMQPConnection) Channel() (*amqp091.Channel, error) {
+func (m *MockAMQPConnection) Channel() (amqp.AMQPChannel, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Channel")
-	ret0, _ := ret[0].(*amqp091.Channel)
+	ret0, _ := ret[0].(amqp.AMQPChannel)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -70,6 +71,20 @@ func NewMockAMQPChannel(ctrl *gomock.Controller) *MockAMQPChannel {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAMQPChannel) EXPECT() *MockAMQPChannelMockRecorder {
 	return m.recorder
+}
+
+// Close mocks base method.
+func (m *MockAMQPChannel) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockAMQPChannelMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockAMQPChannel)(nil).Close))
 }
 
 // Consume mocks base method.

@@ -20,7 +20,7 @@ type driversHandler struct {
 	connStorage *sync.Map
 }
 
-func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
+func RegisterHandler(router *gin.RouterGroup, amqpConn amqp.AMQPConnection) {
 	h := &driversHandler{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -35,6 +35,7 @@ func RegisterHandler(router *gin.RouterGroup, ridesChannel amqp.AMQPChannel) {
 
 	router.GET("/ws/drivers", mid.AuthJWTMiddleware, h.DriverAllocationWebsocket)
 
-	go h.SubscribeNewRideRequests(context.Background(), ridesChannel)
-	go h.SubscribeReadyToPickupRides(context.Background(), ridesChannel)
+	go h.SubscribeNewRideRequests(context.Background(), amqpConn)
+	go h.SubscribeReadyToPickupRides(context.Background(), amqpConn)
+	go h.SubscribeRideStarted(context.Background(), amqpConn)
 }

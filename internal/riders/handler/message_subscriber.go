@@ -9,8 +9,14 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (h *ridersHandler) SubscribeDriverAcceptedRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
-	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.DriverAcceptedRideExchange, ridesChannel)
+func (h *ridersHandler) SubscribeDriverAcceptedRides(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	channel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer channel.Close()
+
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.DriverAcceptedRideExchange, channel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
 	}
@@ -29,8 +35,14 @@ func (h *ridersHandler) SubscribeDriverAcceptedRides(ctx context.Context, ridesC
 	}
 }
 
-func (h *ridersHandler) SubscribeReadyToPickupRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
-	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideReadyToPickupExchange, ridesChannel)
+func (h *ridersHandler) SubscribeReadyToPickupRides(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	channel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer channel.Close()
+
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideReadyToPickupExchange, channel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
 	}
@@ -43,6 +55,32 @@ func (h *ridersHandler) SubscribeReadyToPickupRides(ctx context.Context, ridesCh
 
 		broadcastMsg := model.RiderMessage{
 			Event: model.EventRideReadyToPickup,
+			Data:  data,
+		}
+		h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+	}
+}
+
+func (h *ridersHandler) SubscribeRideStarted(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	channel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer channel.Close()
+
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideStartedExchange, channel)
+	if err != nil {
+		logger.Fatal(ctx, "error consuming message to exchange", nil)
+	}
+	for msg := range msgs {
+		var data model.RideStartedMessage
+		err := json.Unmarshal(msg.Body, &data)
+		if err != nil {
+			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{"error": err})
+		}
+
+		broadcastMsg := model.RiderMessage{
+			Event: model.EventRideStarted,
 			Data:  data,
 		}
 		h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)

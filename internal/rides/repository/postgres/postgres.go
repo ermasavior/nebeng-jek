@@ -154,3 +154,38 @@ func (r *ridesRepo) ConfirmRideRider(ctx context.Context, req model.ConfirmRideR
 
 	return data, nil
 }
+
+func (r *ridesRepo) UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error) {
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return model.RideData{}, err
+	}
+
+	var data model.RideData
+	values := []interface{}{
+		req.Status, req.RideID, req.DriverID,
+	}
+	err = tx.QueryRowxContext(ctx, queryUpdateRideByDriver, values...).StructScan(&data)
+	if err == sql.ErrNoRows {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(ctx, "error rollback tx", nil)
+		}
+		return model.RideData{}, constants.ErrorDataNotFound
+	}
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(ctx, "error rollback tx", nil)
+		}
+		return model.RideData{}, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			logger.Error(ctx, "error rollback tx", nil)
+		}
+		return model.RideData{}, err
+	}
+
+	return data, nil
+}

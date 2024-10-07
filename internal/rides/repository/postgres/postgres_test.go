@@ -306,6 +306,19 @@ func TestRepository_ConfirmRideDriver(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("should return error no rows", func(t *testing.T) {
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(req.DriverID, req.RideID).
+			WillReturnError(sql.ErrNoRows)
+		sqlMock.ExpectRollback()
+
+		actual, err := repoMock.ConfirmRideDriver(ctx, req)
+
+		assert.Equal(t, model.RideData{}, actual)
+		assert.NotNil(t, err)
+	})
+
 	t.Run("should return error when error from db", func(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectBegin()
@@ -429,6 +442,98 @@ func TestRepository_ConfirmRideRider(t *testing.T) {
 		sqlMock.ExpectRollback().WillReturnError(rowErr)
 
 		actual, err := repoMock.ConfirmRideRider(ctx, req)
+
+		assert.Equal(t, model.RideData{}, actual)
+		assert.NotNil(t, err)
+	})
+}
+
+func TestRepository_UpdateRideByDriver(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	expected := model.RideData{
+		RideID:   111,
+		RiderID:  666,
+		DriverID: 222,
+		PickupLocation: model.Coordinate{
+			Latitude:  1,
+			Longitude: 2,
+		},
+		Destination: model.Coordinate{
+			Latitude:  10,
+			Longitude: 20,
+		},
+	}
+	req := model.UpdateRideByDriverRequest{
+		DriverID: 222,
+		RideID:   777,
+		Status:   model.StatusNumRideInProgress,
+	}
+
+	expectedQuery := queryUpdateRideByDriver
+
+	t.Run("should execute update returning query", func(t *testing.T) {
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(req.Status, req.RideID, req.DriverID).
+			WillReturnRows(sqlmock.NewRows([]string{
+				"id", "rider_id", "driver_id", "pickup_location.latitude", "pickup_location.longitude",
+				"destination.latitude", "destination.longitude",
+			}).AddRow(
+				expected.RideID, expected.RiderID, expected.DriverID, expected.PickupLocation.Latitude,
+				expected.PickupLocation.Longitude, expected.Destination.Latitude, expected.Destination.Longitude))
+		sqlMock.ExpectCommit()
+
+		actualRes, err := repoMock.UpdateRideByDriver(ctx, req)
+
+		assert.Equal(t, expected, actualRes)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(req.Status, req.RideID, req.DriverID).
+			WillReturnError(rowErr)
+		sqlMock.ExpectRollback()
+
+		actual, err := repoMock.UpdateRideByDriver(ctx, req)
+
+		assert.Equal(t, model.RideData{}, actual)
+		assert.NotNil(t, err)
+	})
+
+	t.Run("should return error when error begin tx", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectBegin().WillReturnError(rowErr)
+
+		actual, err := repoMock.UpdateRideByDriver(ctx, req)
+
+		assert.Equal(t, model.RideData{}, actual)
+		assert.NotNil(t, err)
+	})
+
+	t.Run("should return error when error commit tx", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(req.Status, req.RideID, req.DriverID)
+		sqlMock.ExpectRollback().WillReturnError(rowErr)
+
+		actual, err := repoMock.UpdateRideByDriver(ctx, req)
 
 		assert.Equal(t, model.RideData{}, actual)
 		assert.NotNil(t, err)

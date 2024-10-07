@@ -3,6 +3,7 @@ package model
 const (
 	EventNewRideRequest    = "new_ride_request"
 	EventRideReadyToPickup = "ride_ready_to_pickup"
+	EventRideStarted       = "ride_started"
 )
 
 type Coordinate struct {

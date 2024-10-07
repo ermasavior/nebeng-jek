@@ -3,13 +3,8 @@ package model
 const (
 	StatusNumRideWaitingForDriver = 1
 	StatusNumRideWaitingForPickup = 2
+	StatusNumRideInProgress       = 3
 )
-
-type CreateNewRideRequest struct {
-	RiderID        int64      `json:"-"`
-	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
-	Destination    Coordinate `json:"destination" binding:"required"`
-}
 
 type RideRequestMessage struct {
 	RideID           int64           `json:"ride_id"`
@@ -33,11 +28,10 @@ type RideReadyToPickupMessage struct {
 	DriverMSISDN   string     `json:"driver_msisdn"`
 }
 
-type UpdateRideByIDRequest struct {
-	RideID   int64
-	DriverID int64
-	RiderID  int64
-	Status   int
+type RideStartedMessage struct {
+	RideID       int64  `json:"ride_id"`
+	RiderMSISDN  string `json:"rider_msisdn"`
+	DriverMSISDN string `json:"driver_msisdn"`
 }
 
 type RideData struct {

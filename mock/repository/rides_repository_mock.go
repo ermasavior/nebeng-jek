@@ -206,6 +206,21 @@ func (mr *MockRidesRepositoryMockRecorder) GetRiderMSISDNByID(ctx, id interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderMSISDNByID", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderMSISDNByID), ctx, id)
 }
 
+// UpdateRideByDriver mocks base method.
+func (m *MockRidesRepository) UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRideByDriver", ctx, req)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateRideByDriver indicates an expected call of UpdateRideByDriver.
+func (mr *MockRidesRepositoryMockRecorder) UpdateRideByDriver(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRideByDriver", reflect.TypeOf((*MockRidesRepository)(nil).UpdateRideByDriver), ctx, req)
+}
+
 // MockRidesPubsubRepository is a mock of RidesPubsubRepository interface.
 type MockRidesPubsubRepository struct {
 	ctrl     *gomock.Controller
@@ -255,6 +270,20 @@ func (m *MockRidesPubsubRepository) BroadcastRideReadyToPickup(arg0 context.Cont
 func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastRideReadyToPickup(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastRideReadyToPickup", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastRideReadyToPickup), arg0, arg1)
+}
+
+// BroadcastRideStarted mocks base method.
+func (m *MockRidesPubsubRepository) BroadcastRideStarted(arg0 context.Context, arg1 model.RideStartedMessage) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BroadcastRideStarted", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BroadcastRideStarted indicates an expected call of BroadcastRideStarted.
+func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastRideStarted(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastRideStarted", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastRideStarted), arg0, arg1)
 }
 
 // BroadcastRideToDrivers mocks base method.
