@@ -9,16 +9,26 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+type connection struct {
+	conn *amqp.Connection
+}
+
 func InitAMQPConnection(url string) (AMQPConnection, error) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
 		return nil, err
 	}
-	return conn, nil
+	return &connection{
+		conn: conn,
+	}, nil
 }
 
-func ConsumeMessageToExchange(ctx context.Context, exchange string, ridesChannel AMQPChannel) (<-chan amqp091.Delivery, error) {
-	err := ridesChannel.ExchangeDeclare(
+func (c connection) Channel() (AMQPChannel, error) {
+	return c.conn.Channel()
+}
+
+func ConsumeMessageToExchange(ctx context.Context, exchange string, amqpChannel AMQPChannel) (<-chan amqp091.Delivery, error) {
+	err := amqpChannel.ExchangeDeclare(
 		exchange,
 		constants.ExchangeTypeFanout, // exchange type: fanout
 		true,                         // durable
@@ -35,7 +45,7 @@ func ConsumeMessageToExchange(ctx context.Context, exchange string, ridesChannel
 		return nil, err
 	}
 
-	q, err := ridesChannel.QueueDeclare(
+	q, err := amqpChannel.QueueDeclare(
 		"",    // name
 		false, // durable
 		false, // delete when unused
@@ -51,7 +61,7 @@ func ConsumeMessageToExchange(ctx context.Context, exchange string, ridesChannel
 		return nil, err
 	}
 
-	err = ridesChannel.QueueBind(
+	err = amqpChannel.QueueBind(
 		q.Name,   // queue name
 		"",       // routing key
 		exchange, // exchange
@@ -66,7 +76,7 @@ func ConsumeMessageToExchange(ctx context.Context, exchange string, ridesChannel
 		return nil, err
 	}
 
-	msgs, err := ridesChannel.Consume(
+	msgs, err := amqpChannel.Consume(
 		q.Name,
 		"",    // consumer
 		true,  // auto-ack

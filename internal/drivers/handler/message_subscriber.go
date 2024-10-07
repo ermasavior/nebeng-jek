@@ -9,7 +9,13 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (h *driversHandler) SubscribeNewRideRequests(ctx context.Context, ridesChannel amqp.AMQPChannel) {
+func (h *driversHandler) SubscribeNewRideRequests(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	ridesChannel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer ridesChannel.Close()
+
 	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.NewRideRequestsExchange, ridesChannel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
@@ -34,7 +40,13 @@ func (h *driversHandler) SubscribeNewRideRequests(ctx context.Context, ridesChan
 	}
 }
 
-func (h *driversHandler) SubscribeReadyToPickupRides(ctx context.Context, ridesChannel amqp.AMQPChannel) {
+func (h *driversHandler) SubscribeReadyToPickupRides(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	ridesChannel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer ridesChannel.Close()
+
 	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideReadyToPickupExchange, ridesChannel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
@@ -48,6 +60,32 @@ func (h *driversHandler) SubscribeReadyToPickupRides(ctx context.Context, ridesC
 
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventRideReadyToPickup,
+			Data:  data,
+		}
+		h.broadcastToActiveDrivers(ctx, map[string]bool{data.DriverMSISDN: true}, broadcastMsg)
+	}
+}
+
+func (h *driversHandler) SubscribeRideStarted(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	ridesChannel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer ridesChannel.Close()
+
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideStartedExchange, ridesChannel)
+	if err != nil {
+		logger.Fatal(ctx, "error consuming message to exchange", nil)
+	}
+	for msg := range msgs {
+		var data model.RideReadyToPickupMessage
+		err := json.Unmarshal(msg.Body, &data)
+		if err != nil {
+			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{"error": err})
+		}
+
+		broadcastMsg := model.DriverMessage{
+			Event: model.EventRideStarted,
 			Data:  data,
 		}
 		h.broadcastToActiveDrivers(ctx, map[string]bool{data.DriverMSISDN: true}, broadcastMsg)

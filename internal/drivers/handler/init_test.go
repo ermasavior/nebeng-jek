@@ -17,18 +17,21 @@ func TestRegisterHandler(t *testing.T) {
 	defer ctrl.Finish()
 
 	// mock subscribe new rides
-	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
-	amqpMock.EXPECT().ExchangeDeclare(gomock.Any(), constants.ExchangeTypeFanout, true, false, false, false, nil).
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
+
+	amqpConn.EXPECT().Channel().Return(amqpChan, nil).AnyTimes()
+	amqpChan.EXPECT().ExchangeDeclare(gomock.Any(), constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil).AnyTimes()
-	amqpMock.EXPECT().QueueDeclare(gomock.Any(), false, false, true, false, nil).
+	amqpChan.EXPECT().QueueDeclare(gomock.Any(), false, false, true, false, nil).
 		Return(amqp091.Queue{}, nil).AnyTimes()
-	amqpMock.EXPECT().QueueBind(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), nil).
+	amqpChan.EXPECT().QueueBind(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), nil).
 		Return(nil).AnyTimes()
-	amqpMock.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+	amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
 		Return(nil, nil).AnyTimes()
 
 	router := gin.New()
-	RegisterHandler(&router.RouterGroup, amqpMock)
+	RegisterHandler(&router.RouterGroup, amqpConn)
 
 	expectedRoutes := gin.RoutesInfo{
 		{

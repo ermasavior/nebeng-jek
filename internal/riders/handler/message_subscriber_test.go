@@ -18,7 +18,8 @@ func TestSubscribeDriverAcceptedRides(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
 	h := &ridersHandler{
 		connStorage: &sync.Map{},
 	}
@@ -26,16 +27,23 @@ func TestSubscribeDriverAcceptedRides(t *testing.T) {
 	t.Run("consume message from AMQP", func(t *testing.T) {
 		msgs := make(chan amqp091.Delivery)
 
-		amqpMock.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		amqpConn.EXPECT().Channel().Return(amqpChan, nil)
+		amqpChan.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 			Return(nil)
-		amqpMock.EXPECT().QueueDeclare("", false, false, true, false, nil).
+		amqpChan.EXPECT().QueueDeclare("", false, false, true, false, nil).
 			Return(amqp091.Queue{}, nil)
-		amqpMock.EXPECT().QueueBind(gomock.Any(), "", constants.DriverAcceptedRideExchange, gomock.Any(), nil).
+		amqpChan.EXPECT().QueueBind(gomock.Any(), "", constants.DriverAcceptedRideExchange, gomock.Any(), nil).
 			Return(nil)
-		amqpMock.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+		amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
 			Return((<-chan amqp091.Delivery)(msgs), nil)
+		amqpChan.EXPECT().Close().Return(nil)
 
-		go h.SubscribeDriverAcceptedRides(context.Background(), amqpMock)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.SubscribeDriverAcceptedRides(context.Background(), amqpConn)
+		}()
 
 		// Simulate a message being received
 		msgBody, _ := json.Marshal(model.MatchedRideMessage{
@@ -50,7 +58,7 @@ func TestSubscribeDriverAcceptedRides(t *testing.T) {
 		msgs <- amqp091.Delivery{Body: msgBody}
 
 		close(msgs)
-
+		wg.Wait()
 	})
 }
 
@@ -58,7 +66,8 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
 	h := &ridersHandler{
 		connStorage: &sync.Map{},
 	}
@@ -66,16 +75,23 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 	t.Run("consume message from AMQP", func(t *testing.T) {
 		msgs := make(chan amqp091.Delivery)
 
-		amqpMock.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		amqpConn.EXPECT().Channel().Return(amqpChan, nil)
+		amqpChan.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 			Return(nil)
-		amqpMock.EXPECT().QueueDeclare("", false, false, true, false, nil).
+		amqpChan.EXPECT().QueueDeclare("", false, false, true, false, nil).
 			Return(amqp091.Queue{}, nil)
-		amqpMock.EXPECT().QueueBind(gomock.Any(), "", constants.RideReadyToPickupExchange, gomock.Any(), nil).
+		amqpChan.EXPECT().QueueBind(gomock.Any(), "", constants.RideReadyToPickupExchange, gomock.Any(), nil).
 			Return(nil)
-		amqpMock.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+		amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
 			Return((<-chan amqp091.Delivery)(msgs), nil)
+		amqpChan.EXPECT().Close().Return(nil)
 
-		go h.SubscribeReadyToPickupRides(context.Background(), amqpMock)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.SubscribeReadyToPickupRides(context.Background(), amqpConn)
+		}()
 
 		// Simulate a message being received
 		msgBody, _ := json.Marshal(model.RideReadyToPickupMessage{
@@ -94,6 +110,50 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 		msgs <- amqp091.Delivery{Body: msgBody}
 
 		close(msgs)
+		wg.Wait()
+	})
+}
 
+func TestSubscribeRideStarted(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
+	h := &ridersHandler{
+		connStorage: &sync.Map{},
+	}
+
+	t.Run("consume message from AMQP", func(t *testing.T) {
+		msgs := make(chan amqp091.Delivery)
+
+		amqpConn.EXPECT().Channel().Return(amqpChan, nil)
+		amqpChan.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+			Return(nil)
+		amqpChan.EXPECT().QueueDeclare("", false, false, true, false, nil).
+			Return(amqp091.Queue{}, nil)
+		amqpChan.EXPECT().QueueBind(gomock.Any(), "", constants.RideStartedExchange, gomock.Any(), nil).
+			Return(nil)
+		amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+			Return((<-chan amqp091.Delivery)(msgs), nil)
+		amqpChan.EXPECT().Close().Return(nil)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.SubscribeRideStarted(context.Background(), amqpConn)
+		}()
+
+		// Simulate a message being received
+		msgBody, _ := json.Marshal(model.RideStartedMessage{
+			RideID:       111,
+			DriverMSISDN: "0821111",
+			RiderMSISDN:  "0812222",
+		})
+		msgs <- amqp091.Delivery{Body: msgBody}
+
+		close(msgs)
+		wg.Wait()
 	})
 }

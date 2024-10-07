@@ -7,4 +7,5 @@ const (
 	NewRideRequestsExchange    = "new_ride_requests"
 	DriverAcceptedRideExchange = "driver_accepted_ride"
 	RideReadyToPickupExchange  = "ride_ready_to_pickup"
+	RideStartedExchange        = "ride_started"
 )

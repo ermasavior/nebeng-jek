@@ -24,6 +24,11 @@ type DriverData struct {
 	VehicleTypeInt int    `json:"-" db:"vehicle_type"`
 }
 
+type CreateNewRideRequest struct {
+	RiderID        int64      `json:"-"`
+	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
+	Destination    Coordinate `json:"destination" binding:"required"`
+}
 type SetDriverAvailabilityRequest struct {
 	IsAvailable     bool       `json:"is_available" binding:"required"`
 	CurrentLocation Coordinate `json:"current_location" binding:"required"`
@@ -33,4 +38,15 @@ type ConfirmRideDriverRequest struct {
 	DriverID int64 `json:"-"`
 	RideID   int64 `json:"ride_id" binding:"required"`
 	IsAccept bool  `json:"is_accept" binding:"required"`
+}
+
+type StartRideDriverRequest struct {
+	DriverID int64 `json:"-"`
+	RideID   int64 `json:"ride_id" binding:"required"`
+}
+
+type UpdateRideByDriverRequest struct {
+	DriverID int64
+	RideID   int64
+	Status   int
 }

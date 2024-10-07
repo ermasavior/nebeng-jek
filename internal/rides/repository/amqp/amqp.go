@@ -107,3 +107,20 @@ func (r *ridesRepo) BroadcastRideReadyToPickup(ctx context.Context, msg model.Ri
 	}
 	return nil
 }
+
+func (r *ridesRepo) BroadcastRideStarted(ctx context.Context, msg model.RideStartedMessage) error {
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	err = r.chann.Publish(constants.RideStartedExchange, "", false, false, amqp091.Publishing{
+		ContentType: constants.TypeApplicationJSON,
+		Body:        msgBytes,
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

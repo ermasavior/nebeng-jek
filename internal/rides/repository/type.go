@@ -19,10 +19,12 @@ type RidesRepository interface {
 	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
 	ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error)
 	ConfirmRideRider(ctx context.Context, req model.ConfirmRideRiderRequest) (model.RideData, error)
+	UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error)
 }
 
 type RidesPubsubRepository interface {
 	BroadcastRideToDrivers(context.Context, model.RideRequestMessage) error
 	BroadcastMatchedRideToRider(context.Context, model.MatchedRideMessage) error
 	BroadcastRideReadyToPickup(context.Context, model.RideReadyToPickupMessage) error
+	BroadcastRideStarted(context.Context, model.RideStartedMessage) error
 }
