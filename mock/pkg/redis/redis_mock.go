@@ -177,6 +177,39 @@ func (mr *MockCollectionsMockRecorder) SetNX(ctx, key, value, expiration interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetNX", reflect.TypeOf((*MockCollections)(nil).SetNX), ctx, key, value, expiration)
 }
 
+// ZAdd mocks base method.
+func (m *MockCollections) ZAdd(ctx context.Context, key string, members ...*redis.Z) *redis.IntCmd {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, key}
+	for _, a := range members {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ZAdd", varargs...)
+	ret0, _ := ret[0].(*redis.IntCmd)
+	return ret0
+}
+
+// ZAdd indicates an expected call of ZAdd.
+func (mr *MockCollectionsMockRecorder) ZAdd(ctx, key interface{}, members ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, key}, members...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ZAdd", reflect.TypeOf((*MockCollections)(nil).ZAdd), varargs...)
+}
+
+// ZRange mocks base method.
+func (m *MockCollections) ZRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ZRange", ctx, key, start, stop)
+	ret0, _ := ret[0].(*redis.StringSliceCmd)
+	return ret0
+}
+
+// ZRange indicates an expected call of ZRange.
+func (mr *MockCollectionsMockRecorder) ZRange(ctx, key, start, stop interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ZRange", reflect.TypeOf((*MockCollections)(nil).ZRange), ctx, key, start, stop)
+}
+
 // ZRem mocks base method.
 func (m *MockCollections) ZRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd {
 	m.ctrl.T.Helper()

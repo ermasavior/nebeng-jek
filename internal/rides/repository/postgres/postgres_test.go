@@ -487,7 +487,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 	t.Run("should execute update returning query", func(t *testing.T) {
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectQuery(expectedQuery).
-			WithArgs(req.Status, req.RideID, req.DriverID).
+			WithArgs(req.Status, req.Distance, req.RideID, req.DriverID).
 			WillReturnRows(sqlmock.NewRows([]string{
 				"id", "rider_id", "driver_id", "pickup_location.latitude", "pickup_location.longitude",
 				"destination.latitude", "destination.longitude",
@@ -530,7 +530,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectQuery(expectedQuery).
-			WithArgs(req.Status, req.RideID, req.DriverID)
+			WithArgs(req.Status, req.Distance, req.RideID, req.DriverID)
 		sqlMock.ExpectRollback().WillReturnError(rowErr)
 
 		actual, err := repoMock.UpdateRideByDriver(ctx, req)

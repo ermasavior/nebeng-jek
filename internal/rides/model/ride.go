@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 const (
 	StatusNumRideWaitingForDriver = 1
 	StatusNumRideWaitingForPickup = 2
@@ -49,4 +51,18 @@ type RideData struct {
 	DriverID       int64      `db:"driver_id" json:"driver_id"`
 	PickupLocation Coordinate `db:"pickup_location" json:"pickup_location"`
 	Destination    Coordinate `db:"destination" json:"destination"`
+	Distance       float64    `json:"distance"`
+	Fare           float64    `json:"fare"`
+}
+
+func (r *RideData) SetDistance(distance float64) {
+	r.Distance = distance
+}
+
+func (r *RideData) CalculateRideFare(distance float64) {
+	r.Fare = distance * RidePricePerKm
+}
+
+func GetDriverPathKey(rideID int64, msisdn string) string {
+	return fmt.Sprintf("path_ride:%d_driver:%s", rideID, msisdn)
 }

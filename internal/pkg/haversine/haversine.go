@@ -9,16 +9,14 @@ func toRadians(degrees float64) float64 {
 }
 
 // Function to calculate the distance between two coordinates
-func Calculate(lat1, lon1, lat2, lon2 float64) float64 {
+func CalculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	const R = 6371 // Radius of the Earth in km
 
-	// Convert coordinates from degrees to radians
 	lat1Rad := toRadians(lat1)
 	lon1Rad := toRadians(lon1)
 	lat2Rad := toRadians(lat2)
 	lon2Rad := toRadians(lon2)
 
-	// Differences between coordinates
 	deltaLat := lat2Rad - lat1Rad
 	deltaLon := lon2Rad - lon1Rad
 

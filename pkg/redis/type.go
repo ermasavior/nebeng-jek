@@ -20,5 +20,8 @@ type Collections interface {
 	GeoRadius(ctx context.Context, key string, longitude, latitude float64, query *redis.GeoRadiusQuery) *redis.GeoLocationCmd
 	ZRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd
 
+	ZAdd(ctx context.Context, key string, members ...*redis.Z) *redis.IntCmd
+	ZRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
+
 	Close() error
 }

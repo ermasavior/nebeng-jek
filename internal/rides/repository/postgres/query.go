@@ -40,8 +40,8 @@ const (
 	`
 	queryUpdateRideByDriver = `
 		UPDATE rides
-		SET status = $1, updated_at = NOW()
-		WHERE id = $2 AND driver_id = $3
+		SET status = $1, updated_at = NOW(), distance = $2
+		WHERE id = $3 AND driver_id = $4
 		RETURNING id, rider_id, driver_id,
 			  pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
 			  destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"

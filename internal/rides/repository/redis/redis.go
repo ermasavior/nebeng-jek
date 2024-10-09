@@ -5,6 +5,8 @@ import (
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	pkgRedis "nebeng-jek/pkg/redis"
+	"strconv"
+	"strings"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -52,7 +54,41 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 }
 
 func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string) ([]model.Coordinate, error) {
-	return []model.Coordinate{
-		{Latitude: 0, Longitude: 1}, {Latitude: 1, Longitude: 2}, {Latitude: 2, Longitude: 3},
-	}, nil
+	key := model.GetDriverPathKey(rideID, msisdn)
+	res := r.cache.ZRange(ctx, key, 0, -1)
+
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+
+	coordinates, err := res.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]model.Coordinate, 0, len(coordinates))
+
+	for _, coor := range coordinates {
+		latlon := strings.Split(coor, ":")
+
+		if len(latlon) < 2 {
+			continue
+		}
+
+		latitude, err := strconv.ParseFloat(latlon[0], 64)
+		if err != nil {
+			continue
+		}
+
+		longitude, err := strconv.ParseFloat(latlon[1], 64)
+		if err != nil {
+			continue
+		}
+
+		result = append(result, model.Coordinate{
+			Latitude:  latitude,
+			Longitude: longitude,
+		})
+	}
+	return result, nil
 }

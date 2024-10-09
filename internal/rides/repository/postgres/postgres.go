@@ -163,7 +163,7 @@ func (r *ridesRepo) UpdateRideByDriver(ctx context.Context, req model.UpdateRide
 
 	var data model.RideData
 	values := []interface{}{
-		req.Status, req.RideID, req.DriverID,
+		req.Status, req.Distance, req.RideID, req.DriverID,
 	}
 	err = tx.QueryRowxContext(ctx, queryUpdateRideByDriver, values...).StructScan(&data)
 	if err == sql.ErrNoRows {

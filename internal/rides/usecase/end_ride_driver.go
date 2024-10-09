@@ -25,10 +25,22 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get driver data")
 	}
 
+	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, msisdn)
+	if err != nil {
+		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
+			"msisdn": msisdn,
+			"error":  err,
+		})
+		return model.RideData{}, pkgError.NewInternalServerError(err, "error get distance traversed")
+	}
+
+	distance := calculateTotalDistance(ridePath)
+
 	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 		DriverID: driver.ID,
 		RideID:   req.RideID,
 		Status:   model.StatusNumRideDone,
+		Distance: distance,
 	})
 	if err == constants.ErrorDataNotFound {
 		return model.RideData{}, pkgError.NewNotFound(err, "ride data is not found or has been allocated to another driver")
@@ -41,6 +53,9 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
+	rideData.SetDistance(distance)
+	rideData.CalculateRideFare(distance)
+
 	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
 	if err != nil {
 		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
@@ -50,29 +65,10 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
 	}
 
-	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, msisdn)
-	if err != nil {
-		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error get distance traversed")
-	}
-
-	distance := float64(0)
-	if len(ridePath) >= 2 {
-		i := 0
-		for _, posB := range ridePath[1:] {
-			posA := ridePath[i]
-			distance += haversine.Calculate(posA.Latitude, posA.Longitude, posB.Latitude, posB.Longitude)
-			i += 1
-		}
-	}
-
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideEndedExchange, model.RideEndedMessage{
 		RideID:      rideData.RideID,
-		Distance:    distance,
-		Fare:        distance * model.RidePricePerKm,
+		Distance:    rideData.Distance,
+		Fare:        rideData.Fare,
 		RiderMSISDN: riderMSISDN,
 	})
 	if err != nil {
@@ -84,4 +80,18 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 	}
 
 	return rideData, nil
+}
+
+func calculateTotalDistance(path []model.Coordinate) float64 {
+	distance := float64(0)
+	if len(path) >= 2 {
+		i := 0
+		for _, posB := range path[1:] {
+			posA := path[i]
+			distance += haversine.CalculateDistance(posA.Latitude, posA.Longitude, posB.Latitude, posB.Longitude)
+			i += 1
+		}
+	}
+
+	return distance
 }
