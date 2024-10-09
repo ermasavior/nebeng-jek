@@ -45,6 +45,11 @@ type StartRideDriverRequest struct {
 	RideID   int64 `json:"ride_id" binding:"required"`
 }
 
+type EndRideDriverRequest struct {
+	DriverID int64 `json:"-"`
+	RideID   int64 `json:"ride_id" binding:"required"`
+}
+
 type UpdateRideByDriverRequest struct {
 	DriverID int64
 	RideID   int64

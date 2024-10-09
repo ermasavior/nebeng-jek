@@ -11,5 +11,6 @@ type RidesUsecase interface {
 	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, *pkgError.AppError)
 	ConfirmRideDriver(context.Context, model.ConfirmRideDriverRequest) *pkgError.AppError
 	ConfirmRideRider(context.Context, model.ConfirmRideRiderRequest) *pkgError.AppError
-	StartRideDriver(context.Context, model.StartRideDriverRequest) *pkgError.AppError
+	StartRideDriver(context.Context, model.StartRideDriverRequest) (model.RideData, *pkgError.AppError)
+	EndRideDriver(context.Context, model.EndRideDriverRequest) (model.RideData, *pkgError.AppError)
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
@@ -65,7 +66,7 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMatchedRideToRider(ctx, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.DriverAcceptedRideExchange, model.MatchedRideMessage{
 			RideID:      rideData.RideID,
 			Driver:      driverData,
 			RiderMSISDN: riderMSISDN,
@@ -131,7 +132,7 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMatchedRideToRider(ctx, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.DriverAcceptedRideExchange, model.MatchedRideMessage{
 			RideID:      rideData.RideID,
 			Driver:      driverData,
 			RiderMSISDN: riderMSISDN,

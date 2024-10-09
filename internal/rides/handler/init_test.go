@@ -22,42 +22,52 @@ func TestRegisterHandler(t *testing.T) {
 		Return(nil)
 	amqpMock.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
+	amqpMock.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		Return(nil)
+	amqpMock.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+		Return(nil)
 
 	router := gin.New()
 	RegisterHandler(&router.RouterGroup, nil, nil, amqpMock)
 
 	expectedRoutes := map[string]gin.RouteInfo{
-		"PUT:/drivers/availability": {
+		"PUT:/v1/drivers/availability": {
 			Method:  "PUT",
-			Path:    "/drivers/availability",
+			Path:    "/v1/drivers/availability",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).SetDriverAvailability-fm",
 		},
-		"POST:/riders/rides": {
+		"POST:/v1/riders/rides": {
 			Method:  "POST",
-			Path:    "/riders/rides",
+			Path:    "/v1/riders/rides",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).CreateNewRide-fm",
 		},
-		"POST:/riders/rides/confirm": {
+		"POST:/v1/riders/rides/confirm": {
 			Method:  "POST",
-			Path:    "/riders/rides/confirm",
+			Path:    "/v1/riders/rides/confirm",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideRider-fm",
 		},
-		"POST:/drivers/rides/confirm": {
+		"POST:/v1/drivers/rides/confirm": {
 			Method:  "POST",
-			Path:    "/drivers/rides/confirm",
+			Path:    "/v1/drivers/rides/confirm",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideDriver-fm",
 		},
-		"POST:/drivers/rides/start": {
+		"POST:/v1/drivers/rides/start": {
 			Method:  "POST",
-			Path:    "/drivers/rides/start",
+			Path:    "/v1/drivers/rides/start",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).StartRideDriver-fm",
+		},
+		"POST:/v1/drivers/rides/end": {
+			Method:  "POST",
+			Path:    "/v1/drivers/rides/end",
+			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).EndRideDriver-fm",
 		},
 	}
 
 	for _, r := range router.Routes() {
-		expected, ok := expectedRoutes[fmt.Sprintf("%s:%s", r.Method, r.Path)]
+		key := fmt.Sprintf("%s:%s", r.Method, r.Path)
+		expected, ok := expectedRoutes[key]
 		if !ok {
-			t.Errorf("route is not found")
+			t.Errorf("route %s is not found", key)
 			continue
 		}
 

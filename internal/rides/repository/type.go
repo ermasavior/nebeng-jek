@@ -9,6 +9,7 @@ type RidesLocationRepository interface {
 	AddAvailableDriver(context.Context, string, model.Coordinate) error
 	RemoveAvailableDriver(context.Context, string) error
 	GetNearestAvailableDrivers(context.Context, model.Coordinate) ([]string, error)
+	GetRidePath(context.Context, int64, string) ([]model.Coordinate, error)
 }
 
 type RidesRepository interface {
@@ -23,8 +24,5 @@ type RidesRepository interface {
 }
 
 type RidesPubsubRepository interface {
-	BroadcastRideToDrivers(context.Context, model.RideRequestMessage) error
-	BroadcastMatchedRideToRider(context.Context, model.MatchedRideMessage) error
-	BroadcastRideReadyToPickup(context.Context, model.RideReadyToPickupMessage) error
-	BroadcastRideStarted(context.Context, model.RideStartedMessage) error
+	BroadcastMessage(context.Context, string, interface{}) error
 }

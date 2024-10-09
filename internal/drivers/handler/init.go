@@ -37,5 +37,4 @@ func RegisterHandler(router *gin.RouterGroup, amqpConn amqp.AMQPConnection) {
 
 	go h.SubscribeNewRideRequests(context.Background(), amqpConn)
 	go h.SubscribeReadyToPickupRides(context.Background(), amqpConn)
-	go h.SubscribeRideStarted(context.Background(), amqpConn)
 }

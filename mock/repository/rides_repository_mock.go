@@ -64,6 +64,21 @@ func (mr *MockRidesLocationRepositoryMockRecorder) GetNearestAvailableDrivers(ar
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNearestAvailableDrivers", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetNearestAvailableDrivers), arg0, arg1)
 }
 
+// GetRidePath mocks base method.
+func (m *MockRidesLocationRepository) GetRidePath(arg0 context.Context, arg1 int64, arg2 string) ([]model.Coordinate, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRidePath", arg0, arg1, arg2)
+	ret0, _ := ret[0].([]model.Coordinate)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRidePath indicates an expected call of GetRidePath.
+func (mr *MockRidesLocationRepositoryMockRecorder) GetRidePath(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRidePath", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetRidePath), arg0, arg1, arg2)
+}
+
 // RemoveAvailableDriver mocks base method.
 func (m *MockRidesLocationRepository) RemoveAvailableDriver(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
@@ -244,58 +259,16 @@ func (m *MockRidesPubsubRepository) EXPECT() *MockRidesPubsubRepositoryMockRecor
 	return m.recorder
 }
 
-// BroadcastMatchedRideToRider mocks base method.
-func (m *MockRidesPubsubRepository) BroadcastMatchedRideToRider(arg0 context.Context, arg1 model.MatchedRideMessage) error {
+// BroadcastMessage mocks base method.
+func (m *MockRidesPubsubRepository) BroadcastMessage(arg0 context.Context, arg1 string, arg2 interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BroadcastMatchedRideToRider", arg0, arg1)
+	ret := m.ctrl.Call(m, "BroadcastMessage", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// BroadcastMatchedRideToRider indicates an expected call of BroadcastMatchedRideToRider.
-func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastMatchedRideToRider(arg0, arg1 interface{}) *gomock.Call {
+// BroadcastMessage indicates an expected call of BroadcastMessage.
+func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastMessage(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastMatchedRideToRider", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastMatchedRideToRider), arg0, arg1)
-}
-
-// BroadcastRideReadyToPickup mocks base method.
-func (m *MockRidesPubsubRepository) BroadcastRideReadyToPickup(arg0 context.Context, arg1 model.RideReadyToPickupMessage) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BroadcastRideReadyToPickup", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// BroadcastRideReadyToPickup indicates an expected call of BroadcastRideReadyToPickup.
-func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastRideReadyToPickup(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastRideReadyToPickup", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastRideReadyToPickup), arg0, arg1)
-}
-
-// BroadcastRideStarted mocks base method.
-func (m *MockRidesPubsubRepository) BroadcastRideStarted(arg0 context.Context, arg1 model.RideStartedMessage) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BroadcastRideStarted", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// BroadcastRideStarted indicates an expected call of BroadcastRideStarted.
-func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastRideStarted(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastRideStarted", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastRideStarted), arg0, arg1)
-}
-
-// BroadcastRideToDrivers mocks base method.
-func (m *MockRidesPubsubRepository) BroadcastRideToDrivers(arg0 context.Context, arg1 model.RideRequestMessage) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BroadcastRideToDrivers", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// BroadcastRideToDrivers indicates an expected call of BroadcastRideToDrivers.
-func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastRideToDrivers(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastRideToDrivers", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastRideToDrivers), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastMessage", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastMessage), arg0, arg1, arg2)
 }
