@@ -4,12 +4,13 @@ import (
 	"context"
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	"nebeng-jek/internal/pkg/haversine"
 	"nebeng-jek/internal/rides/model"
 	pkgError "nebeng-jek/pkg/error"
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideDriverRequest) (model.RideData, *pkgError.AppError) {
+func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDriverRequest) (model.RideData, *pkgError.AppError) {
 	msisdn := pkgContext.GetMSISDNFromContext(ctx)
 
 	driver, err := u.ridesRepo.GetDriverDataByMSISDN(ctx, msisdn)
@@ -27,7 +28,7 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 		DriverID: driver.ID,
 		RideID:   req.RideID,
-		Status:   model.StatusNumRideInProgress,
+		Status:   model.StatusNumRideDone,
 	})
 	if err == constants.ErrorDataNotFound {
 		return model.RideData{}, pkgError.NewNotFound(err, "ride data is not found or has been allocated to another driver")
@@ -40,15 +41,6 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
-	err = u.locationRepo.RemoveAvailableDriver(ctx, msisdn)
-	if err != nil {
-		logger.Error(ctx, "error removing available driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error removing available driver")
-	}
-
 	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
 	if err != nil {
 		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
@@ -58,16 +50,37 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
-		RideID:      rideData.RideID,
-		RiderMSISDN: riderMSISDN,
-	})
+	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, msisdn)
 	if err != nil {
-		logger.Error(ctx, "error broadcasting message", map[string]interface{}{
+		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
 			"msisdn": msisdn,
 			"error":  err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting message")
+		return model.RideData{}, pkgError.NewInternalServerError(err, "error get distance traversed")
+	}
+
+	distance := float64(0)
+	if len(ridePath) >= 2 {
+		i := 0
+		for _, posB := range ridePath[1:] {
+			posA := ridePath[i]
+			distance += haversine.Calculate(posA.Latitude, posA.Longitude, posB.Latitude, posB.Longitude)
+			i += 1
+		}
+	}
+
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideEndedExchange, model.RideEndedMessage{
+		RideID:      rideData.RideID,
+		Distance:    distance,
+		Fare:        distance * model.RidePricePerKm,
+		RiderMSISDN: riderMSISDN,
+	})
+	if err != nil {
+		logger.Error(ctx, "error broadcasting ride ended", map[string]interface{}{
+			"msisdn": msisdn,
+			"error":  err,
+		})
+		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting ride ended")
 	}
 
 	return rideData, nil

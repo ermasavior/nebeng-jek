@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
@@ -63,7 +64,7 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideToDrivers(ctx, model.RideRequestMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.NewRideRequestsExchange, model.RideRequestMessage{
 			RideID:           rideID,
 			Rider:            riderData,
 			PickupLocation:   req.PickupLocation,
@@ -129,7 +130,7 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideToDrivers(ctx, model.RideRequestMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.NewRideRequestsExchange, model.RideRequestMessage{
 			RideID:           rideID,
 			Rider:            riderData,
 			PickupLocation:   req.PickupLocation,

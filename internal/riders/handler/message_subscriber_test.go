@@ -147,9 +147,8 @@ func TestSubscribeRideStarted(t *testing.T) {
 
 		// Simulate a message being received
 		msgBody, _ := json.Marshal(model.RideStartedMessage{
-			RideID:       111,
-			DriverMSISDN: "0821111",
-			RiderMSISDN:  "0812222",
+			RideID:      111,
+			RiderMSISDN: "0812222",
 		})
 		msgs <- amqp091.Delivery{Body: msgBody}
 

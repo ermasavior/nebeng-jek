@@ -10,13 +10,13 @@ import (
 )
 
 func (h *driversHandler) SubscribeNewRideRequests(ctx context.Context, amqpConn amqp.AMQPConnection) {
-	ridesChannel, err := amqpConn.Channel()
+	channel, err := amqpConn.Channel()
 	if err != nil {
 		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
 	}
-	defer ridesChannel.Close()
+	defer channel.Close()
 
-	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.NewRideRequestsExchange, ridesChannel)
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.NewRideRequestsExchange, channel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
 	}
@@ -41,13 +41,13 @@ func (h *driversHandler) SubscribeNewRideRequests(ctx context.Context, amqpConn 
 }
 
 func (h *driversHandler) SubscribeReadyToPickupRides(ctx context.Context, amqpConn amqp.AMQPConnection) {
-	ridesChannel, err := amqpConn.Channel()
+	channel, err := amqpConn.Channel()
 	if err != nil {
 		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
 	}
-	defer ridesChannel.Close()
+	defer channel.Close()
 
-	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideReadyToPickupExchange, ridesChannel)
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RideReadyToPickupExchange, channel)
 	if err != nil {
 		logger.Fatal(ctx, "error consuming message to exchange", nil)
 	}

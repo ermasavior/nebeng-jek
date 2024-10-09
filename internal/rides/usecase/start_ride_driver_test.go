@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
@@ -66,22 +67,23 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideStarted(ctx, model.RideStartedMessage{
-			RideID:       rideData.RideID,
-			DriverMSISDN: driverMsisdn,
-			RiderMSISDN:  riderMSISDN,
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
+			RideID:      rideData.RideID,
+			RiderMSISDN: riderMSISDN,
 		}).Return(nil)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Nil(t, err)
+		assert.Equal(t, rideData, res)
 	})
 
 	t.Run("failed - get driver data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(model.DriverData{}, expectedErr)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
+		assert.Equal(t, model.RideData{}, res)
 	})
 
 	t.Run("failed - confirm ride returns error", func(t *testing.T) {
@@ -93,8 +95,9 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 			Status:   model.StatusNumRideInProgress,
 		}).Return(model.RideData{}, expectedErr)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
+		assert.Equal(t, model.RideData{}, res)
 	})
 
 	t.Run("failed - remove available driver returns error", func(t *testing.T) {
@@ -107,8 +110,9 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		}).Return(rideData, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(expectedErr)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error removing available driver"))
+		assert.Equal(t, model.RideData{}, res)
 	})
 
 	t.Run("failed - get rider msisdn by id returns error", func(t *testing.T) {
@@ -123,8 +127,9 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return("", expectedErr)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get rider msisdn"))
+		assert.Equal(t, model.RideData{}, res)
 	})
 
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
@@ -139,13 +144,13 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideStarted(ctx, model.RideStartedMessage{
-			RideID:       rideData.RideID,
-			DriverMSISDN: driverMsisdn,
-			RiderMSISDN:  riderMSISDN,
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
+			RideID:      rideData.RideID,
+			RiderMSISDN: riderMSISDN,
 		}).Return(expectedErr)
 
-		err := usecaseMock.StartRideDriver(ctx, req)
+		res, err := usecaseMock.StartRideDriver(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error broadcasting matched ride to rider"))
+		assert.Equal(t, model.RideData{}, res)
 	})
 }

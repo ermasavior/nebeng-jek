@@ -79,6 +79,21 @@ func (mr *MockRidesUsecaseMockRecorder) CreateNewRide(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewRide", reflect.TypeOf((*MockRidesUsecase)(nil).CreateNewRide), arg0, arg1)
 }
 
+// EndRideDriver mocks base method.
+func (m *MockRidesUsecase) EndRideDriver(arg0 context.Context, arg1 model.EndRideDriverRequest) (model.RideData, *error.AppError) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EndRideDriver", arg0, arg1)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(*error.AppError)
+	return ret0, ret1
+}
+
+// EndRideDriver indicates an expected call of EndRideDriver.
+func (mr *MockRidesUsecaseMockRecorder) EndRideDriver(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EndRideDriver", reflect.TypeOf((*MockRidesUsecase)(nil).EndRideDriver), arg0, arg1)
+}
+
 // SetDriverAvailability mocks base method.
 func (m *MockRidesUsecase) SetDriverAvailability(arg0 context.Context, arg1 model.SetDriverAvailabilityRequest) *error.AppError {
 	m.ctrl.T.Helper()
@@ -94,11 +109,12 @@ func (mr *MockRidesUsecaseMockRecorder) SetDriverAvailability(arg0, arg1 interfa
 }
 
 // StartRideDriver mocks base method.
-func (m *MockRidesUsecase) StartRideDriver(arg0 context.Context, arg1 model.StartRideDriverRequest) *error.AppError {
+func (m *MockRidesUsecase) StartRideDriver(arg0 context.Context, arg1 model.StartRideDriverRequest) (model.RideData, *error.AppError) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartRideDriver", arg0, arg1)
-	ret0, _ := ret[0].(*error.AppError)
-	return ret0
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(*error.AppError)
+	return ret0, ret1
 }
 
 // StartRideDriver indicates an expected call of StartRideDriver.

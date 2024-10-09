@@ -4,6 +4,7 @@ const (
 	EventNewRideRequest    = "new_ride_request"
 	EventRideReadyToPickup = "ride_ready_to_pickup"
 	EventRideStarted       = "ride_started"
+	EventRideEnded         = "ride_ended"
 )
 
 type Coordinate struct {
@@ -32,4 +33,12 @@ type RideReadyToPickupMessage struct {
 	Destination    Coordinate `json:"destination"`
 	RiderMSISDN    string     `json:"rider_msisdn"`
 	DriverMSISDN   string     `json:"driver_msisdn"`
+}
+
+type RideEndedMessage struct {
+	RideID       int64   `json:"ride_id"`
+	Distance     float64 `json:"distance"`
+	Fare         float64 `json:"fare"`
+	RiderMSISDN  string  `json:"rider_msisdn"`
+	DriverMSISDN string  `json:"driver_msisdn"`
 }

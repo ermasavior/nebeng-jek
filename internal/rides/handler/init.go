@@ -34,10 +34,17 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 
 	router.Use(mid.AuthJWTMiddleware)
 
-	router.PUT("/drivers/availability", h.SetDriverAvailability)
-	router.POST("/drivers/rides/confirm", h.ConfirmRideDriver)
-	router.POST("/drivers/rides/start", h.StartRideDriver)
+	group := router.Group("/v1/drivers")
+	{
+		group.PUT("/availability", h.SetDriverAvailability)
+		group.POST("/rides/confirm", h.ConfirmRideDriver)
+		group.POST("/rides/start", h.StartRideDriver)
+		group.POST("/rides/end", h.EndRideDriver)
+	}
 
-	router.POST("/riders/rides", h.CreateNewRide)
-	router.POST("/riders/rides/confirm", h.ConfirmRideRider)
+	group = router.Group("/v1/riders")
+	{
+		group.POST("/rides", h.CreateNewRide)
+		group.POST("/rides/confirm", h.ConfirmRideRider)
+	}
 }

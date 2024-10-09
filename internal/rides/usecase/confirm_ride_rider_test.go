@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
@@ -63,7 +64,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, rideData.DriverID).Return(driverMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideReadyToPickup(ctx, model.RideReadyToPickupMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideReadyToPickupExchange, model.RideReadyToPickupMessage{
 			RideID:         rideData.RideID,
 			PickupLocation: rideData.PickupLocation,
 			Destination:    rideData.Destination,
@@ -131,7 +132,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, rideData.DriverID).Return(driverMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastRideReadyToPickup(ctx, model.RideReadyToPickupMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideReadyToPickupExchange, model.RideReadyToPickupMessage{
 			RideID:         rideData.RideID,
 			PickupLocation: rideData.PickupLocation,
 			Destination:    rideData.Destination,

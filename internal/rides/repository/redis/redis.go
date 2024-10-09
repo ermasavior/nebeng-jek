@@ -50,3 +50,9 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 
 	return driverMSISDN, nil
 }
+
+func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string) ([]model.Coordinate, error) {
+	return []model.Coordinate{
+		{Latitude: 0, Longitude: 1}, {Latitude: 1, Longitude: 2}, {Latitude: 2, Longitude: 3},
+	}, nil
+}
