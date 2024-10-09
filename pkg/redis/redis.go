@@ -106,6 +106,14 @@ func (r *RedisClient) ZRem(ctx context.Context, key string, members ...interface
 	return r.Client.(*redis.Client).ZRem(ctx, key, members...)
 }
 
+func (r *RedisClient) ZAdd(ctx context.Context, key string, members ...*redis.Z) *redis.IntCmd {
+	return r.Client.(*redis.Client).ZAdd(ctx, key, members...)
+}
+
+func (r *RedisClient) ZRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
+	return r.Client.(*redis.Client).ZRange(ctx, key, start, stop)
+}
+
 func (r *RedisClient) Close() error {
 	switch c := r.Client.(type) {
 	case *redis.Client:

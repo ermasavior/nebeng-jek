@@ -54,4 +54,5 @@ type UpdateRideByDriverRequest struct {
 	DriverID int64
 	RideID   int64
 	Status   int
+	Distance float64
 }
