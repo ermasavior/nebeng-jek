@@ -21,18 +21,13 @@ func (h *ridesHandler) SetDriverAvailability(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	err := h.usecase.SetDriverAvailability(ctx, req)
-	if err != nil && err.Code == http.StatusNotFound {
-		c.JSON(
-			http.StatusNotFound,
-			httpUtils.NewFailedResponse(http.StatusNotFound, err.Error()),
-		)
-		return
-	}
 	if err != nil {
-		logger.Error(ctx, err.Error(), nil)
+		logger.Error(ctx, "error handler", map[string]interface{}{
+			logger.ErrorKey: err.Error(),
+		})
 		c.JSON(
-			http.StatusInternalServerError,
-			httpUtils.NewFailedResponse(http.StatusInternalServerError, err.Error()),
+			err.Code,
+			httpUtils.NewFailedResponse(err.Code, err.Message),
 		)
 		return
 	}

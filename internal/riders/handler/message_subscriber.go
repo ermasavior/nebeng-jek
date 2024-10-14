@@ -112,3 +112,29 @@ func (h *ridersHandler) SubscribeRideEnded(ctx context.Context, amqpConn amqp.AM
 		h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
 	}
 }
+
+func (h *ridersHandler) SubscribeRidePaid(ctx context.Context, amqpConn amqp.AMQPConnection) {
+	channel, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer channel.Close()
+
+	msgs, err := amqp.ConsumeMessageToExchange(ctx, constants.RidePaidExchange, channel)
+	if err != nil {
+		logger.Fatal(ctx, "error consuming message to exchange", nil)
+	}
+	for msg := range msgs {
+		var data model.RidePaidMessage
+		err := json.Unmarshal(msg.Body, &data)
+		if err != nil {
+			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{"error": err})
+		}
+
+		broadcastMsg := model.RiderMessage{
+			Event: model.EventRidePaid,
+			Data:  data,
+		}
+		h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+	}
+}

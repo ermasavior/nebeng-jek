@@ -13,4 +13,5 @@ type RidesUsecase interface {
 	ConfirmRideRider(context.Context, model.ConfirmRideRiderRequest) *pkgError.AppError
 	StartRideDriver(context.Context, model.StartRideDriverRequest) (model.RideData, *pkgError.AppError)
 	EndRideDriver(context.Context, model.EndRideDriverRequest) (model.RideData, *pkgError.AppError)
+	ConfirmPaymentDriver(context.Context, model.ConfirmPaymentDriverRequest) (model.RideData, *pkgError.AppError)
 }

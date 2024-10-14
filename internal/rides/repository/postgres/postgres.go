@@ -3,10 +3,12 @@ package repository_postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/logger"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -66,7 +68,7 @@ func (r *ridesRepo) GetDriverDataByMSISDN(ctx context.Context, msisdn string) (m
 	if err != nil {
 		return model.DriverData{}, err
 	}
-	data.VehicleType = model.MapVehicleType[data.VehicleTypeInt]
+	data.SetVehicleType()
 	return data, nil
 }
 
@@ -83,6 +85,71 @@ func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRe
 	}
 
 	return id, nil
+}
+
+func (r *ridesRepo) GetRideData(ctx context.Context, rideID int64) (model.RideData, error) {
+	var data model.RideData
+	err := r.db.GetContext(ctx, &data, queryGetRideData, rideID)
+	if err == sql.ErrNoRows {
+		return model.RideData{}, constants.ErrorDataNotFound
+	}
+	if err != nil {
+		return model.RideData{}, err
+	}
+
+	data.SetStatus()
+
+	return data, nil
+}
+
+func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
+	var (
+		params     = []interface{}{}
+		paramNum   = 0
+		querySet   = []string{}
+		queryWhere = "id = $%d"
+	)
+	if req.Distance != 0 {
+		paramNum += 1
+		params = append(params, req.Distance)
+		querySet = append(querySet, fmt.Sprintf("distance = $%d", paramNum))
+	}
+	if req.Fare != 0 {
+		paramNum += 1
+		params = append(params, req.Fare)
+		querySet = append(querySet, fmt.Sprintf("fare = $%d", paramNum))
+	}
+	if req.FinalPrice != 0 {
+		paramNum += 1
+		params = append(params, req.FinalPrice)
+		querySet = append(querySet, fmt.Sprintf("final_price = $%d", paramNum))
+	}
+	if req.Status != 0 {
+		paramNum += 1
+		params = append(params, req.Status)
+		querySet = append(querySet, fmt.Sprintf("status = $%d", paramNum))
+	}
+	if req.DriverID != 0 {
+		paramNum += 1
+		params = append(params, req.DriverID)
+		querySet = append(querySet, fmt.Sprintf("driver_id = $%d", paramNum))
+	}
+
+	paramNum += 1
+	queryWhere = fmt.Sprintf("id = $%d", paramNum)
+	params = append(params, req.RideID)
+
+	query := fmt.Sprintf(queryUpdateRideData, strings.Join(querySet, ", "), queryWhere)
+	fmt.Println(query, params)
+	_, err := r.db.ExecContext(ctx, query, params...)
+	if err == sql.ErrNoRows {
+		return constants.ErrorDataNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *ridesRepo) ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error) {
@@ -163,7 +230,7 @@ func (r *ridesRepo) UpdateRideByDriver(ctx context.Context, req model.UpdateRide
 
 	var data model.RideData
 	values := []interface{}{
-		req.Status, req.Distance, req.RideID, req.DriverID,
+		req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID, req.DriverID,
 	}
 	err = tx.QueryRowxContext(ctx, queryUpdateRideByDriver, values...).StructScan(&data)
 	if err == sql.ErrNoRows {
