@@ -130,6 +130,62 @@ func TestRepository_GetRiderMSISDNByID(t *testing.T) {
 	})
 }
 
+func TestRepository_GetDriverMSISDNByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	id := int64(111)
+	msisdn := "081111"
+
+	expectedQuery := queryGetDriverMSISDNByID
+
+	t.Run("should execute get query", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(id).
+			WillReturnRows(sqlmock.NewRows([]string{"phone_number"}).
+				AddRow(msisdn),
+			)
+
+		res, err := repoMock.GetDriverMSISDNByID(ctx, id)
+
+		assert.Equal(t, msisdn, res)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return not found when data not found", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(id).
+			WillReturnError(sql.ErrNoRows)
+
+		res, err := repoMock.GetDriverMSISDNByID(ctx, id)
+
+		assert.Equal(t, "", res)
+		assert.Error(t, err, constants.ErrorDataNotFound)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(id).
+			WillReturnError(rowErr)
+
+		res, err := repoMock.GetDriverMSISDNByID(ctx, id)
+
+		assert.Equal(t, "", res)
+		assert.NotNil(t, err)
+	})
+}
+
 func TestRepository_GetDriverDataByMSISDN(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -249,6 +305,77 @@ func TestRepository_CreateNewRide(t *testing.T) {
 		id, err := repoMock.CreateNewRide(ctx, req)
 
 		assert.Equal(t, int64(0), id)
+		assert.NotNil(t, err)
+	})
+}
+
+func TestRepository_GetRideData(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	rideID := int64(111)
+	expected := model.RideData{
+		RideID:   111,
+		RiderID:  666,
+		DriverID: 222,
+		PickupLocation: model.Coordinate{
+			Latitude:  1,
+			Longitude: 2,
+		},
+		Destination: model.Coordinate{
+			Latitude:  10,
+			Longitude: 20,
+		},
+	}
+
+	expectedQuery := queryGetRideData
+
+	t.Run("should execute get query", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(rideID).
+			WillReturnRows(sqlmock.NewRows([]string{
+				"id", "rider_id", "driver_id", "pickup_location.latitude", "pickup_location.longitude",
+				"destination.latitude", "destination.longitude",
+			}).AddRow(
+				expected.RideID, expected.RiderID, expected.DriverID, expected.PickupLocation.Latitude,
+				expected.PickupLocation.Longitude, expected.Destination.Latitude, expected.Destination.Longitude))
+
+		actualData, err := repoMock.GetRideData(ctx, rideID)
+
+		assert.Equal(t, expected, actualData)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return error not found when data is not found", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(rideID).
+			WillReturnError(sql.ErrNoRows)
+
+		id, err := repoMock.GetRideData(ctx, rideID)
+
+		assert.Equal(t, model.RideData{}, id)
+		assert.Error(t, err, constants.ErrorDataNotFound)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(rideID).
+			WillReturnError(rowErr)
+
+		id, err := repoMock.GetRideData(ctx, rideID)
+
+		assert.Equal(t, model.RideData{}, id)
 		assert.NotNil(t, err)
 	})
 }
@@ -479,7 +606,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 	req := model.UpdateRideByDriverRequest{
 		DriverID: 222,
 		RideID:   777,
-		Status:   model.StatusNumRideInProgress,
+		Status:   model.StatusNumRideStarted,
 	}
 
 	expectedQuery := queryUpdateRideByDriver
@@ -487,7 +614,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 	t.Run("should execute update returning query", func(t *testing.T) {
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectQuery(expectedQuery).
-			WithArgs(req.Status, req.Distance, req.RideID, req.DriverID).
+			WithArgs(req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID, req.DriverID).
 			WillReturnRows(sqlmock.NewRows([]string{
 				"id", "rider_id", "driver_id", "pickup_location.latitude", "pickup_location.longitude",
 				"destination.latitude", "destination.longitude",
@@ -506,7 +633,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectQuery(expectedQuery).
-			WithArgs(req.Status, req.RideID, req.DriverID).
+			WithArgs(req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID, req.DriverID).
 			WillReturnError(rowErr)
 		sqlMock.ExpectRollback()
 
@@ -530,7 +657,7 @@ func TestRepository_UpdateRideByDriver(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectBegin()
 		sqlMock.ExpectQuery(expectedQuery).
-			WithArgs(req.Status, req.Distance, req.RideID, req.DriverID)
+			WithArgs(req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID, req.DriverID)
 		sqlMock.ExpectRollback().WillReturnError(rowErr)
 
 		actual, err := repoMock.UpdateRideByDriver(ctx, req)

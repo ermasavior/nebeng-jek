@@ -156,3 +156,93 @@ func TestSubscribeRideStarted(t *testing.T) {
 		wg.Wait()
 	})
 }
+
+func TestSubscribeRideEnded(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
+	h := &ridersHandler{
+		connStorage: &sync.Map{},
+	}
+
+	t.Run("consume message from AMQP", func(t *testing.T) {
+		msgs := make(chan amqp091.Delivery)
+
+		amqpConn.EXPECT().Channel().Return(amqpChan, nil)
+		amqpChan.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+			Return(nil)
+		amqpChan.EXPECT().QueueDeclare("", false, false, true, false, nil).
+			Return(amqp091.Queue{}, nil)
+		amqpChan.EXPECT().QueueBind(gomock.Any(), "", constants.RideEndedExchange, gomock.Any(), nil).
+			Return(nil)
+		amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+			Return((<-chan amqp091.Delivery)(msgs), nil)
+		amqpChan.EXPECT().Close().Return(nil)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.SubscribeRideEnded(context.Background(), amqpConn)
+		}()
+
+		// Simulate a message being received
+		msgBody, _ := json.Marshal(model.RideEndedMessage{
+			RideID:      111,
+			Distance:    10,
+			Fare:        30000,
+			RiderMSISDN: "0812222",
+		})
+		msgs <- amqp091.Delivery{Body: msgBody}
+
+		close(msgs)
+		wg.Wait()
+	})
+}
+
+func TestSubscribeRidePaid(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	amqpConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	amqpChan := mock_amqp.NewMockAMQPChannel(ctrl)
+	h := &ridersHandler{
+		connStorage: &sync.Map{},
+	}
+
+	t.Run("consume message from AMQP", func(t *testing.T) {
+		msgs := make(chan amqp091.Delivery)
+
+		amqpConn.EXPECT().Channel().Return(amqpChan, nil)
+		amqpChan.EXPECT().ExchangeDeclare(constants.RidePaidExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+			Return(nil)
+		amqpChan.EXPECT().QueueDeclare("", false, false, true, false, nil).
+			Return(amqp091.Queue{}, nil)
+		amqpChan.EXPECT().QueueBind(gomock.Any(), "", constants.RidePaidExchange, gomock.Any(), nil).
+			Return(nil)
+		amqpChan.EXPECT().Consume(gomock.Any(), gomock.Any(), true, false, false, false, nil).
+			Return((<-chan amqp091.Delivery)(msgs), nil)
+		amqpChan.EXPECT().Close().Return(nil)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.SubscribeRidePaid(context.Background(), amqpConn)
+		}()
+
+		// Simulate a message being received
+		msgBody, _ := json.Marshal(model.RidePaidMessage{
+			RideID:      111,
+			Distance:    10,
+			FinalPrice:  20000,
+			RiderMSISDN: "0812222",
+		})
+		msgs <- amqp091.Delivery{Body: msgBody}
+
+		close(msgs)
+		wg.Wait()
+	})
+}

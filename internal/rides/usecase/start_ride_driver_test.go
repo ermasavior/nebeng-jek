@@ -22,7 +22,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 	locationRepoMock := mockRepo.NewMockRidesLocationRepository(ctrl)
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
-	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock)
+	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
 		driverMsisdn = "0811111"
@@ -61,7 +61,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
-			Status:   model.StatusNumRideInProgress,
+			Status:   model.StatusNumRideStarted,
 		}).Return(rideData, nil)
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
@@ -92,7 +92,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
-			Status:   model.StatusNumRideInProgress,
+			Status:   model.StatusNumRideStarted,
 		}).Return(model.RideData{}, expectedErr)
 
 		res, err := usecaseMock.StartRideDriver(ctx, req)
@@ -106,7 +106,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
-			Status:   model.StatusNumRideInProgress,
+			Status:   model.StatusNumRideStarted,
 		}).Return(rideData, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(expectedErr)
 
@@ -121,7 +121,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
-			Status:   model.StatusNumRideInProgress,
+			Status:   model.StatusNumRideStarted,
 		}).Return(rideData, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(nil)
 
@@ -138,7 +138,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
-			Status:   model.StatusNumRideInProgress,
+			Status:   model.StatusNumRideStarted,
 		}).Return(rideData, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(nil)
 

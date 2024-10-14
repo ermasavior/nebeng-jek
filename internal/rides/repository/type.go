@@ -21,6 +21,8 @@ type RidesRepository interface {
 	ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error)
 	ConfirmRideRider(ctx context.Context, req model.ConfirmRideRiderRequest) (model.RideData, error)
 	UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error)
+	UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error
+	GetRideData(ctx context.Context, id int64) (model.RideData, error)
 }
 
 type RidesPubsubRepository interface {

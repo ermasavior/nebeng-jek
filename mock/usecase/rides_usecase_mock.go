@@ -36,6 +36,21 @@ func (m *MockRidesUsecase) EXPECT() *MockRidesUsecaseMockRecorder {
 	return m.recorder
 }
 
+// ConfirmPaymentDriver mocks base method.
+func (m *MockRidesUsecase) ConfirmPaymentDriver(arg0 context.Context, arg1 model.ConfirmPaymentDriverRequest) (model.RideData, *error.AppError) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfirmPaymentDriver", arg0, arg1)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(*error.AppError)
+	return ret0, ret1
+}
+
+// ConfirmPaymentDriver indicates an expected call of ConfirmPaymentDriver.
+func (mr *MockRidesUsecaseMockRecorder) ConfirmPaymentDriver(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmPaymentDriver", reflect.TypeOf((*MockRidesUsecase)(nil).ConfirmPaymentDriver), arg0, arg1)
+}
+
 // ConfirmRideDriver mocks base method.
 func (m *MockRidesUsecase) ConfirmRideDriver(arg0 context.Context, arg1 model.ConfirmRideDriverRequest) *error.AppError {
 	m.ctrl.T.Helper()

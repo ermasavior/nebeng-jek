@@ -5,6 +5,7 @@ import (
 	repo_amqp "nebeng-jek/internal/rides/repository/amqp"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
 	repo_redis "nebeng-jek/internal/rides/repository/redis"
+	"nebeng-jek/internal/rides/service/payment"
 	"nebeng-jek/internal/rides/usecase"
 	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/jwt"
@@ -23,7 +24,8 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 	ridesPubSub := repo_amqp.NewRepository(ridesChannel)
 	repoCache := repo_redis.NewRepository(redis)
 	repoDB := repo_db.NewRepository(db)
-	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub)
+	paymentSvc := payment.NewPaymentService()
+	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub, paymentSvc)
 
 	h := &ridesHandler{
 		usecase: uc,
@@ -40,6 +42,7 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 		group.POST("/rides/confirm", h.ConfirmRideDriver)
 		group.POST("/rides/start", h.StartRideDriver)
 		group.POST("/rides/end", h.EndRideDriver)
+		group.POST("/rides/confirm-payment", h.ConfirmPaymentDriver)
 	}
 
 	group = router.Group("/v1/riders")

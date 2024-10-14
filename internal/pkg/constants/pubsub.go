@@ -7,6 +7,7 @@ const (
 	NewRideRequestsExchange    = "ride.new_request"
 	DriverAcceptedRideExchange = "ride.driver_accepted"
 	RideReadyToPickupExchange  = "ride.ready_to_pickup"
-	RideStartedExchange        = "ride.in_progress"
-	RideEndedExchange          = "ride.arrived_at_destination"
+	RideStartedExchange        = "ride.trip_started"
+	RideEndedExchange          = "ride.trip_ended"
+	RidePaidExchange           = "ride.paid"
 )

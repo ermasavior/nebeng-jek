@@ -9,7 +9,7 @@ const (
 )
 
 var (
-	MapVehicleType = map[int]string{
+	mapVehicleType = map[int]string{
 		VehicleTypeIntCar:        VehicleTypeCar,
 		VehicleTypeIntMotorcycle: VehicleTypeMotorcycle,
 	}
@@ -24,11 +24,16 @@ type DriverData struct {
 	VehicleTypeInt int    `json:"-" db:"vehicle_type"`
 }
 
+func (d *DriverData) SetVehicleType() {
+	d.VehicleType = mapVehicleType[d.VehicleTypeInt]
+}
+
 type CreateNewRideRequest struct {
 	RiderID        int64      `json:"-"`
 	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
 	Destination    Coordinate `json:"destination" binding:"required"`
 }
+
 type SetDriverAvailabilityRequest struct {
 	IsAvailable     bool       `json:"is_available" binding:"required"`
 	CurrentLocation Coordinate `json:"current_location" binding:"required"`
@@ -51,8 +56,25 @@ type EndRideDriverRequest struct {
 }
 
 type UpdateRideByDriverRequest struct {
-	DriverID int64
-	RideID   int64
-	Status   int
-	Distance float64
+	DriverID   int64
+	RideID     int64
+	Distance   float64
+	Fare       float64
+	FinalPrice float64
+	Status     int
+}
+
+type UpdateRideDataRequest struct {
+	RideID     int64
+	DriverID   int64
+	Distance   float64
+	Fare       float64
+	FinalPrice float64
+	Status     int
+}
+
+type ConfirmPaymentDriverRequest struct {
+	DriverID    int64   `json:"-"`
+	RideID      int64   `json:"ride_id" binding:"required"`
+	CustomPrice float64 `json:"custom_price"`
 }

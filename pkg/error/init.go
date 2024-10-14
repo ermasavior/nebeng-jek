@@ -38,6 +38,14 @@ func NewForbidden(err error, msg string) *AppError {
 	}
 }
 
+func NewBadRequest(err error, msg string) *AppError {
+	return &AppError{
+		Code:    http.StatusBadRequest,
+		Raw:     err,
+		Message: msg,
+	}
+}
+
 func NewUnauthorized(err error, msg string) *AppError {
 	return &AppError{
 		Code:    http.StatusUnauthorized,

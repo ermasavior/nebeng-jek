@@ -28,6 +28,7 @@ CREATE TABLE rides (
     destination POINT NOT NULL,
     status INT NOT NULL,
     distance DECIMAL(6, 2),
+    fare DECIMAL(10, 2),
     final_price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

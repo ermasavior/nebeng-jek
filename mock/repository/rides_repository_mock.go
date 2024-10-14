@@ -191,6 +191,21 @@ func (mr *MockRidesRepositoryMockRecorder) GetDriverMSISDNByID(ctx, id interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDriverMSISDNByID", reflect.TypeOf((*MockRidesRepository)(nil).GetDriverMSISDNByID), ctx, id)
 }
 
+// GetRideData mocks base method.
+func (m *MockRidesRepository) GetRideData(ctx context.Context, id int64) (model.RideData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRideData", ctx, id)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRideData indicates an expected call of GetRideData.
+func (mr *MockRidesRepositoryMockRecorder) GetRideData(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRideData", reflect.TypeOf((*MockRidesRepository)(nil).GetRideData), ctx, id)
+}
+
 // GetRiderDataByMSISDN mocks base method.
 func (m *MockRidesRepository) GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error) {
 	m.ctrl.T.Helper()
@@ -234,6 +249,20 @@ func (m *MockRidesRepository) UpdateRideByDriver(ctx context.Context, req model.
 func (mr *MockRidesRepositoryMockRecorder) UpdateRideByDriver(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRideByDriver", reflect.TypeOf((*MockRidesRepository)(nil).UpdateRideByDriver), ctx, req)
+}
+
+// UpdateRideData mocks base method.
+func (m *MockRidesRepository) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRideData", ctx, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRideData indicates an expected call of UpdateRideData.
+func (mr *MockRidesRepositoryMockRecorder) UpdateRideData(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRideData", reflect.TypeOf((*MockRidesRepository)(nil).UpdateRideData), ctx, req)
 }
 
 // MockRidesPubsubRepository is a mock of RidesPubsubRepository interface.

@@ -61,6 +61,11 @@ func TestRegisterHandler(t *testing.T) {
 			Path:    "/v1/drivers/rides/end",
 			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).EndRideDriver-fm",
 		},
+		"POST:/v1/drivers/rides/confirm-payment": {
+			Method:  "POST",
+			Path:    "/v1/drivers/rides/confirm-payment",
+			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmPaymentDriver-fm",
+		},
 	}
 
 	for _, r := range router.Routes() {

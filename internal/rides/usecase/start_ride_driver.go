@@ -27,7 +27,7 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 		DriverID: driver.ID,
 		RideID:   req.RideID,
-		Status:   model.StatusNumRideInProgress,
+		Status:   model.StatusNumRideStarted,
 	})
 	if err == constants.ErrorDataNotFound {
 		return model.RideData{}, pkgError.NewNotFound(err, "ride data is not found or has been allocated to another driver")

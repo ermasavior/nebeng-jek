@@ -39,7 +39,7 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 		DriverID: driver.ID,
 		RideID:   req.RideID,
-		Status:   model.StatusNumRideDone,
+		Status:   model.StatusNumRideEnded,
 		Distance: distance,
 	})
 	if err == constants.ErrorDataNotFound {
@@ -67,8 +67,8 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideEndedExchange, model.RideEndedMessage{
 		RideID:      rideData.RideID,
-		Distance:    rideData.Distance,
-		Fare:        rideData.Fare,
+		Distance:    *rideData.Distance,
+		Fare:        *rideData.Fare,
 		RiderMSISDN: riderMSISDN,
 	})
 	if err != nil {

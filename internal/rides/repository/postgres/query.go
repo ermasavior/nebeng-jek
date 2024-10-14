@@ -22,6 +22,18 @@ const (
 		VALUES ($1, $2, POINT($3, $4), POINT($5, $6))
 		RETURNING id
 	`
+	queryGetRideData = `
+		SELECT id, rider_id, driver_id, status, distance, fare,
+			   pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
+			   destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
+		FROM rides
+		WHERE id = $1
+	`
+	queryUpdateRideData = `
+		UPDATE rides
+		SET %s
+		WHERE %s 
+	`
 	queryConfirmRideDriver = `
 		UPDATE rides
 		SET driver_id = $1, updated_at = NOW()
@@ -40,8 +52,8 @@ const (
 	`
 	queryUpdateRideByDriver = `
 		UPDATE rides
-		SET status = $1, updated_at = NOW(), distance = $2
-		WHERE id = $3 AND driver_id = $4
+		SET status = $1, updated_at = NOW(), distance = $2, fare = $3, final_price = $4
+		WHERE id = $5 AND driver_id = $6
 		RETURNING id, rider_id, driver_id,
 			  pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
 			  destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
