@@ -18,14 +18,18 @@ func TestRepository_BroadcastMessage(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockAMQP := mock_amqp.NewMockAMQPChannel(ctrl)
-	mockAMQP.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
-	mockAMQP.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
-	mockAMQP.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
-	mockAMQP.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
-	mockAMQP.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan := mock_amqp.NewMockAMQPChannel(ctrl)
+	mockChan.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).Return(nil)
+	mockChan.EXPECT().Close()
 
-	r := NewRepository(mockAMQP)
+	mockConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	mockConn.EXPECT().Channel().Return(mockChan, nil)
+
+	r := NewRepository(mockConn)
 
 	ctx := context.TODO()
 	topic := constants.NewRideRequestsExchange
@@ -41,7 +45,7 @@ func TestRepository_BroadcastMessage(t *testing.T) {
 	msgBytes, _ := json.Marshal(req)
 
 	t.Run("success - publish message to ride requests pubsub channel", func(t *testing.T) {
-		mockAMQP.EXPECT().Publish(
+		mockChan.EXPECT().Publish(
 			constants.NewRideRequestsExchange, "", false, false, amqp091.Publishing{
 				ContentType: constants.TypeApplicationJSON,
 				Body:        msgBytes,
@@ -55,7 +59,7 @@ func TestRepository_BroadcastMessage(t *testing.T) {
 	t.Run("failed - publish message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error")
 
-		mockAMQP.EXPECT().Publish(
+		mockChan.EXPECT().Publish(
 			constants.NewRideRequestsExchange, "", false, false, amqp091.Publishing{
 				ContentType: constants.TypeApplicationJSON,
 				Body:        msgBytes,

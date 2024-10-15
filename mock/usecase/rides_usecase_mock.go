@@ -137,3 +137,17 @@ func (mr *MockRidesUsecaseMockRecorder) StartRideDriver(arg0, arg1 interface{}) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartRideDriver", reflect.TypeOf((*MockRidesUsecase)(nil).StartRideDriver), arg0, arg1)
 }
+
+// TrackUserLocation mocks base method.
+func (m *MockRidesUsecase) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) *error.AppError {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TrackUserLocation", ctx, req)
+	ret0, _ := ret[0].(*error.AppError)
+	return ret0
+}
+
+// TrackUserLocation indicates an expected call of TrackUserLocation.
+func (mr *MockRidesUsecaseMockRecorder) TrackUserLocation(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUserLocation", reflect.TypeOf((*MockRidesUsecase)(nil).TrackUserLocation), ctx, req)
+}

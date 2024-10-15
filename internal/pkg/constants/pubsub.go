@@ -10,4 +10,6 @@ const (
 	RideStartedExchange        = "ride.trip_started"
 	RideEndedExchange          = "ride.trip_ended"
 	RidePaidExchange           = "ride.paid"
+
+	UserLocationLiveTrackExchange = "user.live_track"
 )

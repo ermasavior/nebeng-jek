@@ -51,15 +51,9 @@ func main() {
 		logger.Fatal(context.Background(), "error initializing amqp", map[string]interface{}{logger.ErrorKey: err})
 	}
 
-	ridesChannel, err := amqpConn.Channel()
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
-	}
-	defer ridesChannel.Close()
-
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	ridesHandler.RegisterHandler(srv.Router.Group("/"), redisClient, pgDb, ridesChannel)
+	ridesHandler.RegisterHandler(srv.Router.Group("/"), redisClient, pgDb, amqpConn)
 
 	httpServer := srv.Start()
 

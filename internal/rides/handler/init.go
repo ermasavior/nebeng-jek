@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"nebeng-jek/internal/pkg/middleware"
 	repo_amqp "nebeng-jek/internal/rides/repository/amqp"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
@@ -20,8 +21,8 @@ type ridesHandler struct {
 	usecase usecase.RidesUsecase
 }
 
-func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.DB, ridesChannel amqp.AMQPChannel) {
-	ridesPubSub := repo_amqp.NewRepository(ridesChannel)
+func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.DB, amqpConn amqp.AMQPConnection) {
+	ridesPubSub := repo_amqp.NewRepository(amqpConn)
 	repoCache := repo_redis.NewRepository(redis)
 	repoDB := repo_db.NewRepository(db)
 	paymentSvc := payment.NewPaymentService()
@@ -50,4 +51,6 @@ func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.
 		group.POST("/rides", h.CreateNewRide)
 		group.POST("/rides/confirm", h.ConfirmRideRider)
 	}
+
+	go h.SubscribeUserLocationTracking(context.Background(), amqpConn)
 }

@@ -15,8 +15,14 @@ type ridesRepo struct {
 	chann amqp.AMQPChannel
 }
 
-func NewRepository(chann amqp.AMQPChannel) repository.RidesPubsubRepository {
-	err := chann.ExchangeDeclare(
+func NewRepository(amqpConn amqp.AMQPConnection) repository.RidesPubsubRepository {
+	chann, err := amqpConn.Channel()
+	if err != nil {
+		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer chann.Close()
+
+	err = chann.ExchangeDeclare(
 		constants.NewRideRequestsExchange,
 		constants.ExchangeTypeFanout, // exchange type: fanout
 		true,                         // durable

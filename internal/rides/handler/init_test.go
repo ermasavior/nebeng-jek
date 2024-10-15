@@ -15,20 +15,24 @@ func TestRegisterHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	amqpMock := mock_amqp.NewMockAMQPChannel(ctrl)
-	amqpMock.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+	mockChannel := mock_amqp.NewMockAMQPChannel(ctrl)
+	mockChannel.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
-	amqpMock.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+	mockChannel.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
-	amqpMock.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+	mockChannel.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
-	amqpMock.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+	mockChannel.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
-	amqpMock.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
+	mockChannel.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
 		Return(nil)
+	mockChannel.EXPECT().Close()
+
+	mockConn := mock_amqp.NewMockAMQPConnection(ctrl)
+	mockConn.EXPECT().Channel().Return(mockChannel, nil)
 
 	router := gin.New()
-	RegisterHandler(&router.RouterGroup, nil, nil, amqpMock)
+	RegisterHandler(&router.RouterGroup, nil, nil, mockConn)
 
 	expectedRoutes := map[string]gin.RouteInfo{
 		"PUT:/v1/drivers/availability": {

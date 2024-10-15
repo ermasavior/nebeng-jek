@@ -2,11 +2,11 @@ package repository_redis
 
 import (
 	"context"
+	"fmt"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
+	"nebeng-jek/pkg/logger"
 	pkgRedis "nebeng-jek/pkg/redis"
-	"strconv"
-	"strings"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -68,27 +68,26 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string
 
 	result := make([]model.Coordinate, 0, len(coordinates))
 
-	for _, coor := range coordinates {
-		latlon := strings.Split(coor, ":")
-
-		if len(latlon) < 2 {
-			continue
-		}
-
-		latitude, err := strconv.ParseFloat(latlon[0], 64)
+	for _, coorString := range coordinates {
+		coor, err := model.ParseCoordinate(coorString)
 		if err != nil {
+			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
+				"rideID":     rideID,
+				"msisdn":     msisdn,
+				"coordinate": coorString,
+			})
 			continue
 		}
-
-		longitude, err := strconv.ParseFloat(latlon[1], 64)
-		if err != nil {
-			continue
-		}
-
-		result = append(result, model.Coordinate{
-			Latitude:  latitude,
-			Longitude: longitude,
-		})
+		result = append(result, coor)
 	}
 	return result, nil
+}
+
+func (r *ridesRepo) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
+	key := model.GetDriverPathKey(req.RideID, req.MSISDN)
+	res := r.cache.ZAdd(ctx, key, &redis.Z{
+		Score:  float64(req.Timestamp),
+		Member: fmt.Sprintf(model.CoordinateFormat, req.Location.Latitude, req.Location.Longitude, req.Timestamp),
+	})
+	return res.Err()
 }
