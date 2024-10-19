@@ -65,7 +65,7 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideEndedExchange, model.RideEndedMessage{
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
 		RideID:      rideData.RideID,
 		Distance:    *rideData.Distance,
 		Fare:        *rideData.Fare,

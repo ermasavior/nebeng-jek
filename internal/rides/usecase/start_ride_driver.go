@@ -58,7 +58,7 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
 		RideID:      rideData.RideID,
 		RiderMSISDN: riderMSISDN,
 	})

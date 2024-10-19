@@ -2,39 +2,45 @@ package handler
 
 import (
 	"context"
+	handler_http "nebeng-jek/internal/drivers/handler/http"
+	handler_nats "nebeng-jek/internal/drivers/handler/nats"
+	"nebeng-jek/internal/drivers/usecase"
+	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/pkg/middleware"
-	"nebeng-jek/pkg/amqp"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
 	"nebeng-jek/pkg/jwt"
+	"nebeng-jek/pkg/messaging/nats"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-type driversHandler struct {
-	upgrader websocket.Upgrader
-
-	jwt         jwt.JWTInterface
-	connStorage *sync.Map
+type RegisterHandlerParam struct {
+	Router *gin.RouterGroup
+	NatsJS nats.JetStreamConnection
+	JWTGen jwt.JWTInterface
 }
 
-func RegisterHandler(router *gin.RouterGroup, amqpConn amqp.AMQPConnection) {
-	h := &driversHandler{
-		upgrader: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-			CheckOrigin:     func(r *http.Request) bool { return true },
-		},
-		jwt:         jwt.NewJWTGenerator(24*time.Hour, "PASSWORD"),
-		connStorage: &sync.Map{},
+func RegisterHandler(reg RegisterHandlerParam) {
+	repo := nats_pkg.NewPubsubRepository(reg.NatsJS)
+	uc := usecase.NewDriverUsecase(repo)
+
+	wsUpgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
+	connStorage := &sync.Map{}
 
-	mid := middleware.NewRidesMiddleware(h.jwt)
+	httpHandler := handler_http.NewHandler(connStorage, wsUpgrader, uc)
+	mid := middleware.NewRidesMiddleware(reg.JWTGen)
+	reg.Router.GET("/ws/drivers", mid.AuthJWTMiddleware, httpHandler.DriverAllocationWebsocket)
 
-	router.GET("/ws/drivers", mid.AuthJWTMiddleware, h.DriverAllocationWebsocket)
-
-	go h.SubscribeNewRideRequests(context.Background(), amqpConn)
-	go h.SubscribeReadyToPickupRides(context.Background(), amqpConn)
+	natsHandler := handler_nats.NewHandler(connStorage, uc)
+	ctx := context.Background()
+	svcName := "drivers-service"
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), svcName)
 }

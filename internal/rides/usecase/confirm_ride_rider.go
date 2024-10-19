@@ -49,7 +49,7 @@ func (u *ridesUsecase) ConfirmRideRider(ctx context.Context, req model.ConfirmRi
 		return pkgError.NewInternalServerError(err, "error get driver msisdn")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RideReadyToPickupExchange, model.RideReadyToPickupMessage{
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
 		RideID:         rideData.RideID,
 		PickupLocation: rideData.PickupLocation,
 		Destination:    rideData.Destination,

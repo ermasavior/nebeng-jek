@@ -4,9 +4,8 @@ import (
 	"context"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
+	"nebeng-jek/pkg/logger"
 	pkgRedis "nebeng-jek/pkg/redis"
-	"strconv"
-	"strings"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -42,6 +41,7 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 
 	drivers, err := res.Result()
 	if err != nil {
+		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
 		return nil, err
 	}
 
@@ -58,37 +58,38 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
 	if res.Err() != nil {
+		logger.Error(ctx, "error get zrange", map[string]interface{}{logger.ErrorKey: res.Err()})
 		return nil, res.Err()
 	}
 
 	coordinates, err := res.Result()
 	if err != nil {
+		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
 		return nil, err
 	}
 
 	result := make([]model.Coordinate, 0, len(coordinates))
 
-	for _, coor := range coordinates {
-		latlon := strings.Split(coor, ":")
-
-		if len(latlon) < 2 {
-			continue
-		}
-
-		latitude, err := strconv.ParseFloat(latlon[0], 64)
+	for _, coorString := range coordinates {
+		coor, err := model.ParseCoordinate(coorString)
 		if err != nil {
+			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
+				"ride_id":       rideID,
+				"coordinate":    coorString,
+				logger.ErrorKey: err,
+			})
 			continue
 		}
-
-		longitude, err := strconv.ParseFloat(latlon[1], 64)
-		if err != nil {
-			continue
-		}
-
-		result = append(result, model.Coordinate{
-			Latitude:  latitude,
-			Longitude: longitude,
-		})
+		result = append(result, coor)
 	}
 	return result, nil
+}
+
+func (r *ridesRepo) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
+	key := model.GetDriverPathKey(req.RideID, req.MSISDN)
+	res := r.cache.ZAdd(ctx, key, &redis.Z{
+		Score:  float64(req.Timestamp),
+		Member: req.Location.ToStringValue(req.Timestamp),
+	})
+	return res.Err()
 }

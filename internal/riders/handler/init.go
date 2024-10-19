@@ -2,42 +2,48 @@ package handler
 
 import (
 	"context"
+	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/pkg/middleware"
-	"nebeng-jek/pkg/amqp"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
+	handler_http "nebeng-jek/internal/riders/handler/http"
+	handler_nats "nebeng-jek/internal/riders/handler/nats"
 	"nebeng-jek/pkg/jwt"
+	"nebeng-jek/pkg/messaging/nats"
 	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
 type ridersHandler struct {
-	upgrader websocket.Upgrader
-	jwt      jwt.JWTInterface
-
+	upgrader    websocket.Upgrader
 	connStorage *sync.Map
 }
 
-func RegisterHandler(router *gin.RouterGroup, amqpConn amqp.AMQPConnection) {
-	h := &ridersHandler{
-		upgrader: websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-			CheckOrigin:     func(r *http.Request) bool { return true },
-		},
-		jwt:         jwt.NewJWTGenerator(24*time.Hour, "PASSWORD"),
-		connStorage: &sync.Map{},
+type RegisterHandlerParam struct {
+	Router *gin.RouterGroup
+	NatsJS nats.JetStreamConnection
+	JWTGen jwt.JWTInterface
+}
+
+func RegisterHandler(reg RegisterHandlerParam) {
+	wsUpgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
+	connStorage := &sync.Map{}
+	httpHandler := handler_http.NewHandler(connStorage, wsUpgrader)
+	mid := middleware.NewRidesMiddleware(reg.JWTGen)
+	reg.Router.GET("/ws/riders", mid.AuthJWTMiddleware, httpHandler.RiderWebsocket)
 
-	mid := middleware.NewRidesMiddleware(h.jwt)
-
-	router.GET("/ws/riders", mid.AuthJWTMiddleware, h.RiderWebsocket)
-
-	go h.SubscribeDriverAcceptedRides(context.Background(), amqpConn)
-	go h.SubscribeReadyToPickupRides(context.Background(), amqpConn)
-	go h.SubscribeRideStarted(context.Background(), amqpConn)
-	go h.SubscribeRideEnded(context.Background(), amqpConn)
-	go h.SubscribeRidePaid(context.Background(), amqpConn)
+	natsHandler := handler_nats.NewHandler(connStorage)
+	ctx := context.Background()
+	svcName := "riders-service"
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideEnded, natsHandler.SubscribeRideEnded(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRidePaid, natsHandler.SubscribeRidePaid(ctx), svcName)
 }

@@ -67,7 +67,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverMsisdn).Return(nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
 			RideID:      rideData.RideID,
 			RiderMSISDN: riderMSISDN,
 		}).Return(nil)
@@ -144,7 +144,7 @@ func TestUsecase_StartRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.RideStartedExchange, model.RideStartedMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
 			RideID:      rideData.RideID,
 			RiderMSISDN: riderMSISDN,
 		}).Return(expectedErr)

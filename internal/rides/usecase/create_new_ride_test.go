@@ -64,7 +64,7 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.NewRideRequestsExchange, model.RideRequestMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.RideRequestMessage{
 			RideID:           rideID,
 			Rider:            riderData,
 			PickupLocation:   req.PickupLocation,
@@ -130,7 +130,7 @@ func TestUsecase_CreateNewRide(t *testing.T) {
 			Destination:    req.Destination,
 		}).Return(rideID, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.NewRideRequestsExchange, model.RideRequestMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.RideRequestMessage{
 			RideID:           rideID,
 			Rider:            riderData,
 			PickupLocation:   req.PickupLocation,

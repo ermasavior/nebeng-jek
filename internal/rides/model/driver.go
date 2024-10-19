@@ -78,3 +78,11 @@ type ConfirmPaymentDriverRequest struct {
 	RideID      int64   `json:"ride_id" binding:"required"`
 	CustomPrice float64 `json:"custom_price"`
 }
+
+type TrackUserLocationRequest struct {
+	RideID    int64      `json:"ride_id"`
+	MSISDN    string     `json:"msisdn"`
+	Timestamp int64      `json:"timestamp"`
+	Location  Coordinate `json:"location"`
+	IsDriver  bool       `json:"is_driver"`
+}

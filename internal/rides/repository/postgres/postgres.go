@@ -105,8 +105,8 @@ func (r *ridesRepo) GetRideData(ctx context.Context, rideID int64) (model.RideDa
 func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
 	var (
 		params     = []interface{}{}
-		paramNum   = 0
 		querySet   = []string{}
+		paramNum   = 0
 		queryWhere = "id = $%d"
 	)
 	if req.Distance != 0 {

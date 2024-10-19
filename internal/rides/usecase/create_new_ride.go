@@ -59,7 +59,7 @@ func (u *ridesUsecase) CreateNewRide(ctx context.Context, req model.CreateNewRid
 		Destination:      req.Destination,
 		AvailableDrivers: mapDrivers,
 	}
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.NewRideRequestsExchange, msg)
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideNewRequest, msg)
 
 	if err != nil {
 		logger.Error(ctx, "error broadcasting ride to drivers", map[string]interface{}{

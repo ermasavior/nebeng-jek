@@ -1,13 +1,12 @@
 package constants
 
 const (
-	TypeApplicationJSON = "application/json"
-	ExchangeTypeFanout  = "fanout"
+	TopicRideNewRequest    = "ride.new_request"
+	TopicRideMatchedDriver = "ride.matched_driver"
+	TopicRideReadyToPickup = "ride.ready_to_pickup"
+	TopicRideStarted       = "ride.started"
+	TopicRideEnded         = "ride.ended"
+	TopicRidePaid          = "ride.paid"
 
-	NewRideRequestsExchange    = "ride.new_request"
-	DriverAcceptedRideExchange = "ride.driver_accepted"
-	RideReadyToPickupExchange  = "ride.ready_to_pickup"
-	RideStartedExchange        = "ride.trip_started"
-	RideEndedExchange          = "ride.trip_ended"
-	RidePaidExchange           = "ride.paid"
+	TopicUserLiveLocation = "user.live_location"
 )

@@ -13,9 +13,3 @@ func NewConfig(c ConfigLoader, envFilePath string) *Config {
 
 	return c.loadFromEnvFile(envFilePath)
 }
-
-func NewMockConfig() *Config {
-	return &Config{
-		RidesAPIKey: "test",
-	}
-}

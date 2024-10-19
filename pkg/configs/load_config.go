@@ -76,7 +76,7 @@ func (c *ConfigLoader) loadFromConsul() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	ridesAPIKey, err := kv.GetKeyValue("RIDES_API_KEY", nil)
+	jwtSecretKey, err := kv.GetKeyValue("JWT_SECRET_KEY", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +92,6 @@ func (c *ConfigLoader) loadFromConsul() (*Config, error) {
 		RedisPort:      string(redisPortBytes),
 		RedisPassword:  string(redisPasswordBytes),
 		RedisAppConfig: string(redisAppConfigBytes),
-		RidesAPIKey:    string(ridesAPIKey),
+		JWTSecretKey:   string(jwtSecretKey),
 	}, nil
 }

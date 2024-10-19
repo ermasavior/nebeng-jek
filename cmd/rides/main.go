@@ -7,11 +7,12 @@ import (
 
 	"context"
 	ridesHandler "nebeng-jek/internal/rides/handler"
-	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/configs"
 	db "nebeng-jek/pkg/db/postgres"
 	pkgHttp "nebeng-jek/pkg/http"
+	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/logger"
+	"nebeng-jek/pkg/messaging/nats"
 	pkgOtel "nebeng-jek/pkg/otel"
 	"nebeng-jek/pkg/redis"
 	"os"
@@ -31,6 +32,7 @@ func main() {
 	}
 
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
+	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
 	pgDb, err := db.NewPostgresDB(db.PostgresDsn{
 		Host:     cfg.DbHost,
@@ -46,20 +48,20 @@ func main() {
 	redisClient := redis.InitConnection(cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
 		cfg.RedisPassword, cfg.RedisAppConfig)
 
-	amqpConn, err := amqp.InitAMQPConnection(cfg.AMQPURL)
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing amqp", map[string]interface{}{logger.ErrorKey: err})
-	}
-
-	ridesChannel, err := amqpConn.Channel()
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing amqp channel", map[string]interface{}{logger.ErrorKey: err})
-	}
-	defer ridesChannel.Close()
+	natsMsg := nats.NewNATSConnection(cfg.NatsURL)
+	defer natsMsg.Close()
+	natsJS := nats.NewNATSJSConnection(natsMsg)
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	ridesHandler.RegisterHandler(srv.Router.Group("/"), redisClient, pgDb, ridesChannel)
+	reg := ridesHandler.RegisterHandlerParam{
+		Router: srv.Router.Group("/v1"),
+		Redis:  redisClient,
+		DB:     pgDb,
+		NatsJS: natsJS,
+		JWTGen: jwtGen,
+	}
+	ridesHandler.RegisterHandler(reg)
 
 	httpServer := srv.Start()
 
