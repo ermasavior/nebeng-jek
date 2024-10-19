@@ -34,19 +34,19 @@ func (m *MockJWTInterface) EXPECT() *MockJWTInterfaceMockRecorder {
 	return m.recorder
 }
 
-// GenerateJWT mocks base method.
-func (m *MockJWTInterface) GenerateJWT(keyValues map[string]interface{}) (string, error) {
+// GenerateToken mocks base method.
+func (m *MockJWTInterface) GenerateToken(keyValues map[string]interface{}) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateJWT", keyValues)
+	ret := m.ctrl.Call(m, "GenerateToken", keyValues)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GenerateJWT indicates an expected call of GenerateJWT.
-func (mr *MockJWTInterfaceMockRecorder) GenerateJWT(keyValues interface{}) *gomock.Call {
+// GenerateToken indicates an expected call of GenerateToken.
+func (mr *MockJWTInterfaceMockRecorder) GenerateToken(keyValues interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateJWT", reflect.TypeOf((*MockJWTInterface)(nil).GenerateJWT), keyValues)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockJWTInterface)(nil).GenerateToken), keyValues)
 }
 
 // ValidateJWT mocks base method.

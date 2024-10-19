@@ -4,6 +4,11 @@ import (
 	"nebeng-jek/pkg/jwt"
 )
 
+const (
+	DriverID = "driver_id"
+	RiderID  = "rider_id"
+)
+
 type ridesMiddleware struct {
 	jwtGen jwt.JWTInterface
 }

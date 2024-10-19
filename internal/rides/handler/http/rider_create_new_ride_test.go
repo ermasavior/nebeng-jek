@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_CreateNewRide(t *testing.T) {
+func TestHandler_RiderCreateNewRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -32,9 +32,9 @@ func TestHandler_CreateNewRide(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST(url, handler.CreateNewRide)
+	router.POST(url, handler.RiderCreateNewRide)
 
-	reqBody := model.CreateNewRideRequest{
+	reqBody := model.RiderCreateNewRideRequest{
 		PickupLocation: model.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
@@ -47,7 +47,7 @@ func TestHandler_CreateNewRide(t *testing.T) {
 	reqBytes, _ := json.Marshal(reqBody)
 
 	t.Run("success - returns status code 200 when successfully create new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().CreateNewRide(gomock.Any(), reqBody).Return(rideID, nil)
+		mockUsecase.EXPECT().RiderCreateNewRide(gomock.Any(), reqBody).Return(rideID, nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -60,7 +60,7 @@ func TestHandler_CreateNewRide(t *testing.T) {
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.CreateNewRideRequest{}
+		reqBody := model.RiderCreateNewRideRequest{}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
@@ -76,7 +76,7 @@ func TestHandler_CreateNewRide(t *testing.T) {
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
 
-		mockUsecase.EXPECT().CreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)
+		mockUsecase.EXPECT().RiderCreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -92,7 +92,7 @@ func TestHandler_CreateNewRide(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
 
-		mockUsecase.EXPECT().CreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)
+		mockUsecase.EXPECT().RiderCreateNewRide(gomock.Any(), reqBody).Return(int64(0), expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

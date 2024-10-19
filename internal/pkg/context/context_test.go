@@ -7,22 +7,22 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
-func TestSetMSISDNToContext(t *testing.T) {
-	t.Run("return context with set msisdn", func(t *testing.T) {
-		var msisdn = "0123"
+func TestSetDriverIDToContext(t *testing.T) {
+	t.Run("return context with set driverID", func(t *testing.T) {
+		var driverID = int64(123)
 		ctx := context.Background()
-		ctx = SetMSISDNToContext(ctx, msisdn)
-		assert.Equal(t, msisdn, ctx.Value(keyMSISDN))
+		ctx = SetDriverIDToContext(ctx, driverID)
+		assert.Equal(t, driverID, ctx.Value(keyDriverID))
 	})
 }
 
-func TestGetMSISDNFromContext(t *testing.T) {
-	t.Run("return context with set msisdn", func(t *testing.T) {
-		var msisdn = "0123"
+func TestGetdriverIDFromContext(t *testing.T) {
+	t.Run("return context with set driverID", func(t *testing.T) {
+		var driverID = int64(123)
 		ctx := context.Background()
-		ctx = SetMSISDNToContext(ctx, msisdn)
+		ctx = SetDriverIDToContext(ctx, driverID)
 
-		res := GetMSISDNFromContext(ctx)
-		assert.Equal(t, msisdn, res)
+		res := GetDriverIDFromContext(ctx)
+		assert.Equal(t, driverID, res)
 	})
 }

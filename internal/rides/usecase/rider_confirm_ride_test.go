@@ -25,17 +25,17 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
-		riderMSISDN  = "0811111"
-		driverMSISDN = "0821111"
-		riderData    = model.RiderData{
-			ID:     1111,
+		riderID   = int64(9999)
+		driverID  = int64(1111)
+		riderData = model.RiderData{
+			ID:     riderID,
 			Name:   "Agus",
 			MSISDN: "0811111",
 		}
 		rideData = model.RideData{
 			RideID:   111,
-			RiderID:  666,
-			DriverID: 1111,
+			RiderID:  riderID,
+			DriverID: driverID,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -52,24 +52,20 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 	)
 
 	ctx := context.Background()
-	ctx = pkgContext.SetMSISDNToContext(ctx, riderMSISDN)
+	ctx = pkgContext.SetRiderIDToContext(ctx, riderID)
 
 	t.Run("success - should confirm ride rider and broadcast message", func(t *testing.T) {
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, riderMSISDN).Return(riderData, nil)
+		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
 			RiderID:  riderData.ID,
 			RideID:   req.RideID,
 			IsAccept: true,
 		}).Return(rideData, nil)
 
-		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, rideData.DriverID).Return(driverMSISDN, nil)
-
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
-			RideID:         rideData.RideID,
-			PickupLocation: rideData.PickupLocation,
-			Destination:    rideData.Destination,
-			RiderMSISDN:    riderMSISDN,
-			DriverMSISDN:   driverMSISDN,
+			RideID:   rideData.RideID,
+			RiderID:  riderID,
+			DriverID: driverID,
 		}).Return(nil)
 
 		err := usecaseMock.ConfirmRideRider(ctx, req)
@@ -87,7 +83,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 
 	t.Run("failed - get rider data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, riderMSISDN).Return(model.RiderData{}, expectedErr)
+		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(model.RiderData{}, expectedErr)
 
 		err := usecaseMock.ConfirmRideRider(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get rider data"))
@@ -95,7 +91,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 
 	t.Run("failed - confirm ride returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, riderMSISDN).Return(riderData, nil)
+		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
 			RiderID:  riderData.ID,
 			RideID:   req.RideID,
@@ -106,38 +102,19 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error confirm ride by driver"))
 	})
 
-	t.Run("failed - get rider msisdn by id returns error", func(t *testing.T) {
-		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, riderMSISDN).Return(riderData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
-			RiderID:  riderData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
-
-		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, rideData.DriverID).Return("", expectedErr)
-
-		err := usecaseMock.ConfirmRideRider(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver msisdn"))
-	})
-
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByMSISDN(ctx, riderMSISDN).Return(riderData, nil)
+		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
 			RiderID:  riderData.ID,
 			RideID:   req.RideID,
 			IsAccept: true,
 		}).Return(rideData, nil)
 
-		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, rideData.DriverID).Return(driverMSISDN, nil)
-
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
-			RideID:         rideData.RideID,
-			PickupLocation: rideData.PickupLocation,
-			Destination:    rideData.Destination,
-			RiderMSISDN:    riderMSISDN,
-			DriverMSISDN:   driverMSISDN,
+			RideID:   rideData.RideID,
+			RiderID:  riderID,
+			DriverID: driverID,
 		}).Return(expectedErr)
 
 		err := usecaseMock.ConfirmRideRider(ctx, req)

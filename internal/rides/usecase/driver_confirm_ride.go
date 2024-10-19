@@ -9,55 +9,46 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) *pkgError.AppError {
+func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverConfirmRideRequest) *pkgError.AppError {
 	if !req.IsAccept {
 		return nil
 	}
-	msisdn := pkgContext.GetMSISDNFromContext(ctx)
+	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	driver, err := u.ridesRepo.GetDriverDataByMSISDN(ctx, msisdn)
+	driver, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
 	if err == constants.ErrorDataNotFound {
-		return pkgError.NewNotFound(err, "driver is not found")
+		return pkgError.NewUnauthorized(err, "invalid driver id")
 	}
 	if err != nil {
 		logger.Error(ctx, "error get driver data", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return pkgError.NewInternalServerError(err, "error get driver data")
 	}
 
 	req.DriverID = driver.ID
-	rideData, err := u.ridesRepo.ConfirmRideDriver(ctx, req)
+	rideData, err := u.ridesRepo.DriverConfirmRide(ctx, req)
 	if err == constants.ErrorDataNotFound {
 		return pkgError.NewNotFound(err, "ride data is not found or has been allocated to another driver")
 	}
 	if err != nil {
 		logger.Error(ctx, "error confirm ride by driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return pkgError.NewInternalServerError(err, "error confirm ride by driver")
 	}
 
-	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
-	if err != nil {
-		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return pkgError.NewInternalServerError(err, "error get rider msisdn")
-	}
-
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
-		RideID:      rideData.RideID,
-		Driver:      driver,
-		RiderMSISDN: riderMSISDN,
+		RideID:  rideData.RideID,
+		Driver:  driver,
+		RiderID: rideData.RiderID,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting matched ride to rider", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return pkgError.NewInternalServerError(err, "error broadcasting matched ride to rider")
 	}

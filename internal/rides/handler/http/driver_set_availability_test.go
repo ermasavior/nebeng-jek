@@ -18,30 +18,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_ConfirmPaymentDriver(t *testing.T) {
+func TestHandler_DriverSetAvailability(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockUsecase := mock_usecase.NewMockRidesUsecase(ctrl)
-	h := NewHandler(mockUsecase)
+	handler := httpHandler{
+		usecase: mockUsecase,
+	}
 
 	url := "/"
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST(url, h.ConfirmPaymentDriver)
+	router.POST(url, handler.DriverSetAvailability)
 
-	rideData := model.RideData{
-		RideID: 666,
-	}
-	reqBody := model.ConfirmPaymentDriverRequest{
-		RideID:      666,
-		CustomPrice: 9999,
+	reqBody := model.DriverSetAvailabilityRequest{
+		IsAvailable: true,
+		CurrentLocation: model.Coordinate{
+			Longitude: 11,
+			Latitude:  11,
+		},
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
-	t.Run("success - returns status code 200 when successfully confirm new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().ConfirmPaymentDriver(gomock.Any(), reqBody).Return(rideData, nil)
+	t.Run("success - returns status code 200 when successfully set driver availability", func(t *testing.T) {
+		mockUsecase.EXPECT().DriverSetAvailability(gomock.Any(), reqBody).Return(nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -51,10 +53,16 @@ func TestHandler_ConfirmPaymentDriver(t *testing.T) {
 		_ = json.NewDecoder(w.Body).Decode(&resBody)
 
 		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, nil, resBody.Data)
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.ConfirmPaymentDriverRequest{}
+		reqBody := model.DriverSetAvailabilityRequest{
+			CurrentLocation: model.Coordinate{
+				Longitude: 11,
+				Latitude:  11,
+			},
+		}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
@@ -67,10 +75,10 @@ func TestHandler_ConfirmPaymentDriver(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
+	t.Run("failed - returns 404 - usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
 
-		mockUsecase.EXPECT().ConfirmPaymentDriver(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverSetAvailability(gomock.Any(), reqBody).Return(expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -83,10 +91,10 @@ func TestHandler_ConfirmPaymentDriver(t *testing.T) {
 		assert.Equal(t, expectedError.Message, resBody.Meta.Message)
 	})
 
-	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
+	t.Run("failed - returns 500 - usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
 
-		mockUsecase.EXPECT().ConfirmPaymentDriver(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverSetAvailability(gomock.Any(), reqBody).Return(expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

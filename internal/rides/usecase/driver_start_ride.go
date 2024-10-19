@@ -9,17 +9,17 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideDriverRequest) (model.RideData, *pkgError.AppError) {
-	msisdn := pkgContext.GetMSISDNFromContext(ctx)
+func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStartRideRequest) (model.RideData, *pkgError.AppError) {
+	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	driver, err := u.ridesRepo.GetDriverDataByMSISDN(ctx, msisdn)
+	driver, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
 	if err == constants.ErrorDataNotFound {
-		return model.RideData{}, pkgError.NewNotFound(err, "driver is not found")
+		return model.RideData{}, pkgError.NewUnauthorized(err, "invalid driver id")
 	}
 	if err != nil {
 		logger.Error(ctx, "error get driver data", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get driver data")
 	}
@@ -34,38 +34,29 @@ func (u *ridesUsecase) StartRideDriver(ctx context.Context, req model.StartRideD
 	}
 	if err != nil {
 		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
-	err = u.locationRepo.RemoveAvailableDriver(ctx, msisdn)
+	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
 	if err != nil {
 		logger.Error(ctx, "error removing available driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error removing available driver")
 	}
 
-	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
-	if err != nil {
-		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
-	}
-
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
-		RideID:      rideData.RideID,
-		RiderMSISDN: riderMSISDN,
+		RideID:  rideData.RideID,
+		RiderID: rideData.RiderID,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting message", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting message")
 	}

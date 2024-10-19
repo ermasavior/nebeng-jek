@@ -18,10 +18,10 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	msisdn := pkg_context.GetMSISDNFromContext(c.Request.Context())
-	h.connStorage.Store(msisdn, conn)
+	riderID := pkg_context.GetRiderIDFromContext(c.Request.Context())
+	h.connStorage.Store(riderID, conn)
 	defer func() {
-		h.connStorage.Delete(msisdn)
+		h.connStorage.Delete(riderID)
 		conn.Close()
 	}()
 

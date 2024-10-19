@@ -34,37 +34,37 @@ func TestRegisterHandler(t *testing.T) {
 		"PUT:/drivers/availability": {
 			Method:  "PUT",
 			Path:    "/drivers/availability",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).SetDriverAvailability-fm",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverSetAvailability-fm",
 		},
-		"POST:/riders/rides": {
+		"POST:/drivers/ride/confirm": {
 			Method:  "POST",
-			Path:    "/riders/rides",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).CreateNewRide-fm",
+			Path:    "/drivers/ride/confirm",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmRide-fm",
 		},
-		"POST:/riders/rides/confirm": {
+		"POST:/drivers/ride/start": {
 			Method:  "POST",
-			Path:    "/riders/rides/confirm",
+			Path:    "/drivers/ride/start",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverStartRide-fm",
+		},
+		"POST:/drivers/ride/end": {
+			Method:  "POST",
+			Path:    "/drivers/ride/end",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverEndRide-fm",
+		},
+		"POST:/drivers/ride/confirm-price": {
+			Method:  "POST",
+			Path:    "/drivers/ride/confirm-price",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmPrice-fm",
+		},
+		"POST:/riders/ride/create": {
+			Method:  "POST",
+			Path:    "/riders/ride/create",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).RiderCreateNewRide-fm",
+		},
+		"POST:/riders/ride/confirm": {
+			Method:  "POST",
+			Path:    "/riders/ride/confirm",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmRideRider-fm",
-		},
-		"POST:/drivers/rides/confirm": {
-			Method:  "POST",
-			Path:    "/drivers/rides/confirm",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmRideDriver-fm",
-		},
-		"POST:/drivers/rides/start": {
-			Method:  "POST",
-			Path:    "/drivers/rides/start",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).StartRideDriver-fm",
-		},
-		"POST:/drivers/rides/end": {
-			Method:  "POST",
-			Path:    "/drivers/rides/end",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).EndRideDriver-fm",
-		},
-		"POST:/drivers/rides/confirm-payment": {
-			Method:  "POST",
-			Path:    "/drivers/rides/confirm-payment",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmPaymentDriver-fm",
 		},
 	}
 

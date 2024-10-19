@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) StartRideDriver(c *gin.Context) {
-	req := model.StartRideDriverRequest{}
+func (h *httpHandler) DriverStartRide(c *gin.Context) {
+	req := model.DriverStartRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -20,7 +20,7 @@ func (h *httpHandler) StartRideDriver(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	data, err := h.usecase.StartRideDriver(ctx, req)
+	data, err := h.usecase.DriverStartRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error handler", map[string]interface{}{
 			logger.ErrorKey: err.Error(),

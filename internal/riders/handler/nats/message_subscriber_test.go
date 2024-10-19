@@ -24,11 +24,10 @@ func TestSubscribeRideMatchedDriver(t *testing.T) {
 	msgBytes, _ := json.Marshal(model.RideMatchedDriverMessage{
 		RideID: 111,
 		Driver: model.DriverData{
-			ID:     666,
 			Name:   "Mel",
 			MSISDN: "0812222",
 		},
-		RiderMSISDN: "0812222",
+		RiderID: 9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {
@@ -51,17 +50,9 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 	}
 
 	msgBytes, _ := json.Marshal(model.RideReadyToPickupMessage{
-		RideID: 111,
-		PickupLocation: model.Coordinate{
-			Longitude: 111,
-			Latitude:  -22,
-		},
-		Destination: model.Coordinate{
-			Longitude: 113,
-			Latitude:  -21,
-		},
-		DriverMSISDN: "0821111",
-		RiderMSISDN:  "0812222",
+		RideID:   111,
+		DriverID: 1111,
+		RiderID:  9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {
@@ -84,8 +75,8 @@ func TestSubscribeRideStarted(t *testing.T) {
 	}
 
 	msgBytes, _ := json.Marshal(model.RideStartedMessage{
-		RideID:      111,
-		RiderMSISDN: "0812222",
+		RideID:  111,
+		RiderID: 9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {
@@ -108,10 +99,10 @@ func TestSubscribeRideEnded(t *testing.T) {
 	}
 
 	msgBytes, _ := json.Marshal(model.RideEndedMessage{
-		RideID:      111,
-		Distance:    10,
-		Fare:        30000,
-		RiderMSISDN: "0812222",
+		RideID:   111,
+		Distance: 10,
+		Fare:     30000,
+		RiderID:  9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {
@@ -134,10 +125,10 @@ func TestSubscribeRidePaid(t *testing.T) {
 	}
 
 	msgBytes, _ := json.Marshal(model.RidePaidMessage{
-		RideID:      111,
-		Distance:    10,
-		FinalPrice:  20000,
-		RiderMSISDN: "0812222",
+		RideID:     111,
+		Distance:   10,
+		FinalPrice: 20000,
+		RiderID:    9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {

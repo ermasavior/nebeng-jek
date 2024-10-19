@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func TestBroadcastToActiveDrivers(t *testing.T) {
+func Test_broadcastToDrivers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -21,7 +21,6 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 
 	rideID := int64(666)
 	riderData := model.RiderData{
-		ID:     1111,
 		Name:   "Mel",
 		MSISDN: "082222",
 	}
@@ -33,19 +32,18 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 		Latitude:  9,
 		Longitude: 10,
 	}
-	availableDrivers := map[string]bool{
-		"0812": true,
-		"0813": true,
+	availableDrivers := map[int64]bool{
+		1111: true,
+		2222: true,
 	}
 
 	connStorage := &sync.Map{}
-	handler := NewHandler(connStorage, nil)
-
 	mockConn1 := mock_ws.NewMockWebsocketInterface(ctrl)
 	mockConn2 := mock_ws.NewMockWebsocketInterface(ctrl)
+	connStorage.Store(int64(1111), mockConn1)
+	connStorage.Store(int64(2222), mockConn2)
 
-	connStorage.Store("0812", mockConn1)
-	connStorage.Store("0813", mockConn2)
+	handler := NewHandler(connStorage, nil)
 
 	t.Run("write message to websocket available drivers", func(t *testing.T) {
 		broadcastMsg := model.DriverMessage{
@@ -63,7 +61,7 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 		mockConn1.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 		mockConn2.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 
-		handler.broadcastToActiveDrivers(ctx, availableDrivers, broadcastMsg)
+		handler.broadcastToDrivers(ctx, availableDrivers, broadcastMsg)
 	})
 
 	t.Run("error - skip write message to websocket available drivers", func(t *testing.T) {
@@ -82,6 +80,6 @@ func TestBroadcastToActiveDrivers(t *testing.T) {
 		mockConn1.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(errors.New("error"))
 		mockConn2.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 
-		handler.broadcastToActiveDrivers(ctx, availableDrivers, broadcastMsg)
+		handler.broadcastToDrivers(ctx, availableDrivers, broadcastMsg)
 	})
 }

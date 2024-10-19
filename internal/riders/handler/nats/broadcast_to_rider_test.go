@@ -21,9 +21,8 @@ func TestBroadcastToRider(t *testing.T) {
 	ctx := context.TODO()
 
 	rideID := int64(666)
-	msisdn := "0822222"
+	riderID := int64(9999)
 	driverData := model.DriverData{
-		ID:           1111,
 		Name:         "Agus",
 		MSISDN:       "081111",
 		VehicleType:  "car",
@@ -33,9 +32,9 @@ func TestBroadcastToRider(t *testing.T) {
 	broadcastMsg := model.RiderMessage{
 		Event: model.EventMatchedRide,
 		Data: model.RideMatchedDriverMessage{
-			RideID:      rideID,
-			Driver:      driverData,
-			RiderMSISDN: msisdn,
+			RideID:  rideID,
+			Driver:  driverData,
+			RiderID: riderID,
 		},
 	}
 
@@ -43,13 +42,13 @@ func TestBroadcastToRider(t *testing.T) {
 	handler := NewHandler(connStorage)
 
 	mockConn := mock_ws.NewMockWebsocketInterface(ctrl)
-	connStorage.Store(msisdn, mockConn)
+	connStorage.Store(riderID, mockConn)
 
 	t.Run("write message to websocket rider", func(t *testing.T) {
 		msgBytes, _ := json.Marshal(broadcastMsg)
 		mockConn.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 
-		err := handler.broadcastToRider(ctx, msisdn, broadcastMsg)
+		err := handler.broadcastToRider(ctx, riderID, broadcastMsg)
 		assert.NoError(t, err)
 	})
 
@@ -59,7 +58,7 @@ func TestBroadcastToRider(t *testing.T) {
 		msgBytes, _ := json.Marshal(broadcastMsg)
 		mockConn.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(expectedErr)
 
-		err := handler.broadcastToRider(ctx, msisdn, broadcastMsg)
+		err := handler.broadcastToRider(ctx, riderID, broadcastMsg)
 		assert.Error(t, err)
 	})
 }

@@ -9,12 +9,6 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// go nats_pkg.SubscribeMessage(natsJS, constants.TopicRideMatchedDriver, h.SubscribeRideMatchedDriver(ctx))
-// go nats_pkg.SubscribeMessage(natsJS, constants.TopicRideReadyToPickup, h.SubscribeReadyToPickupRides(ctx))
-// go nats_pkg.SubscribeMessage(natsJS, constants.TopicRideStarted, h.SubscribeRideStarted(ctx))
-// go nats_pkg.SubscribeMessage(natsJS, constants.TopicRideEnded, h.SubscribeRideEnded(ctx))
-// go nats_pkg.SubscribeMessage(natsJS, constants.TopicRidePaid, h.SubscribeRidePaid(ctx))
-
 func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats.Msg) {
 	return func(msg *nats.Msg) {
 		var data model.RideMatchedDriverMessage
@@ -29,7 +23,7 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 			Event: model.EventMatchedRide,
 			Data:  data,
 		}
-		err = h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
 			msg.Nak()
 			return
@@ -52,7 +46,7 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(*nat
 			Event: model.EventRideReadyToPickup,
 			Data:  data,
 		}
-		err = h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
 			msg.Nak()
 			return
@@ -75,7 +69,7 @@ func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) 
 			Event: model.EventRideStarted,
 			Data:  data,
 		}
-		err = h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
 			msg.Nak()
 			return
@@ -98,7 +92,7 @@ func (h *natsHandler) SubscribeRideEnded(ctx context.Context) func(*nats.Msg) {
 			Event: model.EventRideEnded,
 			Data:  data,
 		}
-		err = h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
 			msg.Nak()
 			return
@@ -121,7 +115,7 @@ func (h *natsHandler) SubscribeRidePaid(ctx context.Context) func(*nats.Msg) {
 			Event: model.EventRidePaid,
 			Data:  data,
 		}
-		err = h.broadcastToRider(ctx, data.RiderMSISDN, broadcastMsg)
+		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
 			msg.Nak()
 			return

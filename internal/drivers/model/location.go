@@ -2,13 +2,14 @@ package model
 
 import "encoding/json"
 
-const (
-	EventRealTimeLocation = "real_time_location"
-)
+type Coordinate struct {
+	Longitude float64 `json:"longitude" binding:"required"`
+	Latitude  float64 `json:"latitude" binding:"required"`
+}
 
 type TrackUserLocationRequest struct {
 	RideID    int64      `json:"ride_id"`
-	MSISDN    string     `json:"msisdn"`
+	UserID    string     `json:"user_id"`
 	Timestamp int64      `json:"timestamp"`
 	Location  Coordinate `json:"location"`
 	IsDriver  bool       `json:"is_driver"`

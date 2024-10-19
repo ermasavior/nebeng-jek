@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_EndRideDriver(t *testing.T) {
+func TestHandler_DriverEndRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -31,18 +31,18 @@ func TestHandler_EndRideDriver(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST(url, handler.EndRideDriver)
+	router.POST(url, handler.DriverEndRide)
 
 	rideData := model.RideData{
 		RideID: 666,
 	}
-	reqBody := model.EndRideDriverRequest{
+	reqBody := model.DriverEndRideRequest{
 		RideID: 666,
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
 	t.Run("success - returns status code 200 when successfully starting ride", func(t *testing.T) {
-		mockUsecase.EXPECT().EndRideDriver(gomock.Any(), reqBody).Return(rideData, nil)
+		mockUsecase.EXPECT().DriverEndRide(gomock.Any(), reqBody).Return(rideData, nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -55,7 +55,7 @@ func TestHandler_EndRideDriver(t *testing.T) {
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.EndRideDriverRequest{}
+		reqBody := model.DriverEndRideRequest{}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
@@ -71,7 +71,7 @@ func TestHandler_EndRideDriver(t *testing.T) {
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
 
-		mockUsecase.EXPECT().EndRideDriver(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverEndRide(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -87,7 +87,7 @@ func TestHandler_EndRideDriver(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
 
-		mockUsecase.EXPECT().EndRideDriver(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverEndRide(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

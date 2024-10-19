@@ -20,8 +20,8 @@ func NewJWTGenerator(exp time.Duration, secret string) JWTInterface {
 	}
 }
 
-// GenerateJWT generates a new JWT token
-func (j *jwtGenerator) GenerateJWT(keyValues map[string]interface{}) (string, error) {
+// GenerateToken generates a new JWT token
+func (j *jwtGenerator) GenerateToken(keyValues map[string]interface{}) (string, error) {
 	claims := jwt.MapClaims{
 		"exp": time.Now().Add(j.expiryTime).Unix(),
 	}

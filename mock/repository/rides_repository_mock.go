@@ -36,75 +36,75 @@ func (m *MockRidesLocationRepository) EXPECT() *MockRidesLocationRepositoryMockR
 }
 
 // AddAvailableDriver mocks base method.
-func (m *MockRidesLocationRepository) AddAvailableDriver(arg0 context.Context, arg1 string, arg2 model.Coordinate) error {
+func (m *MockRidesLocationRepository) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddAvailableDriver", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "AddAvailableDriver", ctx, driverID, location)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddAvailableDriver indicates an expected call of AddAvailableDriver.
-func (mr *MockRidesLocationRepositoryMockRecorder) AddAvailableDriver(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRidesLocationRepositoryMockRecorder) AddAvailableDriver(ctx, driverID, location interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).AddAvailableDriver), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).AddAvailableDriver), ctx, driverID, location)
 }
 
 // GetNearestAvailableDrivers mocks base method.
-func (m *MockRidesLocationRepository) GetNearestAvailableDrivers(arg0 context.Context, arg1 model.Coordinate) ([]string, error) {
+func (m *MockRidesLocationRepository) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNearestAvailableDrivers", arg0, arg1)
-	ret0, _ := ret[0].([]string)
+	ret := m.ctrl.Call(m, "GetNearestAvailableDrivers", ctx, location)
+	ret0, _ := ret[0].([]int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetNearestAvailableDrivers indicates an expected call of GetNearestAvailableDrivers.
-func (mr *MockRidesLocationRepositoryMockRecorder) GetNearestAvailableDrivers(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRidesLocationRepositoryMockRecorder) GetNearestAvailableDrivers(ctx, location interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNearestAvailableDrivers", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetNearestAvailableDrivers), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNearestAvailableDrivers", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetNearestAvailableDrivers), ctx, location)
 }
 
 // GetRidePath mocks base method.
-func (m *MockRidesLocationRepository) GetRidePath(arg0 context.Context, arg1 int64, arg2 string) ([]model.Coordinate, error) {
+func (m *MockRidesLocationRepository) GetRidePath(ctx context.Context, rideID, driverID int64) ([]model.Coordinate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRidePath", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetRidePath", ctx, rideID, driverID)
 	ret0, _ := ret[0].([]model.Coordinate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRidePath indicates an expected call of GetRidePath.
-func (mr *MockRidesLocationRepositoryMockRecorder) GetRidePath(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRidesLocationRepositoryMockRecorder) GetRidePath(ctx, rideID, driverID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRidePath", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetRidePath), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRidePath", reflect.TypeOf((*MockRidesLocationRepository)(nil).GetRidePath), ctx, rideID, driverID)
 }
 
 // RemoveAvailableDriver mocks base method.
-func (m *MockRidesLocationRepository) RemoveAvailableDriver(arg0 context.Context, arg1 string) error {
+func (m *MockRidesLocationRepository) RemoveAvailableDriver(ctx context.Context, driverID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveAvailableDriver", arg0, arg1)
+	ret := m.ctrl.Call(m, "RemoveAvailableDriver", ctx, driverID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveAvailableDriver indicates an expected call of RemoveAvailableDriver.
-func (mr *MockRidesLocationRepositoryMockRecorder) RemoveAvailableDriver(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRidesLocationRepositoryMockRecorder) RemoveAvailableDriver(ctx, driverID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).RemoveAvailableDriver), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).RemoveAvailableDriver), ctx, driverID)
 }
 
 // TrackUserLocation mocks base method.
-func (m *MockRidesLocationRepository) TrackUserLocation(arg0 context.Context, arg1 model.TrackUserLocationRequest) error {
+func (m *MockRidesLocationRepository) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TrackUserLocation", arg0, arg1)
+	ret := m.ctrl.Call(m, "TrackUserLocation", ctx, req)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // TrackUserLocation indicates an expected call of TrackUserLocation.
-func (mr *MockRidesLocationRepositoryMockRecorder) TrackUserLocation(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRidesLocationRepositoryMockRecorder) TrackUserLocation(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUserLocation", reflect.TypeOf((*MockRidesLocationRepository)(nil).TrackUserLocation), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUserLocation", reflect.TypeOf((*MockRidesLocationRepository)(nil).TrackUserLocation), ctx, req)
 }
 
 // MockRidesRepository is a mock of RidesRepository interface.
@@ -130,19 +130,19 @@ func (m *MockRidesRepository) EXPECT() *MockRidesRepositoryMockRecorder {
 	return m.recorder
 }
 
-// ConfirmRideDriver mocks base method.
-func (m *MockRidesRepository) ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error) {
+// DriverConfirmRide mocks base method.
+func (m *MockRidesRepository) DriverConfirmRide(ctx context.Context, req model.DriverConfirmRideRequest) (model.RideData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConfirmRideDriver", ctx, req)
+	ret := m.ctrl.Call(m, "DriverConfirmRide", ctx, req)
 	ret0, _ := ret[0].(model.RideData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ConfirmRideDriver indicates an expected call of ConfirmRideDriver.
-func (mr *MockRidesRepositoryMockRecorder) ConfirmRideDriver(ctx, req interface{}) *gomock.Call {
+// DriverConfirmRide indicates an expected call of DriverConfirmRide.
+func (mr *MockRidesRepositoryMockRecorder) DriverConfirmRide(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmRideDriver", reflect.TypeOf((*MockRidesRepository)(nil).ConfirmRideDriver), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DriverConfirmRide", reflect.TypeOf((*MockRidesRepository)(nil).DriverConfirmRide), ctx, req)
 }
 
 // ConfirmRideRider mocks base method.
@@ -160,34 +160,34 @@ func (mr *MockRidesRepositoryMockRecorder) ConfirmRideRider(ctx, req interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmRideRider", reflect.TypeOf((*MockRidesRepository)(nil).ConfirmRideRider), ctx, req)
 }
 
-// CreateNewRide mocks base method.
-func (m *MockRidesRepository) CreateNewRide(arg0 context.Context, arg1 model.CreateNewRideRequest) (int64, error) {
+// RiderCreateNewRide mocks base method.
+func (m *MockRidesRepository) RiderCreateNewRide(arg0 context.Context, arg1 model.RiderCreateNewRideRequest) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateNewRide", arg0, arg1)
+	ret := m.ctrl.Call(m, "RiderCreateNewRide", arg0, arg1)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateNewRide indicates an expected call of CreateNewRide.
-func (mr *MockRidesRepositoryMockRecorder) CreateNewRide(arg0, arg1 interface{}) *gomock.Call {
+// RiderCreateNewRide indicates an expected call of RiderCreateNewRide.
+func (mr *MockRidesRepositoryMockRecorder) RiderCreateNewRide(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewRide", reflect.TypeOf((*MockRidesRepository)(nil).CreateNewRide), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RiderCreateNewRide", reflect.TypeOf((*MockRidesRepository)(nil).RiderCreateNewRide), arg0, arg1)
 }
 
-// GetDriverDataByMSISDN mocks base method.
-func (m *MockRidesRepository) GetDriverDataByMSISDN(ctx context.Context, msisdn string) (model.DriverData, error) {
+// GetDriverDataByID mocks base method.
+func (m *MockRidesRepository) GetDriverDataByID(ctx context.Context, driverID int64) (model.DriverData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDriverDataByMSISDN", ctx, msisdn)
+	ret := m.ctrl.Call(m, "GetDriverDataByID", ctx, driverID)
 	ret0, _ := ret[0].(model.DriverData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDriverDataByMSISDN indicates an expected call of GetDriverDataByMSISDN.
-func (mr *MockRidesRepositoryMockRecorder) GetDriverDataByMSISDN(ctx, msisdn interface{}) *gomock.Call {
+// GetDriverDataByID indicates an expected call of GetDriverDataByID.
+func (mr *MockRidesRepositoryMockRecorder) GetDriverDataByID(ctx, driverID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDriverDataByMSISDN", reflect.TypeOf((*MockRidesRepository)(nil).GetDriverDataByMSISDN), ctx, msisdn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDriverDataByID", reflect.TypeOf((*MockRidesRepository)(nil).GetDriverDataByID), ctx, driverID)
 }
 
 // GetDriverMSISDNByID mocks base method.
@@ -220,19 +220,19 @@ func (mr *MockRidesRepositoryMockRecorder) GetRideData(ctx, id interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRideData", reflect.TypeOf((*MockRidesRepository)(nil).GetRideData), ctx, id)
 }
 
-// GetRiderDataByMSISDN mocks base method.
-func (m *MockRidesRepository) GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error) {
+// GetRiderDataByID mocks base method.
+func (m *MockRidesRepository) GetRiderDataByID(ctx context.Context, riderID int64) (model.RiderData, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRiderDataByMSISDN", ctx, msisdn)
+	ret := m.ctrl.Call(m, "GetRiderDataByID", ctx, riderID)
 	ret0, _ := ret[0].(model.RiderData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRiderDataByMSISDN indicates an expected call of GetRiderDataByMSISDN.
-func (mr *MockRidesRepositoryMockRecorder) GetRiderDataByMSISDN(ctx, msisdn interface{}) *gomock.Call {
+// GetRiderDataByID indicates an expected call of GetRiderDataByID.
+func (mr *MockRidesRepositoryMockRecorder) GetRiderDataByID(ctx, riderID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderDataByMSISDN", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderDataByMSISDN), ctx, msisdn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderDataByID", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderDataByID), ctx, riderID)
 }
 
 // GetRiderMSISDNByID mocks base method.
