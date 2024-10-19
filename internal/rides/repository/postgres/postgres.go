@@ -105,9 +105,10 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 	var (
 		params     = []interface{}{}
 		querySet   = []string{}
+		queryWhere = ""
 		paramNum   = 0
-		queryWhere = "id = $%d"
 	)
+
 	if req.Distance != 0 {
 		paramNum += 1
 		params = append(params, req.Distance)

@@ -6,8 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var mySecretKey = []byte("your_secret_key")
-
 type jwtGenerator struct {
 	expiryTime time.Duration
 	secretKey  []byte
