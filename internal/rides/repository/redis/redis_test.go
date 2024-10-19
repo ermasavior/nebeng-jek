@@ -21,25 +21,26 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 	repositoryMock := NewRepository(redisMock)
 
 	var (
-		msisdn   = "0811111"
-		location = model.Coordinate{
+		driverID    = int64(1111)
+		driverIDKey = "1111"
+		location    = model.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		}
 	)
 
 	ctx := context.Background()
-	ctx = pkgContext.SetMSISDNToContext(ctx, msisdn)
+	ctx = pkgContext.SetDriverIDToContext(ctx, driverID)
 
 	t.Run("success - should execute redis GEOADD", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
-			Name:      msisdn,
+			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)
 
-		err := repositoryMock.AddAvailableDriver(ctx, msisdn, location)
+		err := repositoryMock.AddAvailableDriver(ctx, driverID, location)
 		assert.Nil(t, err)
 	})
 
@@ -47,12 +48,12 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
 		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
-			Name:      msisdn,
+			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)
 
-		err := repositoryMock.AddAvailableDriver(ctx, msisdn, location)
+		err := repositoryMock.AddAvailableDriver(ctx, driverID, location)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
@@ -76,7 +77,7 @@ func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
 	t.Run("success - should execute redis GeoRadius", func(t *testing.T) {
 		res := &redis.GeoLocationCmd{}
 		res.SetVal([]redis.GeoLocation{
-			{Name: "0123"}, {Name: "0456"}, {Name: "0789"},
+			{Name: "123"}, {Name: "456"}, {Name: "789"},
 		})
 		redisMock.EXPECT().GeoRadius(ctx, model.KeyAvailableDrivers,
 			location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
@@ -87,7 +88,7 @@ func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
 
 		actual, err := repositoryMock.GetNearestAvailableDrivers(ctx, location)
 		assert.Nil(t, err)
-		assert.Equal(t, []string{"0123", "0456", "0789"}, actual)
+		assert.Equal(t, []int64{123, 456, 789}, actual)
 	})
 
 	t.Run("failed - should return error when GeoRadius returns error", func(t *testing.T) {
@@ -115,26 +116,26 @@ func TestRepository_RemoveAvailableDriver(t *testing.T) {
 	}
 
 	var (
-		msisdn = "0811111"
+		driverID = int64(1111)
 	)
 
 	ctx := context.Background()
-	ctx = pkgContext.SetMSISDNToContext(ctx, msisdn)
+	ctx = pkgContext.SetDriverIDToContext(ctx, driverID)
 
 	t.Run("success - should execute redis ZREM", func(t *testing.T) {
 		res := &redis.IntCmd{}
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, msisdn).Return(res)
+		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
 
-		err := repositoryMock.RemoveAvailableDriver(ctx, msisdn)
+		err := repositoryMock.RemoveAvailableDriver(ctx, driverID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("failed - should return error when ZREM returns error", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, msisdn).Return(res)
+		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
 
-		err := repositoryMock.RemoveAvailableDriver(ctx, msisdn)
+		err := repositoryMock.RemoveAvailableDriver(ctx, driverID)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }

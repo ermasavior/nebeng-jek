@@ -36,21 +36,22 @@ func RegisterHandler(reg RegisterHandlerParam) {
 
 	httpHandler := handler_http.NewHandler(uc)
 	mid := middleware.NewRidesMiddleware(reg.JWTGen)
-	reg.Router.Use(mid.AuthJWTMiddleware)
 
 	group := reg.Router.Group("/drivers")
+	group.Use(mid.DriverAuthMiddleware)
 	{
-		group.PUT("/availability", httpHandler.SetDriverAvailability)
-		group.POST("/rides/confirm", httpHandler.ConfirmRideDriver)
-		group.POST("/rides/start", httpHandler.StartRideDriver)
-		group.POST("/rides/end", httpHandler.EndRideDriver)
-		group.POST("/rides/confirm-payment", httpHandler.ConfirmPaymentDriver)
+		group.PUT("/availability", httpHandler.DriverSetAvailability)
+		group.POST("/ride/confirm", httpHandler.DriverConfirmRide)
+		group.POST("/ride/start", httpHandler.DriverStartRide)
+		group.POST("/ride/end", httpHandler.DriverEndRide)
+		group.POST("/ride/confirm-price", httpHandler.DriverConfirmPrice)
 	}
 
 	group = reg.Router.Group("/riders")
+	group.Use(mid.RiderAuthMiddleware)
 	{
-		group.POST("/rides", httpHandler.CreateNewRide)
-		group.POST("/rides/confirm", httpHandler.ConfirmRideRider)
+		group.POST("/ride/create", httpHandler.RiderCreateNewRide)
+		group.POST("/ride/confirm", httpHandler.ConfirmRideRider)
 	}
 
 	natsHandler := handler_nats.NewHandler(uc)

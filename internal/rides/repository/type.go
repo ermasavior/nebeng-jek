@@ -6,24 +6,25 @@ import (
 )
 
 type RidesLocationRepository interface {
-	AddAvailableDriver(context.Context, string, model.Coordinate) error
-	RemoveAvailableDriver(context.Context, string) error
-	GetNearestAvailableDrivers(context.Context, model.Coordinate) ([]string, error)
-	GetRidePath(context.Context, int64, string) ([]model.Coordinate, error)
-	TrackUserLocation(context.Context, model.TrackUserLocationRequest) error
+	AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error
+	RemoveAvailableDriver(ctx context.Context, driverID int64) error
+	GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error)
+	GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error)
+	TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error
 }
 
 type RidesRepository interface {
-	GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error)
-	GetDriverDataByMSISDN(ctx context.Context, msisdn string) (model.DriverData, error)
+	GetRiderDataByID(ctx context.Context, riderID int64) (model.RiderData, error)
+	GetDriverDataByID(ctx context.Context, driverID int64) (model.DriverData, error)
 	GetRiderMSISDNByID(ctx context.Context, id int64) (string, error)
-	GetDriverMSISDNByID(ctx context.Context, id int64) (string, error)
-	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
-	ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error)
-	ConfirmRideRider(ctx context.Context, req model.ConfirmRideRiderRequest) (model.RideData, error)
-	UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error)
-	UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error
+	GetDriverMSISDNByID(ctx context.Context, id int64) (string, error) // to be deleted
 	GetRideData(ctx context.Context, id int64) (model.RideData, error)
+
+	RiderCreateNewRide(context.Context, model.RiderCreateNewRideRequest) (int64, error)
+	DriverConfirmRide(ctx context.Context, req model.DriverConfirmRideRequest) (model.RideData, error)   // to be deleted
+	ConfirmRideRider(ctx context.Context, req model.ConfirmRideRiderRequest) (model.RideData, error)     // to be deleted
+	UpdateRideByDriver(ctx context.Context, req model.UpdateRideByDriverRequest) (model.RideData, error) // to be deleted
+	UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error
 }
 
 type RidesPubsubRepository interface {

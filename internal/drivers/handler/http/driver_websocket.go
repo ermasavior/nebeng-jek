@@ -19,12 +19,9 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	msisdn := pkg_context.GetMSISDNFromContext(c.Request.Context())
-	h.connStorage.Store(msisdn, conn)
-	defer func() {
-		h.connStorage.Delete(msisdn)
-		conn.Close()
-	}()
+	driverID := pkg_context.GetDriverIDFromContext(c.Request.Context())
+	h.connStorage.Store(driverID, conn)
+	defer h.connStorage.Delete(driverID)
 
 	ctx := c.Request.Context()
 

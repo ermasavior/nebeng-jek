@@ -5,34 +5,34 @@ import "context"
 type KeyContext string
 
 const (
-	keyMSISDN = KeyContext("msisdn")
-	keyAPIKey = KeyContext("api_key")
+	keyDriverID = KeyContext("driver_id")
+	keyRiderID  = KeyContext("rider_id")
 )
 
-func SetMSISDNToContext(ctx context.Context, msisdn string) context.Context {
-	return context.WithValue(ctx, keyMSISDN, msisdn)
+func SetDriverIDToContext(ctx context.Context, driverID int64) context.Context {
+	return context.WithValue(ctx, keyDriverID, driverID)
 }
 
-func GetMSISDNFromContext(ctx context.Context) string {
-	val := ctx.Value(keyMSISDN)
+func GetDriverIDFromContext(ctx context.Context) int64 {
+	val := ctx.Value(keyDriverID)
 
-	if msisdn, ok := val.(string); ok {
-		return msisdn
+	if id, ok := val.(int64); ok {
+		return id
 	}
 
-	return ""
+	return 0
 }
 
-func SetAPIKeyToContext(ctx context.Context, apiKey string) context.Context {
-	return context.WithValue(ctx, keyAPIKey, apiKey)
+func SetRiderIDToContext(ctx context.Context, riderID int64) context.Context {
+	return context.WithValue(ctx, keyRiderID, riderID)
 }
 
-func GetAPIKeyFromContext(ctx context.Context) string {
-	val := ctx.Value(keyAPIKey)
+func GetRiderIDFromContext(ctx context.Context) int64 {
+	val := ctx.Value(keyRiderID)
 
-	if apiKey, ok := val.(string); ok {
-		return apiKey
+	if id, ok := val.(int64); ok {
+		return id
 	}
 
-	return ""
+	return 0
 }

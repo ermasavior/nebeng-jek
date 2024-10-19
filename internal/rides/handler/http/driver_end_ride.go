@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) ConfirmRideDriver(c *gin.Context) {
-	req := model.ConfirmRideDriverRequest{}
+func (h *httpHandler) DriverEndRide(c *gin.Context) {
+	req := model.DriverEndRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -20,9 +20,9 @@ func (h *httpHandler) ConfirmRideDriver(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	err := h.usecase.ConfirmRideDriver(ctx, req)
+	data, err := h.usecase.DriverEndRide(ctx, req)
 	if err != nil {
-		logger.Error(ctx, "error handler", map[string]interface{}{
+		logger.Error(ctx, "error usecase", map[string]interface{}{
 			logger.ErrorKey: err.Error(),
 		})
 		c.JSON(
@@ -32,5 +32,5 @@ func (h *httpHandler) ConfirmRideDriver(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(nil))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(data))
 }

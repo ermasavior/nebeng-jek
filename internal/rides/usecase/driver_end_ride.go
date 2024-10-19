@@ -10,31 +10,32 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDriverRequest) (model.RideData, *pkgError.AppError) {
-	msisdn := pkgContext.GetMSISDNFromContext(ctx)
+func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRideRequest) (model.RideData, *pkgError.AppError) {
+	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	driver, err := u.ridesRepo.GetDriverDataByMSISDN(ctx, msisdn)
+	driver, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
 	if err == constants.ErrorDataNotFound {
-		return model.RideData{}, pkgError.NewNotFound(err, "driver is not found")
+		return model.RideData{}, pkgError.NewUnauthorized(err, "invalid driver id")
 	}
 	if err != nil {
 		logger.Error(ctx, "error get driver data", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get driver data")
 	}
 
-	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, msisdn)
+	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, driverID)
 	if err != nil {
 		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get distance traversed")
 	}
 
 	distance := calculateTotalDistance(ridePath)
+	fare := calculateRideFare(distance)
 
 	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
 		DriverID: driver.ID,
@@ -47,38 +48,28 @@ func (u *ridesUsecase) EndRideDriver(ctx context.Context, req model.EndRideDrive
 	}
 	if err != nil {
 		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
-	rideData.SetDistance(distance)
-	rideData.CalculateRideFare(distance)
-
-	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
-	if err != nil {
-		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
-	}
-
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
-		RideID:      rideData.RideID,
-		Distance:    *rideData.Distance,
-		Fare:        *rideData.Fare,
-		RiderMSISDN: riderMSISDN,
+		RideID:   rideData.RideID,
+		Distance: distance,
+		Fare:     fare,
+		RiderID:  rideData.RiderID,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting ride ended", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting ride ended")
 	}
 
+	rideData.SetDistance(distance)
+	rideData.SetFare(fare)
 	return rideData, nil
 }
 
@@ -94,4 +85,8 @@ func calculateTotalDistance(path []model.Coordinate) float64 {
 	}
 
 	return distance
+}
+
+func calculateRideFare(distance float64) float64 {
+	return distance * model.RidePricePerKm
 }

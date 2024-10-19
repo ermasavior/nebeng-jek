@@ -10,17 +10,17 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.ConfirmPaymentDriverRequest) (model.RideData, *pkgError.AppError) {
-	msisdn := pkgContext.GetMSISDNFromContext(ctx)
+func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverConfirmPriceRequest) (model.RideData, *pkgError.AppError) {
+	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	driver, err := u.ridesRepo.GetDriverDataByMSISDN(ctx, msisdn)
+	driver, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
 	if err == constants.ErrorDataNotFound {
-		return model.RideData{}, pkgError.NewNotFound(err, "driver is not found")
+		return model.RideData{}, pkgError.NewUnauthorized(err, "invalid driver id")
 	}
 	if err != nil {
 		logger.Error(ctx, "error get driver data", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get driver data")
 	}
@@ -31,8 +31,8 @@ func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.Confi
 	}
 	if err != nil {
 		logger.Error(ctx, "error get ride data", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error get ride data")
 	}
@@ -41,10 +41,9 @@ func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.Confi
 		return model.RideData{}, pkgError.NewForbidden(err, "invalid ride id")
 	}
 
-	// TBD
-	// if rideData.Status != model.StatusNumRideEnded {
-	// 	return model.RideData{}, pkgError.NewBadRequest(nil, "invalid ride status, ride must be ended")
-	// }
+	if rideData.Status != model.StatusRideEnded {
+		return model.RideData{}, pkgError.NewBadRequest(nil, "invalid ride status, must be RIDE_ENDED")
+	}
 
 	if rideData.Fare == nil {
 		return model.RideData{}, pkgError.NewForbidden(nil, "invalid fare, must not be empty")
@@ -54,25 +53,30 @@ func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.Confi
 		return model.RideData{}, pkgError.NewBadRequest(nil, "custom price must be lower than fare price")
 	}
 
+	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
+	if err != nil {
+		logger.Error(ctx, "error get rider driverID", map[string]interface{}{
+			"driver_id": driverID,
+			"error":     err,
+		})
+		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider driverID")
+	}
+
 	var finalPrice = req.CustomPrice
-	if req.CustomPrice > 0 {
+	if req.CustomPrice > 0 && rideData.Fare != nil {
 		finalPrice = *rideData.Fare
 	}
 
-	riderMSISDN, err := u.ridesRepo.GetRiderMSISDNByID(ctx, rideData.RiderID)
-	if err != nil {
-		logger.Error(ctx, "error get rider msisdn", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error get rider msisdn")
+	var distance = float64(0)
+	if rideData.Distance != nil {
+		distance = *rideData.Distance
 	}
 
 	err = u.handlePaymentTransaction(ctx, finalPrice, riderMSISDN, driver.MSISDN)
 	if err != nil {
 		logger.Error(ctx, "error handle payment", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error handle payment")
 	}
@@ -84,25 +88,29 @@ func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.Confi
 	})
 	if err != nil {
 		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRidePaid, model.RidePaidMessage{
-		RideID:      rideData.RideID,
-		Distance:    *rideData.Distance,
-		FinalPrice:  finalPrice,
-		RiderMSISDN: riderMSISDN,
+		RideID:     rideData.RideID,
+		Distance:   distance,
+		FinalPrice: finalPrice,
+		RiderID:    rideData.RiderID,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting ride ended", map[string]interface{}{
-			"msisdn": msisdn,
-			"error":  err,
+			"driver_id": driverID,
+			"error":     err,
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting ride ended")
 	}
+
+	rideData.SetDistance(distance)
+	rideData.SetFare(finalPrice)
+	rideData.SetStatus(model.StatusNumRidePaid)
 
 	return rideData, nil
 }

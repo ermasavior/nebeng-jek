@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (r *ridesMiddleware) AuthJWTMiddleware(c *gin.Context) {
+func (r *ridesMiddleware) DriverAuthMiddleware(c *gin.Context) {
 	token := strings.ReplaceAll(c.GetHeader("Authorization"), "Bearer ", "")
 	if token == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, httpUtils.NewFailedResponse(http.StatusUnauthorized, "no token provided"))
@@ -22,8 +22,35 @@ func (r *ridesMiddleware) AuthJWTMiddleware(c *gin.Context) {
 		return
 	}
 
-	msisdn := claims["msisdn"].(string)
-	ctx := pkg_context.SetMSISDNToContext(c.Request.Context(), msisdn)
+	driverID, ok := claims[DriverID].(float64)
+	if !ok {
+		c.Next()
+		return
+	}
+	ctx := pkg_context.SetDriverIDToContext(c.Request.Context(), int64(driverID))
+	c.Request = c.Request.WithContext(ctx)
+	c.Next()
+}
+
+func (r *ridesMiddleware) RiderAuthMiddleware(c *gin.Context) {
+	token := strings.ReplaceAll(c.GetHeader("Authorization"), "Bearer ", "")
+	if token == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, httpUtils.NewFailedResponse(http.StatusUnauthorized, "no token provided"))
+		return
+	}
+
+	claims, err := r.jwtGen.ValidateJWT(token)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, httpUtils.NewFailedResponse(http.StatusUnauthorized, "invalid token"))
+		return
+	}
+
+	riderID, ok := claims[RiderID].(float64)
+	if !ok {
+		c.Next()
+		return
+	}
+	ctx := pkg_context.SetRiderIDToContext(c.Request.Context(), int64(riderID))
 	c.Request = c.Request.WithContext(ctx)
 	c.Next()
 }

@@ -3,6 +3,7 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"nebeng-jek/internal/drivers/model"
 	"nebeng-jek/pkg/logger"
 
@@ -28,7 +29,7 @@ func (h *natsHandler) SubscribeNewRideRequests(ctx context.Context) func(msg *na
 				Destination:    data.Destination,
 			},
 		}
-		h.broadcastToActiveDrivers(ctx, data.AvailableDrivers, broadcastMsg)
+		h.broadcastToDrivers(ctx, data.AvailableDrivers, broadcastMsg)
 		msg.Ack()
 	}
 }
@@ -42,12 +43,13 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(msg 
 			msg.Ack()
 			return
 		}
+		fmt.Println("cekkkk", data)
 
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventRideReadyToPickup,
 			Data:  data,
 		}
-		h.broadcastToActiveDrivers(ctx, map[string]bool{data.DriverMSISDN: true}, broadcastMsg)
+		h.broadcastToDrivers(ctx, map[int64]bool{data.DriverID: true}, broadcastMsg)
 		msg.Ack()
 	}
 }

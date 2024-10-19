@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUsecase_ConfirmRideDriver(t *testing.T) {
+func TestUsecase_DriverConfirmRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -25,9 +25,8 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
-		driverMsisdn = "0811111"
-		riderMSISDN  = "0821111"
-		driverData   = model.DriverData{
+		driverID   = int64(1111)
+		driverData = model.DriverData{
 			ID:           1111,
 			Name:         "Agus",
 			MSISDN:       "0811111",
@@ -47,37 +46,35 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 				Longitude: 2,
 			},
 		}
-		req = model.ConfirmRideDriverRequest{
+		req = model.DriverConfirmRideRequest{
 			RideID:   111,
 			IsAccept: true,
 		}
 	)
 
 	ctx := context.Background()
-	ctx = pkgContext.SetMSISDNToContext(ctx, driverMsisdn)
+	ctx = pkgContext.SetDriverIDToContext(ctx, driverID)
 
 	t.Run("success - should confirm ride driver and broadcast to rider", func(t *testing.T) {
-		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(driverData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
 			IsAccept: true,
 		}).Return(rideData, nil)
 
-		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
-
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
-			RideID:      rideData.RideID,
-			Driver:      driverData,
-			RiderMSISDN: riderMSISDN,
+			RideID:  rideData.RideID,
+			Driver:  driverData,
+			RiderID: rideData.RiderID,
 		}).Return(nil)
 
-		err := usecaseMock.ConfirmRideDriver(ctx, req)
+		err := usecaseMock.DriverConfirmRide(ctx, req)
 		assert.Nil(t, err)
 	})
 
 	t.Run("success - driver not accepting ride request", func(t *testing.T) {
-		err := usecaseMock.ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
+		err := usecaseMock.DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
 			DriverID: req.DriverID,
 			RideID:   req.RideID,
 			IsAccept: false,
@@ -87,58 +84,41 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 	t.Run("failed - get driver data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(model.DriverData{}, expectedErr)
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(model.DriverData{}, expectedErr)
 
-		err := usecaseMock.ConfirmRideDriver(ctx, req)
+		err := usecaseMock.DriverConfirmRide(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
 	})
 
 	t.Run("failed - confirm ride returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(driverData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
 			IsAccept: true,
 		}).Return(model.RideData{}, expectedErr)
 
-		err := usecaseMock.ConfirmRideDriver(ctx, req)
+		err := usecaseMock.DriverConfirmRide(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
-	})
-
-	t.Run("failed - get rider msisdn by id returns error", func(t *testing.T) {
-		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(driverData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
-			DriverID: driverData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
-
-		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return("", expectedErr)
-
-		err := usecaseMock.ConfirmRideDriver(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get rider msisdn"))
 	})
 
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetDriverDataByMSISDN(ctx, driverMsisdn).Return(driverData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideDriver(ctx, model.ConfirmRideDriverRequest{
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
 			DriverID: driverData.ID,
 			RideID:   req.RideID,
 			IsAccept: true,
 		}).Return(rideData, nil)
 
-		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
-
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
-			RideID:      rideData.RideID,
-			Driver:      driverData,
-			RiderMSISDN: riderMSISDN,
+			RideID:  rideData.RideID,
+			Driver:  driverData,
+			RiderID: rideData.RiderID,
 		}).Return(expectedErr)
 
-		err := usecaseMock.ConfirmRideDriver(ctx, req)
+		err := usecaseMock.DriverConfirmRide(ctx, req)
 		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error broadcasting matched ride to rider"))
 	})
 }

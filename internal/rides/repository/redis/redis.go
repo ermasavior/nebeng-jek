@@ -6,6 +6,7 @@ import (
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/logger"
 	pkgRedis "nebeng-jek/pkg/redis"
+	"strconv"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -20,19 +21,19 @@ func NewRepository(cache pkgRedis.Collections) repository.RidesLocationRepositor
 	}
 }
 
-func (r *ridesRepo) AddAvailableDriver(ctx context.Context, msisdn string, location model.Coordinate) error {
+func (r *ridesRepo) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
 	return r.cache.GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
-		Name:      msisdn,
+		Name:      strconv.FormatInt(driverID, 10),
 		Longitude: location.Longitude,
 		Latitude:  location.Latitude,
 	}).Err()
 }
 
-func (r *ridesRepo) RemoveAvailableDriver(ctx context.Context, msisdn string) error {
-	return r.cache.ZRem(ctx, model.KeyAvailableDrivers, msisdn).Err()
+func (r *ridesRepo) RemoveAvailableDriver(ctx context.Context, driverID int64) error {
+	return r.cache.ZRem(ctx, model.KeyAvailableDrivers, driverID).Err()
 }
 
-func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]string, error) {
+func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
 	res := r.cache.GeoRadius(ctx, model.KeyAvailableDrivers, location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
 		Radius:   model.NearestRadius,
 		Unit:     model.NearestRadiusUnit,
@@ -45,16 +46,17 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 		return nil, err
 	}
 
-	driverMSISDN := make([]string, 0, len(drivers))
+	driverIDs := make([]int64, 0, len(drivers))
 	for _, d := range drivers {
-		driverMSISDN = append(driverMSISDN, d.Name)
+		id, _ := strconv.ParseInt(d.Name, 10, 64)
+		driverIDs = append(driverIDs, id)
 	}
 
-	return driverMSISDN, nil
+	return driverIDs, nil
 }
 
-func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string) ([]model.Coordinate, error) {
-	key := model.GetDriverPathKey(rideID, msisdn)
+func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error) {
+	key := model.GetDriverPathKey(rideID, driverID)
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
 	if res.Err() != nil {
@@ -86,7 +88,7 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string
 }
 
 func (r *ridesRepo) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
-	key := model.GetDriverPathKey(req.RideID, req.MSISDN)
+	key := model.GetDriverPathKey(req.RideID, req.UserID)
 	res := r.cache.ZAdd(ctx, key, &redis.Z{
 		Score:  float64(req.Timestamp),
 		Member: req.Location.ToStringValue(req.Timestamp),

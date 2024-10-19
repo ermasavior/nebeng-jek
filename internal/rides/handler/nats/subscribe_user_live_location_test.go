@@ -16,7 +16,6 @@ import (
 )
 
 func TestSubscribeUserLiveLocation(t *testing.T) {
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -25,7 +24,7 @@ func TestSubscribeUserLiveLocation(t *testing.T) {
 
 	req := model.TrackUserLocationRequest{
 		RideID:    111,
-		MSISDN:    "081234",
+		UserID:    1111,
 		Timestamp: time.Now().Unix(),
 		Location: model.Coordinate{
 			Longitude: 11,

@@ -1,20 +1,22 @@
 -- vehicle type enum: 1 - CAR; 2 - MOTORCYCLE
+-- status type enum: 0 - OFF; 1 - AVAILABLE; 2 - ON_RIDE
 CREATE TABLE drivers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    password_hash TEXT,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     vehicle_type INT,
     vehicle_plate VARCHAR(20) NOT NULL UNIQUE,
+    status INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- status type enum: 0 - OFF; 1 - WAITING_FOR_DRIVER; 2 - ON_RIDE
 CREATE TABLE riders (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    password_hash TEXT,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
+    status INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -23,9 +23,9 @@ func NewRepository(db *sqlx.DB) repository.RidesRepository {
 	}
 }
 
-func (r *ridesRepo) GetRiderDataByMSISDN(ctx context.Context, msisdn string) (model.RiderData, error) {
+func (r *ridesRepo) GetRiderDataByID(ctx context.Context, riderID int64) (model.RiderData, error) {
 	var data model.RiderData
-	err := r.db.GetContext(ctx, &data, queryGetRiderByMSISDN, msisdn)
+	err := r.db.GetContext(ctx, &data, queryGetRiderDataByID, riderID)
 	if err == sql.ErrNoRows {
 		return model.RiderData{}, constants.ErrorDataNotFound
 	}
@@ -59,20 +59,20 @@ func (r *ridesRepo) GetDriverMSISDNByID(ctx context.Context, id int64) (string, 
 	return msisdn, nil
 }
 
-func (r *ridesRepo) GetDriverDataByMSISDN(ctx context.Context, msisdn string) (model.DriverData, error) {
+func (r *ridesRepo) GetDriverDataByID(ctx context.Context, driverID int64) (model.DriverData, error) {
 	var data model.DriverData
-	err := r.db.GetContext(ctx, &data, queryGetDriverByMSISDN, msisdn)
+	err := r.db.GetContext(ctx, &data, queryGetDriverDataByID, driverID)
 	if err == sql.ErrNoRows {
 		return model.DriverData{}, constants.ErrorDataNotFound
 	}
 	if err != nil {
 		return model.DriverData{}, err
 	}
-	data.SetVehicleType()
+	data.MapVehicleType()
 	return data, nil
 }
 
-func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {
+func (r *ridesRepo) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, error) {
 	var id int64
 	values := []interface{}{
 		req.RiderID, model.StatusNumRideWaitingForDriver,
@@ -97,8 +97,7 @@ func (r *ridesRepo) GetRideData(ctx context.Context, rideID int64) (model.RideDa
 		return model.RideData{}, err
 	}
 
-	data.SetStatus()
-
+	data.MapStatus()
 	return data, nil
 }
 
@@ -140,7 +139,6 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 	params = append(params, req.RideID)
 
 	query := fmt.Sprintf(queryUpdateRideData, strings.Join(querySet, ", "), queryWhere)
-	fmt.Println(query, params)
 	_, err := r.db.ExecContext(ctx, query, params...)
 	if err == sql.ErrNoRows {
 		return constants.ErrorDataNotFound
@@ -152,7 +150,7 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 	return nil
 }
 
-func (r *ridesRepo) ConfirmRideDriver(ctx context.Context, req model.ConfirmRideDriverRequest) (model.RideData, error) {
+func (r *ridesRepo) DriverConfirmRide(ctx context.Context, req model.DriverConfirmRideRequest) (model.RideData, error) {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return model.RideData{}, err
@@ -162,7 +160,7 @@ func (r *ridesRepo) ConfirmRideDriver(ctx context.Context, req model.ConfirmRide
 	values := []interface{}{
 		req.DriverID, req.RideID,
 	}
-	err = tx.QueryRowxContext(ctx, queryConfirmRideDriver, values...).StructScan(&data)
+	err = tx.QueryRowxContext(ctx, queryDriverConfirmRide, values...).StructScan(&data)
 	if err == sql.ErrNoRows {
 		if err := tx.Rollback(); err != nil {
 			logger.Error(ctx, "error rollback tx", nil)

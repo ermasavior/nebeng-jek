@@ -36,7 +36,7 @@ func RegisterHandler(reg RegisterHandlerParam) {
 	connStorage := &sync.Map{}
 	httpHandler := handler_http.NewHandler(connStorage, wsUpgrader)
 	mid := middleware.NewRidesMiddleware(reg.JWTGen)
-	reg.Router.GET("/ws/riders", mid.AuthJWTMiddleware, httpHandler.RiderWebsocket)
+	reg.Router.GET("/ws/riders", mid.RiderAuthMiddleware, httpHandler.RiderWebsocket)
 
 	natsHandler := handler_nats.NewHandler(connStorage)
 	ctx := context.Background()

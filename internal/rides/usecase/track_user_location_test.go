@@ -23,7 +23,7 @@ func TestUsecase_TrackUserLocation(t *testing.T) {
 
 	req := model.TrackUserLocationRequest{
 		RideID:    1,
-		MSISDN:    "081111",
+		UserID:    1111,
 		Timestamp: time.Now().Unix(),
 		Location: model.Coordinate{
 			Latitude:  11,

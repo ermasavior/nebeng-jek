@@ -22,12 +22,11 @@ func TestSubscribeNewRideRequests(t *testing.T) {
 	msg := model.NewRideRequestMessage{
 		RideID: 111,
 		Rider: model.RiderData{
-			ID:     666,
 			Name:   "Mel",
 			MSISDN: "0812222",
 		},
-		AvailableDrivers: map[string]bool{
-			"081": true,
+		AvailableDrivers: map[int64]bool{
+			1111: true,
 		},
 	}
 	msgBytes, _ := json.Marshal(msg)
@@ -59,8 +58,8 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 			Longitude: 10,
 			Latitude:  -1,
 		},
-		DriverMSISDN: "081222",
-		RiderMSISDN:  "082111",
+		DriverID: 1111,
+		RiderID:  9999,
 	})
 
 	t.Run("consume message from NATS", func(t *testing.T) {

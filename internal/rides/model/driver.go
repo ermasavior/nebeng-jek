@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 const (
 	VehicleTypeIntCar        = 1
 	VehicleTypeIntMotorcycle = 2
@@ -24,65 +26,10 @@ type DriverData struct {
 	VehicleTypeInt int    `json:"-" db:"vehicle_type"`
 }
 
-func (d *DriverData) SetVehicleType() {
+func (d *DriverData) MapVehicleType() {
 	d.VehicleType = mapVehicleType[d.VehicleTypeInt]
 }
 
-type CreateNewRideRequest struct {
-	RiderID        int64      `json:"-"`
-	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
-	Destination    Coordinate `json:"destination" binding:"required"`
-}
-
-type SetDriverAvailabilityRequest struct {
-	IsAvailable     bool       `json:"is_available" binding:"required"`
-	CurrentLocation Coordinate `json:"current_location" binding:"required"`
-}
-
-type ConfirmRideDriverRequest struct {
-	DriverID int64 `json:"-"`
-	RideID   int64 `json:"ride_id" binding:"required"`
-	IsAccept bool  `json:"is_accept" binding:"required"`
-}
-
-type StartRideDriverRequest struct {
-	DriverID int64 `json:"-"`
-	RideID   int64 `json:"ride_id" binding:"required"`
-}
-
-type EndRideDriverRequest struct {
-	DriverID int64 `json:"-"`
-	RideID   int64 `json:"ride_id" binding:"required"`
-}
-
-type UpdateRideByDriverRequest struct {
-	DriverID   int64
-	RideID     int64
-	Distance   float64
-	Fare       float64
-	FinalPrice float64
-	Status     int
-}
-
-type UpdateRideDataRequest struct {
-	RideID     int64
-	DriverID   int64
-	Distance   float64
-	Fare       float64
-	FinalPrice float64
-	Status     int
-}
-
-type ConfirmPaymentDriverRequest struct {
-	DriverID    int64   `json:"-"`
-	RideID      int64   `json:"ride_id" binding:"required"`
-	CustomPrice float64 `json:"custom_price"`
-}
-
-type TrackUserLocationRequest struct {
-	RideID    int64      `json:"ride_id"`
-	MSISDN    string     `json:"msisdn"`
-	Timestamp int64      `json:"timestamp"`
-	Location  Coordinate `json:"location"`
-	IsDriver  bool       `json:"is_driver"`
+func GetDriverPathKey(rideID int64, driverID int64) string {
+	return fmt.Sprintf("path_ride:%d_driver:%d", rideID, driverID)
 }

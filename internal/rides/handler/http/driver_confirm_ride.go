@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) SetDriverAvailability(c *gin.Context) {
-	req := model.SetDriverAvailabilityRequest{}
+func (h *httpHandler) DriverConfirmRide(c *gin.Context) {
+	req := model.DriverConfirmRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -20,7 +20,7 @@ func (h *httpHandler) SetDriverAvailability(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	err := h.usecase.SetDriverAvailability(ctx, req)
+	err := h.usecase.DriverConfirmRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error handler", map[string]interface{}{
 			logger.ErrorKey: err.Error(),

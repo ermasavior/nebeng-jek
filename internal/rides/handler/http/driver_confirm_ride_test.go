@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_ConfirmRideDriver(t *testing.T) {
+func TestHandler_DriverConfirmRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -31,16 +31,16 @@ func TestHandler_ConfirmRideDriver(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST(url, handler.ConfirmRideDriver)
+	router.POST(url, handler.DriverConfirmRide)
 
-	reqBody := model.ConfirmRideDriverRequest{
+	reqBody := model.DriverConfirmRideRequest{
 		RideID:   666,
 		IsAccept: true,
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
 	t.Run("success - returns status code 200 when successfully confirm new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().ConfirmRideDriver(gomock.Any(), reqBody).Return(nil)
+		mockUsecase.EXPECT().DriverConfirmRide(gomock.Any(), reqBody).Return(nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -53,7 +53,7 @@ func TestHandler_ConfirmRideDriver(t *testing.T) {
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.ConfirmRideDriverRequest{}
+		reqBody := model.DriverConfirmRideRequest{}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
@@ -69,7 +69,7 @@ func TestHandler_ConfirmRideDriver(t *testing.T) {
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
 
-		mockUsecase.EXPECT().ConfirmRideDriver(gomock.Any(), reqBody).Return(expectedError)
+		mockUsecase.EXPECT().DriverConfirmRide(gomock.Any(), reqBody).Return(expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -85,7 +85,7 @@ func TestHandler_ConfirmRideDriver(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
 
-		mockUsecase.EXPECT().ConfirmRideDriver(gomock.Any(), reqBody).Return(expectedError)
+		mockUsecase.EXPECT().DriverConfirmRide(gomock.Any(), reqBody).Return(expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

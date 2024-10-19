@@ -7,12 +7,12 @@ import (
 )
 
 type RidesUsecase interface {
-	SetDriverAvailability(context.Context, model.SetDriverAvailabilityRequest) *pkgError.AppError
-	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, *pkgError.AppError)
-	ConfirmRideDriver(context.Context, model.ConfirmRideDriverRequest) *pkgError.AppError
+	DriverSetAvailability(context.Context, model.DriverSetAvailabilityRequest) *pkgError.AppError
+	RiderCreateNewRide(context.Context, model.RiderCreateNewRideRequest) (int64, *pkgError.AppError)
+	DriverConfirmRide(context.Context, model.DriverConfirmRideRequest) *pkgError.AppError
 	ConfirmRideRider(context.Context, model.ConfirmRideRiderRequest) *pkgError.AppError
-	StartRideDriver(context.Context, model.StartRideDriverRequest) (model.RideData, *pkgError.AppError)
-	EndRideDriver(context.Context, model.EndRideDriverRequest) (model.RideData, *pkgError.AppError)
-	ConfirmPaymentDriver(context.Context, model.ConfirmPaymentDriverRequest) (model.RideData, *pkgError.AppError)
+	DriverStartRide(context.Context, model.DriverStartRideRequest) (model.RideData, *pkgError.AppError)
+	DriverEndRide(context.Context, model.DriverEndRideRequest) (model.RideData, *pkgError.AppError)
+	DriverConfirmPrice(context.Context, model.DriverConfirmPriceRequest) (model.RideData, *pkgError.AppError)
 	TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) *pkgError.AppError
 }

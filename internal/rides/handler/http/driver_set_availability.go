@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) ConfirmPaymentDriver(c *gin.Context) {
-	req := model.ConfirmPaymentDriverRequest{}
+func (h *httpHandler) DriverSetAvailability(c *gin.Context) {
+	req := model.DriverSetAvailabilityRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -20,7 +20,7 @@ func (h *httpHandler) ConfirmPaymentDriver(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	data, err := h.usecase.ConfirmPaymentDriver(ctx, req)
+	err := h.usecase.DriverSetAvailability(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error handler", map[string]interface{}{
 			logger.ErrorKey: err.Error(),
@@ -32,5 +32,5 @@ func (h *httpHandler) ConfirmPaymentDriver(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(data))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(nil))
 }

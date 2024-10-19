@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (h *natsHandler) broadcastToActiveDrivers(ctx context.Context, drivers map[string]bool, msg model.DriverMessage) {
+func (h *natsHandler) broadcastToDrivers(ctx context.Context, mapDriverID map[int64]bool, msg model.DriverMessage) {
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Error(ctx, "error unmarshalling message broadcast", map[string]interface{}{
@@ -19,8 +19,8 @@ func (h *natsHandler) broadcastToActiveDrivers(ctx context.Context, drivers map[
 		return
 	}
 
-	for driver := range drivers {
-		conn, ok := h.connStorage.Load(driver)
+	for id := range mapDriverID {
+		conn, ok := h.connStorage.Load(id)
 		if !ok {
 			continue
 		}
@@ -33,7 +33,8 @@ func (h *natsHandler) broadcastToActiveDrivers(ctx context.Context, drivers map[
 
 		if err := wsConn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
 			logger.Error(ctx, "error broadcasting to drivers via websocket", map[string]interface{}{
-				"error": err,
+				"error":      err,
+				"driver_ids": mapDriverID,
 			})
 			continue
 		}

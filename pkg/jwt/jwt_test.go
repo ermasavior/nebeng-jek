@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJWTGenerator_GenerateJWT(t *testing.T) {
+func TestJWTGenerator_GenerateToken(t *testing.T) {
 	var (
 		secretKey  = "test"
 		expiryTime = 1 * time.Hour
@@ -19,7 +19,7 @@ func TestJWTGenerator_GenerateJWT(t *testing.T) {
 
 	t.Run("return generated jwt token", func(t *testing.T) {
 		j := NewJWTGenerator(expiryTime, secretKey)
-		actual, err := j.GenerateJWT(keyValues)
+		actual, err := j.GenerateToken(keyValues)
 
 		assert.NotEmpty(t, actual)
 		assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestJWTGenerator_ValidateJWT(t *testing.T) {
 		}
 
 		j        = NewJWTGenerator(expiryTime, secretKey)
-		token, _ = j.GenerateJWT(keyValues)
+		token, _ = j.GenerateToken(keyValues)
 	)
 
 	t.Run("return no error if jwt token is valid", func(t *testing.T) {
@@ -53,7 +53,7 @@ func TestJWTGenerator_ValidateJWT(t *testing.T) {
 
 	t.Run("return error if jwt token with different secret key", func(t *testing.T) {
 		jInvalid := NewJWTGenerator(expiryTime, "other-secret")
-		invalidToken, _ := jInvalid.GenerateJWT(keyValues)
+		invalidToken, _ := jInvalid.GenerateToken(keyValues)
 
 		res, err := j.ValidateJWT(invalidToken)
 		assert.Empty(t, res)

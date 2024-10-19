@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (h *natsHandler) broadcastToRider(ctx context.Context, msisdn string, msg model.RiderMessage) error {
-	conn, ok := h.connStorage.Load(msisdn)
+func (h *natsHandler) broadcastToRider(ctx context.Context, riderID int64, msg model.RiderMessage) error {
+	conn, ok := h.connStorage.Load(riderID)
 	if !ok {
 		return nil
 	}
@@ -32,7 +32,8 @@ func (h *natsHandler) broadcastToRider(ctx context.Context, msisdn string, msg m
 
 	if err := wsConn.WriteMessage(websocket.TextMessage, msgBytes); err != nil {
 		logger.Error(ctx, "error broadcasting to riders via websocket", map[string]interface{}{
-			"error": err,
+			"error":    err,
+			"rider_id": riderID,
 		})
 		return err
 	}
