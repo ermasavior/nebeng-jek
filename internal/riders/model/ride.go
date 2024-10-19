@@ -13,7 +13,7 @@ type Coordinate struct {
 	Latitude  float64 `json:"latitude" binding:"required"`
 }
 
-type MatchedRideMessage struct {
+type RideMatchedDriverMessage struct {
 	RideID      int64      `json:"ride_id"`
 	Driver      DriverData `json:"driver"`
 	RiderMSISDN string     `json:"rider_msisdn"`

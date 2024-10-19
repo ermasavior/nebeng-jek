@@ -28,16 +28,19 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     networks:
       local:
-  rabbitmq:
-    image: rabbitmq:management
+  nats:
+    image: nats:latest
+    container_name: "nats_container"
     ports:
-      - "5672:5672"  # RabbitMQ messaging port
-      - "15672:15672"  # RabbitMQ management console
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbit_username
-      RABBITMQ_DEFAULT_PASS: rabbit_password
+      - "4222:4222"  # NATS client connections
+      - "8222:8222"  # NATS monitoring interface
+      - "6222:6222"  # NATS clustering port (if needed)
+    command: ["-js"]  # Enables JetStream
     volumes:
-      - /data/rides/rabbitmq-data:/var/lib/rabbitmq
+      - /data/rides/redis-data:/data  # Persistent data storage for JetStream
+    environment:
+      - NATS_MAX_MEMORY=2GB  # Limits memory usage
+      - NATS_MAX_PAYLOAD=64MB  # Sets max message payload
 
 volumes:
   postgres:

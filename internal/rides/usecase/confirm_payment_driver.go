@@ -90,7 +90,7 @@ func (u *ridesUsecase) ConfirmPaymentDriver(ctx context.Context, req model.Confi
 		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.RidePaidExchange, model.RidePaidMessage{
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRidePaid, model.RidePaidMessage{
 		RideID:      rideData.RideID,
 		Distance:    *rideData.Distance,
 		FinalPrice:  finalPrice,

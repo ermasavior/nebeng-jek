@@ -66,7 +66,7 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.DriverAcceptedRideExchange, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
 			RideID:      rideData.RideID,
 			Driver:      driverData,
 			RiderMSISDN: riderMSISDN,
@@ -132,7 +132,7 @@ func TestUsecase_ConfirmRideDriver(t *testing.T) {
 
 		ridesRepoMock.EXPECT().GetRiderMSISDNByID(ctx, rideData.RiderID).Return(riderMSISDN, nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.DriverAcceptedRideExchange, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
 			RideID:      rideData.RideID,
 			Driver:      driverData,
 			RiderMSISDN: riderMSISDN,

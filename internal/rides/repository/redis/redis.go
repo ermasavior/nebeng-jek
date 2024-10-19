@@ -2,7 +2,6 @@ package repository_redis
 
 import (
 	"context"
-	"fmt"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/logger"
@@ -42,6 +41,7 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 
 	drivers, err := res.Result()
 	if err != nil {
+		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
 		return nil, err
 	}
 
@@ -58,11 +58,13 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
 	if res.Err() != nil {
+		logger.Error(ctx, "error get zrange", map[string]interface{}{logger.ErrorKey: res.Err()})
 		return nil, res.Err()
 	}
 
 	coordinates, err := res.Result()
 	if err != nil {
+		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
 		return nil, err
 	}
 
@@ -72,9 +74,9 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, msisdn string
 		coor, err := model.ParseCoordinate(coorString)
 		if err != nil {
 			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
-				"rideID":     rideID,
-				"msisdn":     msisdn,
-				"coordinate": coorString,
+				"ride_id":       rideID,
+				"coordinate":    coorString,
+				logger.ErrorKey: err,
 			})
 			continue
 		}
@@ -87,7 +89,7 @@ func (r *ridesRepo) TrackUserLocation(ctx context.Context, req model.TrackUserLo
 	key := model.GetDriverPathKey(req.RideID, req.MSISDN)
 	res := r.cache.ZAdd(ctx, key, &redis.Z{
 		Score:  float64(req.Timestamp),
-		Member: fmt.Sprintf(model.CoordinateFormat, req.Location.Latitude, req.Location.Longitude, req.Timestamp),
+		Member: req.Location.ToStringValue(req.Timestamp),
 	})
 	return res.Err()
 }

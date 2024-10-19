@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	ridersHandler "nebeng-jek/internal/riders/handler"
-	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/configs"
 	pkgHttp "nebeng-jek/pkg/http"
+	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/logger"
+	"nebeng-jek/pkg/messaging/nats"
 	pkgOtel "nebeng-jek/pkg/otel"
 
 	"os"
@@ -29,15 +30,20 @@ func main() {
 	}
 
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
+	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
-	amqpConn, err := amqp.InitAMQPConnection(cfg.AMQPURL)
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing amqp", map[string]interface{}{logger.ErrorKey: err})
-	}
+	natsMsg := nats.NewNATSConnection("nats://localhost:4222")
+	defer natsMsg.Close()
+	natsJS := nats.NewNATSJSConnection(natsMsg)
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
-	ridersHandler.RegisterHandler(srv.Router.Group("/"), amqpConn)
+	reg := ridersHandler.RegisterHandlerParam{
+		Router: srv.Router.Group("/v1"),
+		NatsJS: natsJS,
+		JWTGen: jwtGen,
+	}
+	ridersHandler.RegisterHandler(reg)
 
 	httpServer := srv.Start()
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -12,13 +13,17 @@ const (
 	NearestRadius     = 1
 	NearestRadiusUnit = "km"
 
-	// latitude:longitude:timestamp
-	CoordinateFormat = "%.2f:%.2f:%d"
+	// longitude:latitude:timestamp
+	coordinateFormat = "%.2f:%.2f:%d"
 )
 
 type Coordinate struct {
 	Longitude float64 `json:"longitude" db:"longitude" binding:"required"`
 	Latitude  float64 `json:"latitude" db:"latitude" binding:"required"`
+}
+
+func (c *Coordinate) ToStringValue(timestamp int64) string {
+	return fmt.Sprintf(coordinateFormat, c.Longitude, c.Latitude, timestamp)
 }
 
 func ParseCoordinate(coordinateStr string) (coor Coordinate, err error) {
@@ -28,12 +33,12 @@ func ParseCoordinate(coordinateStr string) (coor Coordinate, err error) {
 		return
 	}
 
-	coor.Latitude, err = strconv.ParseFloat(latlon[0], 64)
+	coor.Longitude, err = strconv.ParseFloat(latlon[0], 64)
 	if err != nil {
 		return
 	}
 
-	coor.Longitude, err = strconv.ParseFloat(latlon[1], 64)
+	coor.Latitude, err = strconv.ParseFloat(latlon[1], 64)
 	if err != nil {
 		return
 	}

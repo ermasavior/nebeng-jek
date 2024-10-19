@@ -3,7 +3,8 @@ package handler
 import (
 	"fmt"
 	"nebeng-jek/internal/pkg/constants"
-	mock_amqp "nebeng-jek/mock/pkg/amqp"
+	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
+	mock_redis "nebeng-jek/mock/pkg/redis"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -15,60 +16,55 @@ func TestRegisterHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockChannel := mock_amqp.NewMockAMQPChannel(ctrl)
-	mockChannel.EXPECT().ExchangeDeclare(constants.NewRideRequestsExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
-		Return(nil)
-	mockChannel.EXPECT().ExchangeDeclare(constants.DriverAcceptedRideExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
-		Return(nil)
-	mockChannel.EXPECT().ExchangeDeclare(constants.RideReadyToPickupExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
-		Return(nil)
-	mockChannel.EXPECT().ExchangeDeclare(constants.RideStartedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
-		Return(nil)
-	mockChannel.EXPECT().ExchangeDeclare(constants.RideEndedExchange, constants.ExchangeTypeFanout, true, false, false, false, nil).
-		Return(nil)
-	mockChannel.EXPECT().Close()
-
-	mockConn := mock_amqp.NewMockAMQPConnection(ctrl)
-	mockConn.EXPECT().Channel().Return(mockChannel, nil)
+	natsConn := mock_nats.NewMockJetStreamConnection(ctrl)
+	natsConn.EXPECT().Subscribe(constants.TopicUserLiveLocation, gomock.Any(), gomock.Any()).AnyTimes()
 
 	router := gin.New()
-	RegisterHandler(&router.RouterGroup, nil, nil, mockConn)
+
+	reg := RegisterHandlerParam{
+		Router: &router.RouterGroup,
+		Redis:  mock_redis.NewMockCollections(ctrl),
+		DB:     nil, // no tests
+		NatsJS: natsConn,
+		JWTGen: nil, // no tests
+	}
+	RegisterHandler(reg)
 
 	expectedRoutes := map[string]gin.RouteInfo{
-		"PUT:/v1/drivers/availability": {
+		"PUT:/drivers/availability": {
 			Method:  "PUT",
-			Path:    "/v1/drivers/availability",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).SetDriverAvailability-fm",
+			Path:    "/drivers/availability",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).SetDriverAvailability-fm",
 		},
-		"POST:/v1/riders/rides": {
+		"POST:/riders/rides": {
 			Method:  "POST",
-			Path:    "/v1/riders/rides",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).CreateNewRide-fm",
+			Path:    "/riders/rides",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).CreateNewRide-fm",
 		},
-		"POST:/v1/riders/rides/confirm": {
+		"POST:/riders/rides/confirm": {
 			Method:  "POST",
-			Path:    "/v1/riders/rides/confirm",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideRider-fm",
+			Path:    "/riders/rides/confirm",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmRideRider-fm",
 		},
-		"POST:/v1/drivers/rides/confirm": {
+		"POST:/drivers/rides/confirm": {
 			Method:  "POST",
-			Path:    "/v1/drivers/rides/confirm",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmRideDriver-fm",
+			Path:    "/drivers/rides/confirm",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmRideDriver-fm",
 		},
-		"POST:/v1/drivers/rides/start": {
+		"POST:/drivers/rides/start": {
 			Method:  "POST",
-			Path:    "/v1/drivers/rides/start",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).StartRideDriver-fm",
+			Path:    "/drivers/rides/start",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).StartRideDriver-fm",
 		},
-		"POST:/v1/drivers/rides/end": {
+		"POST:/drivers/rides/end": {
 			Method:  "POST",
-			Path:    "/v1/drivers/rides/end",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).EndRideDriver-fm",
+			Path:    "/drivers/rides/end",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).EndRideDriver-fm",
 		},
-		"POST:/v1/drivers/rides/confirm-payment": {
+		"POST:/drivers/rides/confirm-payment": {
 			Method:  "POST",
-			Path:    "/v1/drivers/rides/confirm-payment",
-			Handler: "nebeng-jek/internal/rides/handler.(*ridesHandler).ConfirmPaymentDriver-fm",
+			Path:    "/drivers/rides/confirm-payment",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmPaymentDriver-fm",
 		},
 	}
 

@@ -2,55 +2,58 @@ package handler
 
 import (
 	"context"
+	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/pkg/middleware"
-	repo_amqp "nebeng-jek/internal/rides/repository/amqp"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
+	handler_http "nebeng-jek/internal/rides/handler/http"
+	handler_nats "nebeng-jek/internal/rides/handler/nats"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
 	repo_redis "nebeng-jek/internal/rides/repository/redis"
 	"nebeng-jek/internal/rides/service/payment"
 	"nebeng-jek/internal/rides/usecase"
-	"nebeng-jek/pkg/amqp"
 	"nebeng-jek/pkg/jwt"
+	"nebeng-jek/pkg/messaging/nats"
 	"nebeng-jek/pkg/redis"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
-type ridesHandler struct {
-	usecase usecase.RidesUsecase
+type RegisterHandlerParam struct {
+	Router *gin.RouterGroup
+	Redis  redis.Collections
+	DB     *sqlx.DB
+	NatsJS nats.JetStreamConnection
+	JWTGen jwt.JWTInterface
 }
 
-func RegisterHandler(router *gin.RouterGroup, redis redis.Collections, db *sqlx.DB, amqpConn amqp.AMQPConnection) {
-	ridesPubSub := repo_amqp.NewRepository(amqpConn)
-	repoCache := repo_redis.NewRepository(redis)
-	repoDB := repo_db.NewRepository(db)
+func RegisterHandler(reg RegisterHandlerParam) {
+	ridesPubSub := nats_pkg.NewPubsubRepository(reg.NatsJS)
+	repoCache := repo_redis.NewRepository(reg.Redis)
+	repoDB := repo_db.NewRepository(reg.DB)
 	paymentSvc := payment.NewPaymentService()
 	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub, paymentSvc)
 
-	h := &ridesHandler{
-		usecase: uc,
-	}
+	httpHandler := handler_http.NewHandler(uc)
+	mid := middleware.NewRidesMiddleware(reg.JWTGen)
+	reg.Router.Use(mid.AuthJWTMiddleware)
 
-	j := jwt.NewJWTGenerator(24*time.Hour, "PASSWORD")
-	mid := middleware.NewRidesMiddleware(j)
-
-	router.Use(mid.AuthJWTMiddleware)
-
-	group := router.Group("/v1/drivers")
+	group := reg.Router.Group("/drivers")
 	{
-		group.PUT("/availability", h.SetDriverAvailability)
-		group.POST("/rides/confirm", h.ConfirmRideDriver)
-		group.POST("/rides/start", h.StartRideDriver)
-		group.POST("/rides/end", h.EndRideDriver)
-		group.POST("/rides/confirm-payment", h.ConfirmPaymentDriver)
+		group.PUT("/availability", httpHandler.SetDriverAvailability)
+		group.POST("/rides/confirm", httpHandler.ConfirmRideDriver)
+		group.POST("/rides/start", httpHandler.StartRideDriver)
+		group.POST("/rides/end", httpHandler.EndRideDriver)
+		group.POST("/rides/confirm-payment", httpHandler.ConfirmPaymentDriver)
 	}
 
-	group = router.Group("/v1/riders")
+	group = reg.Router.Group("/riders")
 	{
-		group.POST("/rides", h.CreateNewRide)
-		group.POST("/rides/confirm", h.ConfirmRideRider)
+		group.POST("/rides", httpHandler.CreateNewRide)
+		group.POST("/rides/confirm", httpHandler.ConfirmRideRider)
 	}
 
-	go h.SubscribeUserLocationTracking(context.Background(), amqpConn)
+	natsHandler := handler_nats.NewHandler(uc)
+	ctx := context.Background()
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx))
 }
