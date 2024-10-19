@@ -48,7 +48,7 @@ func main() {
 	redisClient := redis.InitConnection(cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
 		cfg.RedisPassword, cfg.RedisAppConfig)
 
-	natsMsg := nats.NewNATSConnection("nats://localhost:4222")
+	natsMsg := nats.NewNATSConnection(cfg.NatsURL)
 	defer natsMsg.Close()
 	natsJS := nats.NewNATSJSConnection(natsMsg)
 

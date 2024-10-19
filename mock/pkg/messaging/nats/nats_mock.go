@@ -108,6 +108,26 @@ func (mr *MockJetStreamConnectionMockRecorder) Publish(subj, data interface{}, o
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockJetStreamConnection)(nil).Publish), varargs...)
 }
 
+// PublishAsync mocks base method.
+func (m *MockJetStreamConnection) PublishAsync(subj string, data []byte, opts ...nats.PubOpt) (nats.PubAckFuture, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{subj, data}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PublishAsync", varargs...)
+	ret0, _ := ret[0].(nats.PubAckFuture)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PublishAsync indicates an expected call of PublishAsync.
+func (mr *MockJetStreamConnectionMockRecorder) PublishAsync(subj, data interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{subj, data}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishAsync", reflect.TypeOf((*MockJetStreamConnection)(nil).PublishAsync), varargs...)
+}
+
 // Subscribe mocks base method.
 func (m *MockJetStreamConnection) Subscribe(subj string, cb nats.MsgHandler, opts ...nats.SubOpt) (*nats.Subscription, error) {
 	m.ctrl.T.Helper()

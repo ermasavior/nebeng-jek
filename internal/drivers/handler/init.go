@@ -40,6 +40,7 @@ func RegisterHandler(reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(connStorage, uc)
 	ctx := context.Background()
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx))
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx))
+	svcName := "drivers-service"
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), svcName)
 }

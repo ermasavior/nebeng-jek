@@ -40,9 +40,10 @@ func RegisterHandler(reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(connStorage)
 	ctx := context.Background()
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx))
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx))
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx))
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideEnded, natsHandler.SubscribeRideEnded(ctx))
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRidePaid, natsHandler.SubscribeRidePaid(ctx))
+	svcName := "riders-service"
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideEnded, natsHandler.SubscribeRideEnded(ctx), svcName)
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRidePaid, natsHandler.SubscribeRidePaid(ctx), svcName)
 }

@@ -44,12 +44,19 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 
 func (h *httpHandler) routeMessage(ctx context.Context, msg model.DriverMessage) {
 	if msg.Event == model.EventRealTimeLocation {
-		var req model.TrackUserLocationRequest
-		err := h.usecase.TrackUserLocation(ctx, req)
+		req, err := model.ToTrackUserLocationRequest(msg.Data)
+		if err != nil {
+			logger.Error(ctx, "error reading track location request", map[string]interface{}{
+				"error": err,
+			})
+			return
+		}
+		err = h.usecase.TrackUserLocation(ctx, req)
 		if err != nil {
 			logger.Error(ctx, "track user location", map[string]interface{}{
 				"error": err,
 			})
+			return
 		}
 	}
 }

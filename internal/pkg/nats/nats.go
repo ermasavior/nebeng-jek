@@ -24,17 +24,19 @@ func (r *pubsubRepo) BroadcastMessage(ctx context.Context, topic string, msg int
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		logger.Error(ctx, "error marshalling message bytes", map[string]interface{}{
-			"topic": topic,
-			"msg":   msg,
+			"topic":         topic,
+			"msg":           msg,
+			logger.ErrorKey: err,
 		})
 		return err
 	}
 
-	_, err = r.nats.Publish(topic, msgBytes)
+	_, err = r.nats.PublishAsync(topic, msgBytes)
 	if err != nil {
 		logger.Error(ctx, "error publish message", map[string]interface{}{
-			"topic": topic,
-			"msg":   msg,
+			"topic":         topic,
+			"msg":           msg,
+			logger.ErrorKey: err,
 		})
 		return err
 	}
@@ -42,10 +44,14 @@ func (r *pubsubRepo) BroadcastMessage(ctx context.Context, topic string, msg int
 	return nil
 }
 
-func SubscribeMessage(natsJS nats.JetStreamConnection, topic string, msgHandler nats_go.MsgHandler) {
-	_, err := natsJS.Subscribe(topic, msgHandler, nats_go.MaxDeliver(5))
+func SubscribeMessage(natsJS nats.JetStreamConnection, topic string, msgHandler nats_go.MsgHandler, consumerName string) {
+	_, err := natsJS.Subscribe(topic, msgHandler,
+		nats_go.MaxDeliver(5), nats_go.AckExplicit(), nats_go.Durable(consumerName))
 	if err != nil {
-		logger.Error(context.Background(), "fail to subscribe messages", map[string]interface{}{"error": err})
+		logger.Error(context.Background(), "fail to subscribe messages", map[string]interface{}{
+			"topic": topic,
+			"error": err,
+		})
 		return
 	}
 

@@ -41,12 +41,23 @@ services:
     environment:
       - NATS_MAX_MEMORY=2GB  # Limits memory usage
       - NATS_MAX_PAYLOAD=64MB  # Sets max message payload
+    networks:
+      local:
+  nats-cli:
+    image: synadia/nats-box
+    container_name: nats-cli
+    depends_on:
+      - nats
+    networks:
+      local:
+    volumes:
+      - ./nats/create_streams.sh:/scripts/create_streams.sh  # Mount the script into the container
+    entrypoint: /bin/sh -c "/scripts/create_streams.sh"  # Execute the script
 
 volumes:
   postgres:
   redis_data:
     driver: local
-  rabbitmq-data:
 
 networks:
   local:

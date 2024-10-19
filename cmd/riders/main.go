@@ -32,7 +32,7 @@ func main() {
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
 	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
-	natsMsg := nats.NewNATSConnection("nats://localhost:4222")
+	natsMsg := nats.NewNATSConnection(cfg.NatsURL)
 	defer natsMsg.Close()
 	natsJS := nats.NewNATSJSConnection(natsMsg)
 

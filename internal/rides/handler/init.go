@@ -55,5 +55,5 @@ func RegisterHandler(reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(uc)
 	ctx := context.Background()
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx))
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx), "rides-service")
 }
