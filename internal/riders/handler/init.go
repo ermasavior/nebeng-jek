@@ -16,11 +16,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type ridersHandler struct {
-	upgrader    websocket.Upgrader
-	connStorage *sync.Map
-}
-
 type RegisterHandlerParam struct {
 	Router *gin.RouterGroup
 	NatsJS nats.JetStreamConnection

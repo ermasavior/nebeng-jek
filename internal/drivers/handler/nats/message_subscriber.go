@@ -3,7 +3,6 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"nebeng-jek/internal/drivers/model"
 	"nebeng-jek/pkg/logger"
 
@@ -43,7 +42,6 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(msg 
 			msg.Ack()
 			return
 		}
-		fmt.Println("cekkkk", data)
 
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventRideReadyToPickup,
