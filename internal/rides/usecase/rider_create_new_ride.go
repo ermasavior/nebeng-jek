@@ -9,19 +9,19 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, *pkgError.AppError) {
+func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, pkgError.AppError) {
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
 	riderData, err := u.ridesRepo.GetRiderDataByID(ctx, riderID)
 	if err == constants.ErrorDataNotFound {
-		return 0, pkgError.NewUnauthorized(err, "invalid rider id")
+		return 0, pkgError.NewUnauthorizedError("invalid rider id")
 	}
 	if err != nil {
 		logger.Error(ctx, "error get rider data", map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return 0, pkgError.NewInternalServerError(err, "error get rider data")
+		return 0, pkgError.NewInternalServerError("error get rider data")
 	}
 
 	drivers, err := u.locationRepo.GetNearestAvailableDrivers(ctx, req.PickupLocation)
@@ -30,10 +30,10 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCr
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return 0, pkgError.NewInternalServerError(err, "error get nearest available drivers")
+		return 0, pkgError.NewInternalServerError("error get nearest available drivers")
 	}
 	if len(drivers) == 0 {
-		return 0, pkgError.NewNotFound(nil, "no nearest driver available, try again later")
+		return 0, pkgError.NewNotFoundError("no nearest driver available, try again later")
 	}
 
 	req.RiderID = riderData.ID
@@ -44,7 +44,7 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCr
 			"req":      req,
 			"error":    err,
 		})
-		return 0, pkgError.NewInternalServerError(err, "error create new ride")
+		return 0, pkgError.NewInternalServerError("error create new ride")
 	}
 
 	var mapDrivers = map[int64]bool{}
@@ -67,7 +67,7 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCr
 			"msg":      msg,
 			"error":    err,
 		})
-		return 0, pkgError.NewInternalServerError(err, "error broadcasting ride to drivers")
+		return 0, pkgError.NewInternalServerError("error broadcasting ride to drivers")
 	}
 
 	return rideID, nil

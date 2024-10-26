@@ -3,7 +3,6 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/rides/model"
 	mock_usecase "nebeng-jek/mock/usecase"
@@ -48,7 +47,7 @@ func TestSubscribeUserLiveLocation(t *testing.T) {
 	})
 
 	t.Run("error - failed", func(t *testing.T) {
-		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
+		expectedError := errorPkg.NewInternalServerError("error from usecase")
 		mockUsecase.EXPECT().TrackUserLocation(ctx, req).Return(expectedError)
 		handler := h.SubscribeUserLiveLocation(ctx)
 		handler(mockMsg)

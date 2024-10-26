@@ -9,35 +9,38 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) ConfirmRideRider(ctx context.Context, req model.ConfirmRideRiderRequest) *pkgError.AppError {
+func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConfirmRideRequest) pkgError.AppError {
 	if !req.IsAccept {
 		return nil
 	}
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
-	riderData, err := u.ridesRepo.GetRiderDataByID(ctx, riderID)
-	if err == constants.ErrorDataNotFound {
-		return pkgError.NewUnauthorized(err, "invalid rider id")
-	}
+	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err != nil {
-		logger.Error(ctx, "error get rider data", map[string]interface{}{
+		logger.Error(ctx, "error get ride data", map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError(err, "error get rider data")
+		return pkgError.NewInternalServerError("error get ride data")
 	}
 
-	req.RiderID = riderData.ID
-	rideData, err := u.ridesRepo.ConfirmRideRider(ctx, req)
-	if err == constants.ErrorDataNotFound {
-		return pkgError.NewNotFound(err, "ride data is not found")
+	if rideData.RiderID != riderID {
+		return pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
+	if rideData.Status != model.StatusRideWaitingForDriver {
+		return pkgError.NewBadRequestError("invalid ride status")
+	}
+
+	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
+		RideID: req.RideID,
+		Status: model.StatusNumRideWaitingForPickup,
+	})
 	if err != nil {
-		logger.Error(ctx, "error confirm ride by driver", map[string]interface{}{
+		logger.Error(ctx, "error update ride data", map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError(err, "error confirm ride by driver")
+		return pkgError.NewInternalServerError("error update ride data")
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
@@ -50,7 +53,7 @@ func (u *ridesUsecase) ConfirmRideRider(ctx context.Context, req model.ConfirmRi
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError(err, "error broadcasting ride ready to pickup")
+		return pkgError.NewInternalServerError("error broadcasting ride ready to pickup")
 	}
 
 	return nil

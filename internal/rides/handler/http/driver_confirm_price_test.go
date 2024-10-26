@@ -3,7 +3,6 @@ package handler_http
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -68,7 +67,7 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 	})
 
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
-		expectedError := errorPkg.NewNotFound(errors.New("error"), "not found")
+		expectedError := errorPkg.NewNotFoundError("not found")
 
 		mockUsecase.EXPECT().DriverConfirmPrice(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
@@ -80,11 +79,11 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 		_ = json.NewDecoder(w.Body).Decode(&resBody)
 
 		assert.Equal(t, http.StatusNotFound, w.Code)
-		assert.Equal(t, expectedError.Message, resBody.Meta.Message)
+		assert.Equal(t, expectedError.GetMessage(), resBody.Meta.Message)
 	})
 
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
-		expectedError := errorPkg.NewInternalServerError(errors.New("error"), "error from usecase")
+		expectedError := errorPkg.NewInternalServerError("error from usecase")
 
 		mockUsecase.EXPECT().DriverConfirmPrice(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
@@ -96,6 +95,6 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 		_ = json.NewDecoder(w.Body).Decode(&resBody)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.Equal(t, expectedError.Message, resBody.Meta.Message)
+		assert.Equal(t, expectedError.GetMessage(), resBody.Meta.Message)
 	})
 }

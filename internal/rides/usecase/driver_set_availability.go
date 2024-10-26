@@ -9,12 +9,12 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.DriverSetAvailabilityRequest) *pkgError.AppError {
+func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.DriverSetAvailabilityRequest) pkgError.AppError {
 	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	_, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
+	_, err := u.ridesRepo.GetDriverMSISDNByID(ctx, driverID)
 	if err == constants.ErrorDataNotFound {
-		return pkgError.NewUnauthorized(err, "invalid driver id")
+		return pkgError.NewUnauthorizedError("invalid driver id")
 	}
 
 	if req.IsAvailable {
@@ -24,7 +24,7 @@ func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.Driv
 				"driver_id": driverID,
 				"error":     err,
 			})
-			return pkgError.NewInternalServerError(err, "error adding available driver")
+			return pkgError.NewInternalServerError("error adding available driver")
 		}
 		return nil
 	}
@@ -35,7 +35,7 @@ func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.Driv
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError(err, "error removing available driver")
+		return pkgError.NewInternalServerError("error removing available driver")
 	}
 
 	return nil

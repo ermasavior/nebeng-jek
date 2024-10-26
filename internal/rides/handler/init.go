@@ -51,7 +51,7 @@ func RegisterHandler(reg RegisterHandlerParam) {
 	group.Use(mid.RiderAuthMiddleware)
 	{
 		group.POST("/ride/create", httpHandler.RiderCreateNewRide)
-		group.POST("/ride/confirm", httpHandler.ConfirmRideRider)
+		group.POST("/ride/confirm", httpHandler.RiderConfirmRide)
 	}
 
 	natsHandler := handler_nats.NewHandler(uc)

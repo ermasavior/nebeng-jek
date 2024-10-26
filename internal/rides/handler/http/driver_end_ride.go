@@ -2,6 +2,7 @@ package handler_http
 
 import (
 	"nebeng-jek/internal/rides/model"
+	pkgErr "nebeng-jek/pkg/error"
 	httpUtils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/logger"
 	"net/http"
@@ -26,8 +27,8 @@ func (h *httpHandler) DriverEndRide(c *gin.Context) {
 			logger.ErrorKey: err.Error(),
 		})
 		c.JSON(
-			err.Code,
-			httpUtils.NewFailedResponse(err.Code, err.Message),
+			pkgErr.ToHttpError(err),
+			httpUtils.NewFailedResponse(err.GetCode(), err.GetMessage()),
 		)
 		return
 	}

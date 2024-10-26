@@ -82,7 +82,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(model.RiderData{}, expectedErr)
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error get rider data"), err)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
 	t.Run("failed - should return error when get nearest available driver", func(t *testing.T) {
@@ -92,7 +92,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 			Return(nil, expectedErr)
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error get nearest available drivers"), err)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
 	t.Run("failed - not found - should return error not found when there is no available driver", func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 			Return([]int64{}, nil)
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewNotFound(nil, "no nearest driver available, try again later"), err)
+		assert.Equal(t, err.GetCode(), pkgError.ErrResourceNotFoundCode)
 	})
 
 	t.Run("failed - should return error when create new ride is failed", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		}).Return(int64(0), expectedErr)
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error create new ride"), err)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
 	t.Run("failed - should return error when fail broadcasting ride to drivers", func(t *testing.T) {
@@ -139,6 +139,6 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, pkgError.NewInternalServerError(expectedErr, "error broadcasting ride to drivers"), err)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 }

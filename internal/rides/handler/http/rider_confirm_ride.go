@@ -2,6 +2,7 @@ package handler_http
 
 import (
 	"nebeng-jek/internal/rides/model"
+	pkgErr "nebeng-jek/pkg/error"
 	httpUtils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/logger"
 	"net/http"
@@ -9,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) ConfirmRideRider(c *gin.Context) {
-	req := model.ConfirmRideRiderRequest{}
+func (h *httpHandler) RiderConfirmRide(c *gin.Context) {
+	req := model.RiderConfirmRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -20,14 +21,14 @@ func (h *httpHandler) ConfirmRideRider(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	err := h.usecase.ConfirmRideRider(ctx, req)
+	err := h.usecase.RiderConfirmRide(ctx, req)
 	if err != nil {
-		logger.Error(ctx, "error handler", map[string]interface{}{
+		logger.Error(ctx, "error from usecase", map[string]interface{}{
 			logger.ErrorKey: err.Error(),
 		})
 		c.JSON(
-			err.Code,
-			httpUtils.NewFailedResponse(err.Code, err.Message),
+			pkgErr.ToHttpError(err),
+			httpUtils.NewFailedResponse(err.GetCode(), err.GetMessage()),
 		)
 		return
 	}

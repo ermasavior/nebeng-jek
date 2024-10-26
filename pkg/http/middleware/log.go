@@ -35,7 +35,6 @@ func LogHandler() gin.HandlerFunc {
 		if raw != "" {
 			path = path + "?" + raw
 		}
-		param.Path = path
 
 		if param.StatusCode >= http.StatusInternalServerError {
 			logger.Error(
