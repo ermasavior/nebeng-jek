@@ -34,28 +34,4 @@ const (
 		SET %s
 		WHERE %s 
 	`
-	queryDriverConfirmRide = `
-		UPDATE rides
-		SET driver_id = $1, updated_at = NOW()
-		WHERE id = $2 AND driver_id IS NULL
-		RETURNING id, rider_id, driver_id,
-				  pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
-				  destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
-	`
-	queryConfirmRideRider = `
-		UPDATE rides
-		SET status = $1, updated_at = NOW()
-		WHERE id = $2 AND rider_id = $3 AND driver_id IS NOT NULL
-		RETURNING id, rider_id, driver_id,
-				  pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
-				  destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
-	`
-	queryUpdateRideByDriver = `
-		UPDATE rides
-		SET status = $1, updated_at = NOW(), distance = $2, fare = $3, final_price = $4
-		WHERE id = $5 AND driver_id = $6
-		RETURNING id, rider_id, driver_id,
-			  pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
-			  destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
-`
 )

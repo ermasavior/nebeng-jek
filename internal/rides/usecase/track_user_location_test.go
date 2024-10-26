@@ -5,6 +5,7 @@ import (
 	"errors"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
+	pkgError "nebeng-jek/pkg/error"
 	"testing"
 	"time"
 
@@ -41,6 +42,6 @@ func TestUsecase_TrackUserLocation(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		locationRepoMock.EXPECT().TrackUserLocation(gomock.Any(), req).Return(expectedErr)
 		err := usecaseMock.TrackUserLocation(context.Background(), req)
-		assert.EqualError(t, expectedErr, err.Raw.Error())
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 }

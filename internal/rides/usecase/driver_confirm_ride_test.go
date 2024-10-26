@@ -37,6 +37,7 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 			RideID:   111,
 			RiderID:  666,
 			DriverID: 1111,
+			Status:   model.StatusRideWaitingForDriver,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -57,11 +58,11 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 
 	t.Run("success - should confirm ride driver and broadcast to rider", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
-		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
-			DriverID: driverData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
 			RideID:  rideData.RideID,
@@ -75,7 +76,6 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 
 	t.Run("success - driver not accepting ride request", func(t *testing.T) {
 		err := usecaseMock.DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
-			DriverID: req.DriverID,
 			RideID:   req.RideID,
 			IsAccept: false,
 		})
@@ -87,30 +87,39 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(model.DriverData{}, expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
-	t.Run("failed - confirm ride returns error", func(t *testing.T) {
+	t.Run("failed - get ride data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
-		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
-			DriverID: driverData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(model.RideData{}, expectedErr)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get driver data"))
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+	})
+
+	t.Run("failed - update ride data returns error", func(t *testing.T) {
+		expectedErr := errors.New("error from repo")
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(expectedErr)
+
+		err := usecaseMock.DriverConfirmRide(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
-		ridesRepoMock.EXPECT().DriverConfirmRide(ctx, model.DriverConfirmRideRequest{
-			DriverID: driverData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
 			RideID:  rideData.RideID,
@@ -119,6 +128,6 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error broadcasting matched ride to rider"))
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 }

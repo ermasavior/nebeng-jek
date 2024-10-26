@@ -1,55 +1,57 @@
 package error
 
-import (
-	"net/http"
-)
-
-type AppError struct {
-	Code    int
-	Message string
-	Raw     error
+type appError struct {
+	code    int
+	message string
 }
 
-func (e AppError) Error() string {
-	return e.Message
-}
-
-func NewInternalServerError(err error, msg string) *AppError {
-	return &AppError{
-		Code:    http.StatusInternalServerError,
-		Raw:     err,
-		Message: msg,
+func NewInternalServerError(msg string) AppError {
+	return &appError{
+		code:    ErrInternalErrorCode,
+		message: msg,
 	}
 }
 
-func NewNotFound(err error, msg string) *AppError {
-	return &AppError{
-		Code:    http.StatusNotFound,
-		Raw:     err,
-		Message: msg,
+func NewNotFoundError(msg string) AppError {
+	return &appError{
+		code:    ErrResourceNotFoundCode,
+		message: msg,
 	}
 }
 
-func NewForbidden(err error, msg string) *AppError {
-	return &AppError{
-		Code:    http.StatusForbidden,
-		Raw:     err,
-		Message: msg,
+func NewForbiddenError(msg string) AppError {
+	return &appError{
+		code:    ErrForbiddenCode,
+		message: msg,
 	}
 }
 
-func NewBadRequest(err error, msg string) *AppError {
-	return &AppError{
-		Code:    http.StatusBadRequest,
-		Raw:     err,
-		Message: msg,
+func NewBadRequestError(msg string) AppError {
+	return &appError{
+		code:    ErrBadRequestCode,
+		message: msg,
 	}
 }
 
-func NewUnauthorized(err error, msg string) *AppError {
-	return &AppError{
-		Code:    http.StatusUnauthorized,
-		Raw:     err,
-		Message: msg,
+func NewUnauthorizedError(msg string) AppError {
+	return &appError{
+		code:    ErrUnauthorizedCode,
+		message: msg,
 	}
+}
+
+func (e appError) GetCode() int {
+	return e.code
+}
+
+func (e appError) GetMessage() string {
+	return e.message
+}
+
+func (e appError) Error() string {
+	return e.message
+}
+
+func (e appError) String() string {
+	return e.message
 }

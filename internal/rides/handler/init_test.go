@@ -64,7 +64,7 @@ func TestRegisterHandler(t *testing.T) {
 		"POST:/riders/ride/confirm": {
 			Method:  "POST",
 			Path:    "/riders/ride/confirm",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).ConfirmRideRider-fm",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).RiderConfirmRide-fm",
 		},
 	}
 

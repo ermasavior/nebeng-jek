@@ -7,11 +7,11 @@ type RiderCreateNewRideRequest struct {
 }
 
 type DriverSetAvailabilityRequest struct {
-	IsAvailable     bool       `json:"is_available"`
+	IsAvailable     bool       `json:"is_available" binding:"required"`
 	CurrentLocation Coordinate `json:"current_location" binding:"required"`
 }
 
-type ConfirmRideRiderRequest struct {
+type RiderConfirmRideRequest struct {
 	RiderID  int64 `json:"-"`
 	RideID   int64 `json:"ride_id" binding:"required"`
 	IsAccept bool  `json:"is_accept" binding:"required"`

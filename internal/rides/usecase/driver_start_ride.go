@@ -9,35 +9,35 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStartRideRequest) (model.RideData, *pkgError.AppError) {
+func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStartRideRequest) (model.RideData, pkgError.AppError) {
 	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	driver, err := u.ridesRepo.GetDriverDataByID(ctx, driverID)
-	if err == constants.ErrorDataNotFound {
-		return model.RideData{}, pkgError.NewUnauthorized(err, "invalid driver id")
-	}
+	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err != nil {
-		logger.Error(ctx, "error get driver data", map[string]interface{}{
+		logger.Error(ctx, "error get ride data", map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error get driver data")
+		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
 	}
 
-	rideData, err := u.ridesRepo.UpdateRideByDriver(ctx, model.UpdateRideByDriverRequest{
-		DriverID: driver.ID,
-		RideID:   req.RideID,
-		Status:   model.StatusNumRideStarted,
-	})
-	if err == constants.ErrorDataNotFound {
-		return model.RideData{}, pkgError.NewNotFound(err, "ride data is not found or has been allocated to another driver")
+	if rideData.DriverID != driverID {
+		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
+	if rideData.Status != model.StatusRideWaitingForPickup {
+		return model.RideData{}, pkgError.NewBadRequestError("invalid ride status")
+	}
+
+	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
+		RideID: req.RideID,
+		Status: model.StatusNumRideStarted,
+	})
 	if err != nil {
 		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error update ride by driver")
+		return model.RideData{}, pkgError.NewInternalServerError("error update ride by driver")
 	}
 
 	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
@@ -46,7 +46,7 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error removing available driver")
+		return model.RideData{}, pkgError.NewInternalServerError("error removing available driver")
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
@@ -58,7 +58,7 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(err, "error broadcasting message")
+		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting message")
 	}
 
 	return rideData, nil

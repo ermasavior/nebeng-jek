@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUsecase_ConfirmRideRider(t *testing.T) {
+func TestUsecase_RiderConfirmRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -25,17 +25,13 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
-		riderID   = int64(9999)
-		driverID  = int64(1111)
-		riderData = model.RiderData{
-			ID:     riderID,
-			Name:   "Agus",
-			MSISDN: "0811111",
-		}
+		riderID  = int64(9999)
+		driverID = int64(1111)
 		rideData = model.RideData{
 			RideID:   111,
 			RiderID:  riderID,
 			DriverID: driverID,
+			Status:   model.StatusRideWaitingForDriver,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -45,7 +41,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 				Longitude: 2,
 			},
 		}
-		req = model.ConfirmRideRiderRequest{
+		req = model.RiderConfirmRideRequest{
 			RideID:   111,
 			IsAccept: true,
 		}
@@ -55,25 +51,24 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 	ctx = pkgContext.SetRiderIDToContext(ctx, riderID)
 
 	t.Run("success - should confirm ride rider and broadcast message", func(t *testing.T) {
-		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
-			RiderID:  riderData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
-			RideID:   rideData.RideID,
+			RideID:   req.RideID,
 			RiderID:  riderID,
 			DriverID: driverID,
 		}).Return(nil)
 
-		err := usecaseMock.ConfirmRideRider(ctx, req)
+		err := usecaseMock.RiderConfirmRide(ctx, req)
 		assert.Nil(t, err)
 	})
 
 	t.Run("success - driver not accepting ride request", func(t *testing.T) {
-		err := usecaseMock.ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
+		err := usecaseMock.RiderConfirmRide(ctx, model.RiderConfirmRideRequest{
 			RiderID:  req.RiderID,
 			RideID:   req.RideID,
 			IsAccept: false,
@@ -81,35 +76,33 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("failed - get rider data returns error", func(t *testing.T) {
+	t.Run("failed - get ride data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(model.RiderData{}, expectedErr)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, expectedErr)
 
-		err := usecaseMock.ConfirmRideRider(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error get rider data"))
+		err := usecaseMock.RiderConfirmRide(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
-	t.Run("failed - confirm ride returns error", func(t *testing.T) {
+	t.Run("failed - update ride returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
-			RiderID:  riderData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(model.RideData{}, expectedErr)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(expectedErr)
 
-		err := usecaseMock.ConfirmRideRider(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error confirm ride by driver"))
+		err := usecaseMock.RiderConfirmRide(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
-		ridesRepoMock.EXPECT().ConfirmRideRider(ctx, model.ConfirmRideRiderRequest{
-			RiderID:  riderData.ID,
-			RideID:   req.RideID,
-			IsAccept: true,
-		}).Return(rideData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideWaitingForPickup,
+		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
 			RideID:   rideData.RideID,
@@ -117,7 +110,7 @@ func TestUsecase_ConfirmRideRider(t *testing.T) {
 			DriverID: driverID,
 		}).Return(expectedErr)
 
-		err := usecaseMock.ConfirmRideRider(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError(expectedErr, "error broadcasting ride ready to pickup"))
+		err := usecaseMock.RiderConfirmRide(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 }
