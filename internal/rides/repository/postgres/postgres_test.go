@@ -137,6 +137,118 @@ func TestRepository_GetDriverDataByID(t *testing.T) {
 	})
 }
 
+func TestRepository_GetRiderMSISDNByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	riderID := int64(1111)
+	expectedMSISDN := "081111"
+
+	expectedQuery := queryGetRiderMSISDNByID
+
+	t.Run("should execute get query", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(riderID).
+			WillReturnRows(sqlmock.NewRows([]string{"phone_number"}).
+				AddRow(expectedMSISDN),
+			)
+
+		msisdn, err := repoMock.GetRiderMSISDNByID(ctx, riderID)
+
+		assert.Equal(t, expectedMSISDN, msisdn)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return not found when data is not found", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(riderID).
+			WillReturnError(sql.ErrNoRows)
+
+		msisdn, err := repoMock.GetRiderMSISDNByID(ctx, riderID)
+
+		assert.Equal(t, "", msisdn)
+		assert.Error(t, err, constants.ErrorDataNotFound)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(riderID).
+			WillReturnError(rowErr)
+
+		msisdn, err := repoMock.GetRiderMSISDNByID(ctx, riderID)
+
+		assert.Equal(t, "", msisdn)
+		assert.NotNil(t, err)
+	})
+}
+
+func TestRepository_GetDriverMSISDNByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	driverID := int64(1111)
+	expectedMSISDN := "081111"
+
+	expectedQuery := queryGetDriverMSISDNByID
+
+	t.Run("should execute get query", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(driverID).
+			WillReturnRows(sqlmock.NewRows([]string{"phone_number"}).
+				AddRow(expectedMSISDN),
+			)
+
+		msisdn, err := repoMock.GetDriverMSISDNByID(ctx, driverID)
+
+		assert.Equal(t, expectedMSISDN, msisdn)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return not found when data is not found", func(t *testing.T) {
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(driverID).
+			WillReturnError(sql.ErrNoRows)
+
+		msisdn, err := repoMock.GetDriverMSISDNByID(ctx, driverID)
+
+		assert.Equal(t, "", msisdn)
+		assert.Error(t, err, constants.ErrorDataNotFound)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectQuery(expectedQuery).
+			WithArgs(driverID).
+			WillReturnError(rowErr)
+
+		msisdn, err := repoMock.GetDriverMSISDNByID(ctx, driverID)
+
+		assert.Equal(t, "", msisdn)
+		assert.NotNil(t, err)
+	})
+}
+
 func TestRepository_RiderCreateNewRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
