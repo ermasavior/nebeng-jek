@@ -249,7 +249,7 @@ func TestRepository_GetDriverMSISDNByID(t *testing.T) {
 	})
 }
 
-func TestRepository_RiderCreateNewRide(t *testing.T) {
+func TestRepository_CreateNewRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -265,7 +265,7 @@ func TestRepository_RiderCreateNewRide(t *testing.T) {
 
 	ctx := context.Background()
 	expectedID := int64(8888)
-	req := model.RiderCreateNewRideRequest{
+	req := model.CreateNewRideRequest{
 		RiderID: 999,
 		PickupLocation: model.Coordinate{
 			Latitude:  1,
@@ -287,7 +287,7 @@ func TestRepository_RiderCreateNewRide(t *testing.T) {
 				req.Destination.Latitude, req.Destination.Longitude).
 			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(expectedID))
 
-		id, err := repoMock.RiderCreateNewRide(ctx, req)
+		id, err := repoMock.CreateNewRide(ctx, req)
 
 		assert.Equal(t, expectedID, id)
 		assert.Nil(t, err)
@@ -302,7 +302,7 @@ func TestRepository_RiderCreateNewRide(t *testing.T) {
 				req.Destination.Latitude, req.Destination.Longitude).
 			WillReturnError(rowErr)
 
-		id, err := repoMock.RiderCreateNewRide(ctx, req)
+		id, err := repoMock.CreateNewRide(ctx, req)
 
 		assert.Equal(t, int64(0), id)
 		assert.NotNil(t, err)

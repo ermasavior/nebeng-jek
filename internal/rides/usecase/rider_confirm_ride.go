@@ -10,9 +10,6 @@ import (
 )
 
 func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConfirmRideRequest) pkgError.AppError {
-	if !req.IsAccept {
-		return nil
-	}
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
@@ -27,13 +24,18 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 	if rideData.RiderID != riderID {
 		return pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
-	if rideData.Status != model.StatusRideWaitingForDriver {
+	if rideData.Status != model.StatusRideDriverMatched {
 		return pkgError.NewBadRequestError("invalid ride status")
+	}
+
+	var status = model.StatusNumRideWaitingForPickup
+	if !req.IsAccept {
+		status = model.StatusNumRideCancelled
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
 		RideID: req.RideID,
-		Status: model.StatusNumRideWaitingForPickup,
+		Status: status,
 	})
 	if err != nil {
 		logger.Error(ctx, "error update ride data", map[string]interface{}{
@@ -41,6 +43,10 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 			"error":    err,
 		})
 		return pkgError.NewInternalServerError("error update ride data")
+	}
+
+	if !req.IsAccept {
+		return nil
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{

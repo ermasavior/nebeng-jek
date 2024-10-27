@@ -60,8 +60,9 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideWaitingForPickup,
+			RideID:   req.RideID,
+			DriverID: driverID,
+			Status:   model.StatusNumRideDriverMatched,
 		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
@@ -104,8 +105,9 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideWaitingForPickup,
+			RideID:   req.RideID,
+			DriverID: driverID,
+			Status:   model.StatusNumRideDriverMatched,
 		}).Return(expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
@@ -117,8 +119,9 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideWaitingForPickup,
+			RideID:   req.RideID,
+			DriverID: driverID,
+			Status:   model.StatusNumRideDriverMatched,
 		}).Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{

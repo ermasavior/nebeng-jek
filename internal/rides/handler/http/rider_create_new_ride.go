@@ -11,7 +11,7 @@ import (
 )
 
 func (h *httpHandler) RiderCreateNewRide(c *gin.Context) {
-	req := model.RiderCreateNewRideRequest{}
+	req := model.CreateNewRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,

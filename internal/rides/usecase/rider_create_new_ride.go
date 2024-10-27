@@ -9,7 +9,7 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, pkgError.AppError) {
+func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, pkgError.AppError) {
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
 	riderData, err := u.ridesRepo.GetRiderDataByID(ctx, riderID)
@@ -37,7 +37,7 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.RiderCr
 	}
 
 	req.RiderID = riderData.ID
-	rideID, err := u.ridesRepo.RiderCreateNewRide(ctx, req)
+	rideID, err := u.ridesRepo.CreateNewRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error create new ride", map[string]interface{}{
 			"rider_id": riderID,

@@ -2,16 +2,20 @@ package model
 
 const (
 	StatusNumRideWaitingForDriver = 1
-	StatusNumRideWaitingForPickup = 2
-	StatusNumRideStarted          = 3
-	StatusNumRideEnded            = 4
-	StatusNumRidePaid             = 5
+	StatusNumRideDriverMatched    = 2
+	StatusNumRideWaitingForPickup = 3
+	StatusNumRideStarted          = 4
+	StatusNumRideEnded            = 5
+	StatusNumRidePaid             = 6
+	StatusNumRideCancelled        = 7
 
 	StatusRideWaitingForDriver = "WAITING_FOR_DRIVER"
+	StatusRideDriverMatched    = "DRIVER_MATCHED"
 	StatusRideWaitingForPickup = "WAITING_FOR_PICKUP"
 	StatusRideStarted          = "RIDE_STARTED"
 	StatusRideEnded            = "RIDE_ENDED"
 	StatusRidePaid             = "RIDE_PAID"
+	StatusRideCancelled        = "RIDE_CANCELLED"
 
 	RidePricePerKm  = 3000
 	RideFeeDiscount = 0.3 // 30% percentage

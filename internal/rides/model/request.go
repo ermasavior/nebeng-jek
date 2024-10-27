@@ -1,6 +1,6 @@
 package model
 
-type RiderCreateNewRideRequest struct {
+type CreateNewRideRequest struct {
 	RiderID        int64      `json:"-"`
 	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
 	Destination    Coordinate `json:"destination" binding:"required"`

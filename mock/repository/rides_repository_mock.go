@@ -130,6 +130,21 @@ func (m *MockRidesRepository) EXPECT() *MockRidesRepositoryMockRecorder {
 	return m.recorder
 }
 
+// CreateNewRide mocks base method.
+func (m *MockRidesRepository) CreateNewRide(arg0 context.Context, arg1 model.CreateNewRideRequest) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateNewRide", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateNewRide indicates an expected call of CreateNewRide.
+func (mr *MockRidesRepositoryMockRecorder) CreateNewRide(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewRide", reflect.TypeOf((*MockRidesRepository)(nil).CreateNewRide), arg0, arg1)
+}
+
 // GetDriverDataByID mocks base method.
 func (m *MockRidesRepository) GetDriverDataByID(ctx context.Context, driverID int64) (model.DriverData, error) {
 	m.ctrl.T.Helper()
@@ -203,21 +218,6 @@ func (m *MockRidesRepository) GetRiderMSISDNByID(ctx context.Context, id int64) 
 func (mr *MockRidesRepositoryMockRecorder) GetRiderMSISDNByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderMSISDNByID", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderMSISDNByID), ctx, id)
-}
-
-// RiderCreateNewRide mocks base method.
-func (m *MockRidesRepository) RiderCreateNewRide(arg0 context.Context, arg1 model.RiderCreateNewRideRequest) (int64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RiderCreateNewRide", arg0, arg1)
-	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// RiderCreateNewRide indicates an expected call of RiderCreateNewRide.
-func (mr *MockRidesRepositoryMockRecorder) RiderCreateNewRide(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RiderCreateNewRide", reflect.TypeOf((*MockRidesRepository)(nil).RiderCreateNewRide), arg0, arg1)
 }
 
 // UpdateRideData mocks base method.

@@ -41,8 +41,9 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
-		RideID: req.RideID,
-		Status: model.StatusNumRideWaitingForPickup,
+		RideID:   req.RideID,
+		DriverID: driverID,
+		Status:   model.StatusNumRideDriverMatched,
 	})
 	if err != nil {
 		logger.Error(ctx, "error update ride data", map[string]interface{}{

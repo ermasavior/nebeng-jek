@@ -71,7 +71,7 @@ func (r *ridesRepo) GetDriverMSISDNByID(ctx context.Context, id int64) (string, 
 	return msisdn, nil
 }
 
-func (r *ridesRepo) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, error) {
+func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {
 	var id int64
 	values := []interface{}{
 		req.RiderID, model.StatusNumRideWaitingForDriver,

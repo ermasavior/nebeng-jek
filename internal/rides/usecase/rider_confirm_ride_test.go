@@ -31,7 +31,7 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 			RideID:   111,
 			RiderID:  riderID,
 			DriverID: driverID,
-			Status:   model.StatusRideWaitingForDriver,
+			Status:   model.StatusRideDriverMatched,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -67,7 +67,13 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("success - driver not accepting ride request", func(t *testing.T) {
+	t.Run("success - rider not accepting ride request", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideCancelled,
+		}).Return(nil)
+
 		err := usecaseMock.RiderConfirmRide(ctx, model.RiderConfirmRideRequest{
 			RiderID:  req.RiderID,
 			RideID:   req.RideID,

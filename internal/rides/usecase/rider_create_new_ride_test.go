@@ -38,7 +38,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 			2222: true,
 		}
 
-		req = model.RiderCreateNewRideRequest{
+		req = model.CreateNewRideRequest{
 			PickupLocation: model.Coordinate{
 				Longitude: 10,
 				Latitude:  10,
@@ -58,7 +58,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 
 		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
 			Return(driverList, nil)
-		ridesRepoMock.EXPECT().RiderCreateNewRide(ctx, model.RiderCreateNewRideRequest{
+		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
 			Destination:    req.Destination,
@@ -109,7 +109,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
 			Return(driverList, nil)
-		ridesRepoMock.EXPECT().RiderCreateNewRide(ctx, model.RiderCreateNewRideRequest{
+		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
 			Destination:    req.Destination,
@@ -124,7 +124,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
 			Return(driverList, nil)
-		ridesRepoMock.EXPECT().RiderCreateNewRide(ctx, model.RiderCreateNewRideRequest{
+		ridesRepoMock.EXPECT().CreateNewRide(ctx, model.CreateNewRideRequest{
 			RiderID:        riderData.ID,
 			PickupLocation: req.PickupLocation,
 			Destination:    req.Destination,

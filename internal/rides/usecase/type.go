@@ -8,7 +8,7 @@ import (
 
 type RidesUsecase interface {
 	DriverSetAvailability(context.Context, model.DriverSetAvailabilityRequest) pkgError.AppError
-	RiderCreateNewRide(context.Context, model.RiderCreateNewRideRequest) (int64, pkgError.AppError)
+	RiderCreateNewRide(context.Context, model.CreateNewRideRequest) (int64, pkgError.AppError)
 	DriverConfirmRide(context.Context, model.DriverConfirmRideRequest) pkgError.AppError
 	RiderConfirmRide(context.Context, model.RiderConfirmRideRequest) pkgError.AppError
 	DriverStartRide(context.Context, model.DriverStartRideRequest) (model.RideData, pkgError.AppError)
