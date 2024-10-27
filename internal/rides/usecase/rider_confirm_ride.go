@@ -9,7 +9,7 @@ import (
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConfirmRideRequest) pkgError.AppError {
+func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConfirmRideRequest) (model.RideData, pkgError.AppError) {
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
@@ -18,17 +18,17 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError("error get ride data")
+		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
 	}
 
-	if rideData.RiderID != riderID {
-		return pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
+	if rideData.RiderID != riderID || rideData.DriverID == nil {
+		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
-	if rideData.Status != model.StatusRideDriverMatched {
-		return pkgError.NewBadRequestError("invalid ride status")
+	if rideData.StatusNum != model.StatusNumRideMatchedDriver {
+		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
 	}
 
-	var status = model.StatusNumRideWaitingForPickup
+	var status = model.StatusNumRideReadyToPickup
 	if !req.IsAccept {
 		status = model.StatusNumRideCancelled
 	}
@@ -42,25 +42,27 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError("error update ride data")
+		return model.RideData{}, pkgError.NewInternalServerError("error update ride data")
 	}
 
+	rideData.SetStatus(status)
+
 	if !req.IsAccept {
-		return nil
+		return rideData, nil
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
 		RideID:   rideData.RideID,
 		RiderID:  riderID,
-		DriverID: rideData.DriverID,
+		DriverID: *rideData.DriverID,
 	})
 	if err != nil {
 		logger.Error(ctx, "error broadcasting ride ready to pickup", map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return pkgError.NewInternalServerError("error broadcasting ride ready to pickup")
+		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting ride ready to pickup")
 	}
 
-	return nil
+	return rideData, nil
 }

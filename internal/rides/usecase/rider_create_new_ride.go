@@ -52,7 +52,7 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.CreateN
 		mapDrivers[d] = true
 	}
 
-	msg := model.RideRequestMessage{
+	msg := model.NewRideRequestMessage{
 		RideID:           rideID,
 		Rider:            riderData,
 		PickupLocation:   req.PickupLocation,

@@ -36,14 +36,14 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError("error get ride data")
 	}
 
-	if rideData.Status != model.StatusRideWaitingForDriver {
-		return pkgError.NewForbiddenError("invalid ride status")
+	if rideData.StatusNum != model.StatusNumRideNewRequest {
+		return pkgError.NewForbiddenError(model.ErrMsgInvalidRideStatus)
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
 		RideID:   req.RideID,
 		DriverID: driverID,
-		Status:   model.StatusNumRideDriverMatched,
+		Status:   model.StatusNumRideMatchedDriver,
 	})
 	if err != nil {
 		logger.Error(ctx, "error update ride data", map[string]interface{}{
@@ -53,7 +53,7 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError("error update ride data")
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
+	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.RideMatchedDriverMessage{
 		RideID:  rideData.RideID,
 		Driver:  driver,
 		RiderID: rideData.RiderID,

@@ -21,11 +21,11 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
 	}
 
-	if rideData.DriverID != driverID {
+	if rideData.DriverID == nil || *rideData.DriverID != driverID {
 		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
-	if rideData.Status != model.StatusRideWaitingForPickup {
-		return model.RideData{}, pkgError.NewBadRequestError("invalid ride status")
+	if rideData.StatusNum != model.StatusNumRideReadyToPickup {
+		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -39,6 +39,7 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		})
 		return model.RideData{}, pkgError.NewInternalServerError("error update ride by driver")
 	}
+	rideData.SetStatus(model.StatusNumRideStarted)
 
 	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
 	if err != nil {

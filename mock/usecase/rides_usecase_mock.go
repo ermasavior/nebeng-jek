@@ -110,11 +110,12 @@ func (mr *MockRidesUsecaseMockRecorder) DriverStartRide(arg0, arg1 interface{}) 
 }
 
 // RiderConfirmRide mocks base method.
-func (m *MockRidesUsecase) RiderConfirmRide(arg0 context.Context, arg1 model.RiderConfirmRideRequest) error.AppError {
+func (m *MockRidesUsecase) RiderConfirmRide(arg0 context.Context, arg1 model.RiderConfirmRideRequest) (model.RideData, error.AppError) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RiderConfirmRide", arg0, arg1)
-	ret0, _ := ret[0].(error.AppError)
-	return ret0
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(error.AppError)
+	return ret0, ret1
 }
 
 // RiderConfirmRide indicates an expected call of RiderConfirmRide.

@@ -25,12 +25,12 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
 	}
 
-	if driverID != rideData.DriverID {
+	if rideData.DriverID == nil || *rideData.DriverID != driverID {
 		return model.RideData{}, pkgError.NewForbiddenError("invalid ride id")
 	}
 
-	if rideData.Status != model.StatusRideEnded {
-		return model.RideData{}, pkgError.NewBadRequestError("invalid ride status, must be RIDE_ENDED")
+	if rideData.StatusNum != model.StatusNumRideEnded {
+		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
 	}
 
 	if rideData.Fare == nil {
@@ -41,7 +41,7 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewBadRequestError("custom price must be lower than fare price")
 	}
 
-	driverMSISDN, err := u.ridesRepo.GetDriverMSISDNByID(ctx, rideData.DriverID)
+	driverMSISDN, err := u.ridesRepo.GetDriverMSISDNByID(ctx, *rideData.DriverID)
 	if err != nil {
 		logger.Error(ctx, "error get driver msisdn", map[string]interface{}{
 			"driver_id": driverID,
@@ -80,7 +80,7 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
 		RideID:     rideData.RideID,
-		FinalPrice: finalPrice,
+		FinalPrice: &finalPrice,
 		Status:     model.StatusNumRidePaid,
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 	}
 
 	rideData.SetDistance(distance)
-	rideData.SetFare(finalPrice)
+	rideData.SetFinalPrice(finalPrice)
 	rideData.SetStatus(model.StatusNumRidePaid)
 
 	return rideData, nil

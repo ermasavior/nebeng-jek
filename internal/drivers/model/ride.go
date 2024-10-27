@@ -9,9 +9,7 @@ type NewRideRequestMessage struct {
 }
 
 type RideReadyToPickupMessage struct {
-	RideID         int64      `json:"ride_id"`
-	PickupLocation Coordinate `json:"pickup_location"`
-	Destination    Coordinate `json:"destination"`
-	RiderID        int64      `json:"rider_id"`
-	DriverID       int64      `json:"driver_id"`
+	RideID   int64 `json:"ride_id"`
+	RiderID  int64 `json:"rider_id"`
+	DriverID int64 `json:"driver_id"`
 }

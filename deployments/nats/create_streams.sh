@@ -13,7 +13,7 @@ nats stream add RIDE_EVENTS \
     --max-bytes 5242880 \
     --max-msg-size 1048576 \
     --dupe-window 2m \
-    --no-ack
+    --ack
 
 # Create User Live Location Stream
 nats stream add USER_LIVE_LOCATION \
@@ -28,4 +28,8 @@ nats stream add USER_LIVE_LOCATION \
     --max-bytes 5242880 \
     --max-msg-size 1048576 \
     --dupe-window 2m \
-    --no-ack
+    --ack
+
+nats consumer add RIDE_EVENTS riders_service --defaults --ack=explicit --target=pull --max-deliver 5
+nats consumer add RIDE_EVENTS drivers_service --defaults --ack=explicit --target=pull --max-deliver 5
+nats consumer add USER_LIVE_LOCATION rides_service --defaults --ack=explicit --target=pull --max-deliver 5

@@ -282,7 +282,7 @@ func TestRepository_CreateNewRide(t *testing.T) {
 	t.Run("should execute insert query", func(t *testing.T) {
 		sqlMock.ExpectQuery(expectedQuery).
 			WithArgs(
-				req.RiderID, model.StatusNumRideWaitingForDriver,
+				req.RiderID, model.StatusNumRideNewRequest,
 				req.PickupLocation.Latitude, req.PickupLocation.Longitude,
 				req.Destination.Latitude, req.Destination.Longitude).
 			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(expectedID))
@@ -297,7 +297,7 @@ func TestRepository_CreateNewRide(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectQuery(expectedQuery).
 			WithArgs(
-				req.RiderID, model.StatusNumRideWaitingForDriver,
+				req.RiderID, model.StatusNumRideNewRequest,
 				req.PickupLocation.Latitude, req.PickupLocation.Longitude,
 				req.Destination.Latitude, req.Destination.Longitude).
 			WillReturnError(rowErr)
@@ -324,10 +324,11 @@ func TestRepository_GetRideData(t *testing.T) {
 
 	ctx := context.Background()
 	rideID := int64(111)
+	driverID := int64(222)
 	expected := model.RideData{
 		RideID:   111,
 		RiderID:  666,
-		DriverID: 222,
+		DriverID: &driverID,
 		PickupLocation: model.Coordinate{
 			Latitude:  1,
 			Longitude: 2,
@@ -394,12 +395,14 @@ func TestRepository_UpdateRideData(t *testing.T) {
 
 	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
 
+	fare, distance, finalPrice := float64(10000), float64(10), float64(10000)
 	ctx := context.Background()
+
 	t.Run("should execute update returning query", func(t *testing.T) {
 		req := model.UpdateRideDataRequest{
 			DriverID: 222,
 			RideID:   777,
-			Status:   model.StatusNumRideWaitingForDriver,
+			Status:   model.StatusNumRideNewRequest,
 		}
 
 		expectedQuery := `
@@ -418,10 +421,10 @@ func TestRepository_UpdateRideData(t *testing.T) {
 	t.Run("should execute update returning query - update fare", func(t *testing.T) {
 		req := model.UpdateRideDataRequest{
 			RideID:     777,
-			Distance:   12,
-			Fare:       10000,
-			FinalPrice: 20000,
-			Status:     model.StatusNumRidePaid,
+			Distance:   &distance,
+			Fare:       &fare,
+			FinalPrice: &finalPrice,
+			Status:     model.StatusNumRideEnded,
 		}
 
 		expectedQuery := `
@@ -430,7 +433,7 @@ func TestRepository_UpdateRideData(t *testing.T) {
 			WHERE id = $5
 		`
 		sqlMock.ExpectExec(expectedQuery).
-			WithArgs(req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID).
+			WithArgs(req.Status, distance, fare, finalPrice, req.RideID).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		err := repoMock.UpdateRideData(ctx, req)
@@ -440,10 +443,10 @@ func TestRepository_UpdateRideData(t *testing.T) {
 	t.Run("should return error - failed executing query", func(t *testing.T) {
 		req := model.UpdateRideDataRequest{
 			RideID:     777,
-			Distance:   12,
-			Fare:       10000,
-			FinalPrice: 20000,
-			Status:     model.StatusNumRidePaid,
+			Distance:   &distance,
+			Fare:       &fare,
+			FinalPrice: &finalPrice,
+			Status:     model.StatusNumRideEnded,
 		}
 
 		expectedQuery := `
@@ -452,7 +455,7 @@ func TestRepository_UpdateRideData(t *testing.T) {
 			WHERE id = $5
 		`
 		sqlMock.ExpectExec(expectedQuery).
-			WithArgs(req.Status, req.Distance, req.Fare, req.FinalPrice, req.RideID).
+			WithArgs(req.Status, distance, fare, finalPrice, req.RideID).
 			WillReturnError(errors.New("error from sql"))
 
 		err := repoMock.UpdateRideData(ctx, req)

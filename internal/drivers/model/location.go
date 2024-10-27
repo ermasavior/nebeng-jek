@@ -9,7 +9,7 @@ type Coordinate struct {
 
 type TrackUserLocationRequest struct {
 	RideID    int64      `json:"ride_id"`
-	UserID    string     `json:"user_id"`
+	UserID    int64      `json:"user_id"`
 	Timestamp int64      `json:"timestamp"`
 	Location  Coordinate `json:"location"`
 	IsDriver  bool       `json:"is_driver"`

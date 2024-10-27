@@ -34,10 +34,10 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 			VehiclePlate: "B11111A",
 		}
 		rideData = model.RideData{
-			RideID:   111,
-			RiderID:  666,
-			DriverID: 1111,
-			Status:   model.StatusRideWaitingForDriver,
+			RideID:    111,
+			RiderID:   666,
+			DriverID:  &driverID,
+			StatusNum: model.StatusNumRideNewRequest,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -62,10 +62,10 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			DriverID: driverID,
-			Status:   model.StatusNumRideDriverMatched,
+			Status:   model.StatusNumRideMatchedDriver,
 		}).Return(nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.RideMatchedDriverMessage{
 			RideID:  rideData.RideID,
 			Driver:  driverData,
 			RiderID: rideData.RiderID,
@@ -107,7 +107,7 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			DriverID: driverID,
-			Status:   model.StatusNumRideDriverMatched,
+			Status:   model.StatusNumRideMatchedDriver,
 		}).Return(expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
@@ -121,10 +121,10 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			DriverID: driverID,
-			Status:   model.StatusNumRideDriverMatched,
+			Status:   model.StatusNumRideMatchedDriver,
 		}).Return(nil)
 
-		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.MatchedRideMessage{
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.RideMatchedDriverMessage{
 			RideID:  rideData.RideID,
 			Driver:  driverData,
 			RiderID: rideData.RiderID,

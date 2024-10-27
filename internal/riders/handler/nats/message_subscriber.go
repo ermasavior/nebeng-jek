@@ -32,29 +32,6 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 	}
 }
 
-func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(*nats.Msg) {
-	return func(msg *nats.Msg) {
-		var data model.RideReadyToPickupMessage
-		err := json.Unmarshal(msg.Data, &data)
-		if err != nil {
-			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
-			return
-		}
-
-		broadcastMsg := model.RiderMessage{
-			Event: model.EventRideReadyToPickup,
-			Data:  data,
-		}
-		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
-		if err != nil {
-			msg.Nak()
-			return
-		}
-		msg.Ack()
-	}
-}
-
 func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) {
 	return func(msg *nats.Msg) {
 		var data model.RideStartedMessage

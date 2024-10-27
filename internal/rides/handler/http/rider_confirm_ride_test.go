@@ -39,7 +39,7 @@ func TestHandler_RiderConfirmRide(t *testing.T) {
 	reqBytes, _ := json.Marshal(reqBody)
 
 	t.Run("success - returns status code 200 when successfully confirm new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(nil)
+		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(model.RideData{RideID: 666}, nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -68,7 +68,7 @@ func TestHandler_RiderConfirmRide(t *testing.T) {
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFoundError("not found")
 
-		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(expectedError)
+		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -84,7 +84,7 @@ func TestHandler_RiderConfirmRide(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError("error from usecase")
 
-		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(expectedError)
+		mockUsecase.EXPECT().RiderConfirmRide(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

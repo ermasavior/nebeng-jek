@@ -27,10 +27,10 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 	var (
 		driverID = int64(1111)
 		rideData = model.RideData{
-			RideID:   111,
-			RiderID:  666,
-			DriverID: 1111,
-			Status:   model.StatusRideWaitingForPickup,
+			RideID:    111,
+			RiderID:   666,
+			DriverID:  &driverID,
+			StatusNum: model.StatusNumRideReadyToPickup,
 			PickupLocation: model.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
@@ -65,7 +65,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
 		assert.Nil(t, err)
-		assert.Equal(t, rideData, res)
+		assert.Equal(t, model.StatusNumRideStarted, res.StatusNum)
 	})
 
 	t.Run("failed - get ride data returns error", func(t *testing.T) {

@@ -45,9 +45,9 @@ type UpdateRideByDriverRequest struct {
 type UpdateRideDataRequest struct {
 	RideID     int64
 	DriverID   int64
-	Distance   float64
-	Fare       float64
-	FinalPrice float64
+	Distance   *float64
+	Fare       *float64
+	FinalPrice *float64
 	Status     int
 }
 

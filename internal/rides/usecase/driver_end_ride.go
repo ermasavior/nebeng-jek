@@ -33,16 +33,18 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		})
 		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
 	}
-	if rideData.Status != model.StatusRideStarted {
-		return model.RideData{}, pkgError.NewBadRequestError("invalid ride status")
-	}
-	if rideData.DriverID != driverID {
+	if rideData.DriverID == nil || *rideData.DriverID != driverID {
 		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
+	}
+	if rideData.StatusNum != model.StatusNumRideStarted {
+		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
-		RideID: req.RideID,
-		Status: model.StatusNumRideEnded,
+		RideID:   req.RideID,
+		Status:   model.StatusNumRideEnded,
+		Distance: &distance,
+		Fare:     &fare,
 	})
 	if err != nil {
 		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
@@ -51,6 +53,7 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		})
 		return model.RideData{}, pkgError.NewInternalServerError("error update ride by driver")
 	}
+	rideData.SetStatus(model.StatusNumRideEnded)
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
 		RideID:   req.RideID,

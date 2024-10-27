@@ -1,5 +1,5 @@
 package model
 
 const (
-	ErrMessage = ""
+	ErrMsgInvalidRideStatus = "invalid ride status"
 )

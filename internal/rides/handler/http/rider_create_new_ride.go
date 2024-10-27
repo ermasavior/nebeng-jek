@@ -33,5 +33,7 @@ func (h *httpHandler) RiderCreateNewRide(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(id))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(model.CreateNewRideResponse{
+		ID: id,
+	}))
 }
