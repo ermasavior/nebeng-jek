@@ -14,11 +14,11 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err != nil {
-		logger.Error(ctx, "error get ride data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
 	if rideData.RiderID != riderID || rideData.DriverID == nil {
@@ -38,11 +38,11 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 		Status: status,
 	})
 	if err != nil {
-		logger.Error(ctx, "error update ride data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error update ride data")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
 
 	rideData.SetStatus(status)
@@ -57,11 +57,11 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 		DriverID: *rideData.DriverID,
 	})
 	if err != nil {
-		logger.Error(ctx, "error broadcasting ride ready to pickup", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
 			"rider_id": riderID,
 			"error":    err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting ride ready to pickup")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailBroadcastMessage)
 	}
 
 	return rideData, nil

@@ -73,7 +73,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, expectedErr)
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
-		assert.Error(t, err, pkgError.NewInternalServerError("error get ride data"))
+		assert.Error(t, err, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData))
 		assert.Equal(t, model.RideData{}, res)
 	})
 

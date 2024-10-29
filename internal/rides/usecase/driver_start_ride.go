@@ -14,11 +14,11 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err != nil {
-		logger.Error(ctx, "error get ride data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error get ride data")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
 	if rideData.DriverID == nil || *rideData.DriverID != driverID {
@@ -33,21 +33,21 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		Status: model.StatusNumRideStarted,
 	})
 	if err != nil {
-		logger.Error(ctx, "error update ride by driver", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error update ride by driver")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
 	rideData.SetStatus(model.StatusNumRideStarted)
 
 	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
 	if err != nil {
-		logger.Error(ctx, "error removing available driver", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailRemoveAvailableDriver, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error removing available driver")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailRemoveAvailableDriver)
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
@@ -55,11 +55,11 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		RiderID: rideData.RiderID,
 	})
 	if err != nil {
-		logger.Error(ctx, "error broadcasting message", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting message")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailBroadcastMessage)
 	}
 
 	return rideData, nil

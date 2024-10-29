@@ -20,20 +20,20 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewUnauthorizedError("invalid driver id")
 	}
 	if err != nil {
-		logger.Error(ctx, "error get driver data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailGetDriverData, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError("error get driver data")
+		return pkgError.NewInternalServerError(model.ErrMsgFailGetDriverData)
 	}
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err != nil {
-		logger.Error(ctx, "error get ride data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError("error get ride data")
+		return pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
 	if rideData.StatusNum != model.StatusNumRideNewRequest {
@@ -46,11 +46,11 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		Status:   model.StatusNumRideMatchedDriver,
 	})
 	if err != nil {
-		logger.Error(ctx, "error update ride data", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError("error update ride data")
+		return pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideMatchedDriver, model.RideMatchedDriverMessage{
@@ -59,11 +59,11 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		RiderID: rideData.RiderID,
 	})
 	if err != nil {
-		logger.Error(ctx, "error broadcasting matched ride to rider", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError("error broadcasting matched ride to rider")
+		return pkgError.NewInternalServerError(model.ErrMsgFailBroadcastMessage)
 	}
 
 	return nil
