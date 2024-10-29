@@ -3,6 +3,7 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
 	"nebeng-jek/internal/riders/model"
 	"nebeng-jek/pkg/logger"
 
@@ -15,7 +16,7 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -25,10 +26,10 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			msg.Nak()
+			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }
 
@@ -38,7 +39,7 @@ func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) 
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -48,10 +49,10 @@ func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) 
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			msg.Nak()
+			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }
 
@@ -61,7 +62,7 @@ func (h *natsHandler) SubscribeRideEnded(ctx context.Context) func(*nats.Msg) {
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -71,10 +72,10 @@ func (h *natsHandler) SubscribeRideEnded(ctx context.Context) func(*nats.Msg) {
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			msg.Nak()
+			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }
 
@@ -84,7 +85,7 @@ func (h *natsHandler) SubscribeRidePaid(ctx context.Context) func(*nats.Msg) {
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -94,9 +95,9 @@ func (h *natsHandler) SubscribeRidePaid(ctx context.Context) func(*nats.Msg) {
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			msg.Nak()
+			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }

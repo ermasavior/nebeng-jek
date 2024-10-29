@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"nebeng-jek/internal/drivers/model"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
 	"nebeng-jek/pkg/logger"
 
 	"github.com/nats-io/nats.go"
@@ -15,7 +16,7 @@ func (h *natsHandler) SubscribeNewRideRequests(ctx context.Context) func(msg *na
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{"error": err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -29,7 +30,7 @@ func (h *natsHandler) SubscribeNewRideRequests(ctx context.Context) func(msg *na
 			},
 		}
 		h.broadcastToDrivers(ctx, data.AvailableDrivers, broadcastMsg)
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }
 
@@ -39,7 +40,7 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(msg 
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -48,6 +49,6 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(msg 
 			Data:  data,
 		}
 		h.broadcastToDrivers(ctx, map[int64]bool{data.DriverID: true}, broadcastMsg)
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }

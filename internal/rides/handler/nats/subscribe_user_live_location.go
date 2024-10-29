@@ -3,6 +3,7 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	nats_pkg "nebeng-jek/internal/pkg/nats"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/pkg/logger"
 
@@ -15,7 +16,7 @@ func (h *natsHandler) SubscribeUserLiveLocation(ctx context.Context) func(*nats.
 		err := json.Unmarshal(msg.Data, &reqBody)
 		if err != nil {
 			logger.Error(ctx, "fail to unmarshal consumed message", map[string]interface{}{logger.ErrorKey: err})
-			msg.Ack()
+			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
 
@@ -24,10 +25,10 @@ func (h *natsHandler) SubscribeUserLiveLocation(ctx context.Context) func(*nats.
 			logger.Error(ctx, "error tracking user location", map[string]interface{}{
 				"req": reqBody,
 			})
-			msg.Nak()
+			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 
-		msg.Ack()
+		nats_pkg.AckMessage(ctx, msg)
 	}
 }
