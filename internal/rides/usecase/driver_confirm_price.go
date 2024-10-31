@@ -28,15 +28,12 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 	if rideData.DriverID == nil || *rideData.DriverID != driverID {
 		return model.RideData{}, pkgError.NewForbiddenError((pkgError.ErrForbiddenMsg))
 	}
-
 	if rideData.StatusNum != model.StatusNumRideEnded {
 		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
 	}
-
 	if rideData.Fare == nil {
 		return model.RideData{}, pkgError.NewForbiddenError("invalid fare, must not be empty")
 	}
-
 	if req.CustomPrice > *rideData.Fare {
 		return model.RideData{}, pkgError.NewBadRequestError("custom price must be lower than fare price")
 	}

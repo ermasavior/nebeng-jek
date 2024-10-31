@@ -4,9 +4,9 @@ import (
 	"context"
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
-	"nebeng-jek/internal/pkg/haversine"
 	"nebeng-jek/internal/rides/model"
 	pkgError "nebeng-jek/pkg/error"
+	"nebeng-jek/pkg/haversine"
 	"nebeng-jek/pkg/logger"
 )
 
@@ -26,6 +26,9 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 	fare := calculateRideFare(distance)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
+	if err == constants.ErrorDataNotFound {
+		return model.RideData{}, pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)
+	}
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"driver_id": driverID,

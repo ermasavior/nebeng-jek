@@ -13,6 +13,9 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 	riderID := pkgContext.GetRiderIDFromContext(ctx)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
+	if err == constants.ErrorDataNotFound {
+		return model.RideData{}, pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)
+	}
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"rider_id": riderID,
