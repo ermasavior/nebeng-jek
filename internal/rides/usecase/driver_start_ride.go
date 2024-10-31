@@ -13,6 +13,9 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
+	if err == constants.ErrorDataNotFound {
+		return model.RideData{}, pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)
+	}
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"driver_id": driverID,

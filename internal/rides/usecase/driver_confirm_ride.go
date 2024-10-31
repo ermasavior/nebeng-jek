@@ -28,6 +28,9 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 	}
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
+	if err == constants.ErrorDataNotFound {
+		return pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)
+	}
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailGetRideData, map[string]interface{}{
 			"driver_id": driverID,
@@ -36,6 +39,9 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
+	if rideData.DriverID == nil || *rideData.DriverID != driverID {
+		return pkgError.NewForbiddenError((pkgError.ErrForbiddenMsg))
+	}
 	if rideData.StatusNum != model.StatusNumRideNewRequest {
 		return pkgError.NewForbiddenError(model.ErrMsgInvalidRideStatus)
 	}
