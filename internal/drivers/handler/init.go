@@ -8,6 +8,7 @@ import (
 	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/pkg/middleware"
 	nats_pkg "nebeng-jek/internal/pkg/nats"
+	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/messaging/nats"
 	"net/http"
@@ -21,6 +22,7 @@ type RegisterHandlerParam struct {
 	Router *gin.RouterGroup
 	NatsJS nats.JetStreamConnection
 	JWTGen jwt.JWTInterface
+	Cfg    *configs.Config
 }
 
 func RegisterHandler(reg RegisterHandlerParam) {
@@ -40,7 +42,7 @@ func RegisterHandler(reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(connStorage, uc)
 	ctx := context.Background()
-	svcName := "drivers-service"
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), svcName)
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), svcName)
+
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), "driver_new_ride_request")
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), "driver_ready_to_pickup")
 }

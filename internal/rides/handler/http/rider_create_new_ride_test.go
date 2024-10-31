@@ -33,7 +33,7 @@ func TestHandler_RiderCreateNewRide(t *testing.T) {
 	router := gin.Default()
 	router.POST(url, handler.RiderCreateNewRide)
 
-	reqBody := model.RiderCreateNewRideRequest{
+	reqBody := model.CreateNewRideRequest{
 		PickupLocation: model.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
@@ -59,7 +59,7 @@ func TestHandler_RiderCreateNewRide(t *testing.T) {
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.RiderCreateNewRideRequest{}
+		reqBody := model.CreateNewRideRequest{}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))

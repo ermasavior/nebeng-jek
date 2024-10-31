@@ -1,17 +1,21 @@
 package model
 
 const (
-	StatusNumRideWaitingForDriver = 1
-	StatusNumRideWaitingForPickup = 2
-	StatusNumRideStarted          = 3
-	StatusNumRideEnded            = 4
-	StatusNumRidePaid             = 5
+	StatusNumRideNewRequest    = 1
+	StatusNumRideMatchedDriver = 2
+	StatusNumRideReadyToPickup = 3
+	StatusNumRideStarted       = 4
+	StatusNumRideEnded         = 5
+	StatusNumRidePaid          = 6
+	StatusNumRideCancelled     = 7
 
-	StatusRideWaitingForDriver = "WAITING_FOR_DRIVER"
-	StatusRideWaitingForPickup = "WAITING_FOR_PICKUP"
-	StatusRideStarted          = "RIDE_STARTED"
-	StatusRideEnded            = "RIDE_ENDED"
-	StatusRidePaid             = "RIDE_PAID"
+	StatusRideNewRequest    = "NEW_RIDE_REQUEST"
+	StatusRideMatchedDriver = "MATCHED_DRIVER"
+	StatusRideReadyToPickup = "READY_TO_PICKUP"
+	StatusRideStarted       = "RIDE_STARTED"
+	StatusRideEnded         = "RIDE_ENDED"
+	StatusRidePaid          = "RIDE_PAID"
+	StatusRideCancelled     = "RIDE_CANCELLED"
 
 	RidePricePerKm  = 3000
 	RideFeeDiscount = 0.3 // 30% percentage
@@ -19,22 +23,25 @@ const (
 
 var (
 	mapStatusRide = map[int]string{
-		StatusNumRideWaitingForDriver: StatusRideWaitingForDriver,
-		StatusNumRideWaitingForPickup: StatusRideWaitingForPickup,
-		StatusNumRideStarted:          StatusRideStarted,
-		StatusNumRideEnded:            StatusRideEnded,
-		StatusNumRidePaid:             StatusRidePaid,
+		StatusNumRideNewRequest:    StatusRideNewRequest,
+		StatusNumRideMatchedDriver: StatusRideMatchedDriver,
+		StatusNumRideReadyToPickup: StatusRideReadyToPickup,
+		StatusNumRideStarted:       StatusRideStarted,
+		StatusNumRideEnded:         StatusRideEnded,
+		StatusNumRidePaid:          StatusRidePaid,
+		StatusNumRideCancelled:     StatusRideCancelled,
 	}
 )
 
 type RideData struct {
 	RideID         int64      `db:"id" json:"ride_id"`
 	RiderID        int64      `db:"rider_id" json:"rider_id"`
-	DriverID       int64      `db:"driver_id" json:"driver_id"`
+	DriverID       *int64     `db:"driver_id" json:"driver_id"`
 	PickupLocation Coordinate `db:"pickup_location" json:"pickup_location"`
 	Destination    Coordinate `db:"destination" json:"destination"`
 	Distance       *float64   `db:"distance" json:"distance"`
 	Fare           *float64   `db:"fare" json:"fare"`
+	FinalPrice     *float64   `db:"final_price" json:"final_price"`
 	StatusNum      int        `db:"status" json:"-"`
 	Status         string     `json:"status"`
 }
@@ -47,16 +54,15 @@ func (r *RideData) SetFare(fare float64) {
 	r.Fare = &fare
 }
 
+func (r *RideData) SetFinalPrice(price float64) {
+	r.FinalPrice = &price
+}
+
 func (r *RideData) SetStatus(statusNum int) {
 	r.StatusNum = statusNum
-	r.MapStatus()
 }
 
-func (r *RideData) MapStatus() {
-	r.Status = mapStatusRide[r.StatusNum]
-}
-
-type RideRequestMessage struct {
+type NewRideRequestMessage struct {
 	RideID           int64          `json:"ride_id"`
 	Rider            RiderData      `json:"rider"`
 	PickupLocation   Coordinate     `json:"pickup_location"`
@@ -64,7 +70,7 @@ type RideRequestMessage struct {
 	AvailableDrivers map[int64]bool `json:"available_drivers"`
 }
 
-type MatchedRideMessage struct {
+type RideMatchedDriverMessage struct {
 	RideID  int64      `json:"ride_id"`
 	Driver  DriverData `json:"driver"`
 	RiderID int64      `json:"rider_id"`

@@ -88,6 +88,26 @@ func (m *MockJetStreamConnection) EXPECT() *MockJetStreamConnectionMockRecorder 
 	return m.recorder
 }
 
+// AddConsumer mocks base method.
+func (m *MockJetStreamConnection) AddConsumer(stream string, cfg *nats.ConsumerConfig, opts ...nats.JSOpt) (*nats.ConsumerInfo, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{stream, cfg}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddConsumer", varargs...)
+	ret0, _ := ret[0].(*nats.ConsumerInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddConsumer indicates an expected call of AddConsumer.
+func (mr *MockJetStreamConnectionMockRecorder) AddConsumer(stream, cfg interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{stream, cfg}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddConsumer", reflect.TypeOf((*MockJetStreamConnection)(nil).AddConsumer), varargs...)
+}
+
 // Publish mocks base method.
 func (m *MockJetStreamConnection) Publish(subj string, data []byte, opts ...nats.PubOpt) (*nats.PubAck, error) {
 	m.ctrl.T.Helper()

@@ -48,6 +48,8 @@ func (h *httpHandler) routeMessage(ctx context.Context, msg model.DriverMessage)
 			})
 			return
 		}
+
+		req.UserID = pkg_context.GetDriverIDFromContext(ctx)
 		err = h.usecase.TrackUserLocation(ctx, req)
 		if err != nil {
 			logger.Error(ctx, "track user location", map[string]interface{}{

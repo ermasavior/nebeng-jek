@@ -11,7 +11,7 @@ import (
 )
 
 func (h *httpHandler) RiderCreateNewRide(c *gin.Context) {
-	req := model.RiderCreateNewRideRequest{}
+	req := model.CreateNewRideRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -33,5 +33,7 @@ func (h *httpHandler) RiderCreateNewRide(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(id))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(model.CreateNewRideResponse{
+		ID: id,
+	}))
 }

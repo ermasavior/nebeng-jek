@@ -57,3 +57,15 @@ func SubscribeMessage(natsJS nats.JetStreamConnection, topic string, msgHandler 
 
 	select {}
 }
+
+func AckMessage(ctx context.Context, msg *nats_go.Msg) {
+	if err := msg.Ack(); err != nil {
+		logger.Error(ctx, "error ack message", map[string]interface{}{"error": err})
+	}
+}
+
+func NakMessage(ctx context.Context, msg *nats_go.Msg) {
+	if err := msg.Nak(); err != nil {
+		logger.Error(ctx, "error nak message", map[string]interface{}{"error": err})
+	}
+}

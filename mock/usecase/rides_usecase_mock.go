@@ -36,20 +36,6 @@ func (m *MockRidesUsecase) EXPECT() *MockRidesUsecaseMockRecorder {
 	return m.recorder
 }
 
-// RiderConfirmRide mocks base method.
-func (m *MockRidesUsecase) RiderConfirmRide(arg0 context.Context, arg1 model.RiderConfirmRideRequest) error.AppError {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RiderConfirmRide", arg0, arg1)
-	ret0, _ := ret[0].(error.AppError)
-	return ret0
-}
-
-// RiderConfirmRide indicates an expected call of RiderConfirmRide.
-func (mr *MockRidesUsecaseMockRecorder) RiderConfirmRide(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RiderConfirmRide", reflect.TypeOf((*MockRidesUsecase)(nil).RiderConfirmRide), arg0, arg1)
-}
-
 // DriverConfirmPrice mocks base method.
 func (m *MockRidesUsecase) DriverConfirmPrice(arg0 context.Context, arg1 model.DriverConfirmPriceRequest) (model.RideData, error.AppError) {
 	m.ctrl.T.Helper()
@@ -123,8 +109,23 @@ func (mr *MockRidesUsecaseMockRecorder) DriverStartRide(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DriverStartRide", reflect.TypeOf((*MockRidesUsecase)(nil).DriverStartRide), arg0, arg1)
 }
 
+// RiderConfirmRide mocks base method.
+func (m *MockRidesUsecase) RiderConfirmRide(arg0 context.Context, arg1 model.RiderConfirmRideRequest) (model.RideData, error.AppError) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RiderConfirmRide", arg0, arg1)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(error.AppError)
+	return ret0, ret1
+}
+
+// RiderConfirmRide indicates an expected call of RiderConfirmRide.
+func (mr *MockRidesUsecaseMockRecorder) RiderConfirmRide(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RiderConfirmRide", reflect.TypeOf((*MockRidesUsecase)(nil).RiderConfirmRide), arg0, arg1)
+}
+
 // RiderCreateNewRide mocks base method.
-func (m *MockRidesUsecase) RiderCreateNewRide(arg0 context.Context, arg1 model.RiderCreateNewRideRequest) (int64, error.AppError) {
+func (m *MockRidesUsecase) RiderCreateNewRide(arg0 context.Context, arg1 model.CreateNewRideRequest) (int64, error.AppError) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RiderCreateNewRide", arg0, arg1)
 	ret0, _ := ret[0].(int64)

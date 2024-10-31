@@ -33,5 +33,6 @@ func (h *httpHandler) DriverConfirmPrice(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(data))
+	response := data.ToResponse()
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(response))
 }

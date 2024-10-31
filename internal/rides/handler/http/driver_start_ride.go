@@ -33,5 +33,6 @@ func (h *httpHandler) DriverStartRide(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(data))
+	response := data.ToResponse()
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(response))
 }

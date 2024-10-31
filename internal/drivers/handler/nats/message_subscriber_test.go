@@ -49,15 +49,7 @@ func TestSubscribeReadyToPickupRides(t *testing.T) {
 	h := NewHandler(&sync.Map{}, nil)
 
 	msgBytes, _ := json.Marshal(model.RideReadyToPickupMessage{
-		RideID: 111,
-		PickupLocation: model.Coordinate{
-			Longitude: 11,
-			Latitude:  -2,
-		},
-		Destination: model.Coordinate{
-			Longitude: 10,
-			Latitude:  -1,
-		},
+		RideID:   111,
 		DriverID: 1111,
 		RiderID:  9999,
 	})

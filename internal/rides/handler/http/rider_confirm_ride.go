@@ -21,7 +21,7 @@ func (h *httpHandler) RiderConfirmRide(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	err := h.usecase.RiderConfirmRide(ctx, req)
+	data, err := h.usecase.RiderConfirmRide(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error from usecase", map[string]interface{}{
 			logger.ErrorKey: err.Error(),
@@ -33,5 +33,6 @@ func (h *httpHandler) RiderConfirmRide(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(nil))
+	response := data.ToResponse()
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(response))
 }

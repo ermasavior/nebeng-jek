@@ -71,10 +71,10 @@ func (r *ridesRepo) GetDriverMSISDNByID(ctx context.Context, id int64) (string, 
 	return msisdn, nil
 }
 
-func (r *ridesRepo) RiderCreateNewRide(ctx context.Context, req model.RiderCreateNewRideRequest) (int64, error) {
+func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {
 	var id int64
 	values := []interface{}{
-		req.RiderID, model.StatusNumRideWaitingForDriver,
+		req.RiderID, model.StatusNumRideNewRequest,
 		req.PickupLocation.Latitude, req.PickupLocation.Longitude,
 		req.Destination.Latitude, req.Destination.Longitude,
 	}
@@ -96,16 +96,16 @@ func (r *ridesRepo) GetRideData(ctx context.Context, rideID int64) (model.RideDa
 		return model.RideData{}, err
 	}
 
-	data.MapStatus()
 	return data, nil
 }
 
 func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
 	var (
-		params     = []interface{}{}
-		querySet   = []string{}
-		queryWhere = ""
-		paramNum   = 0
+		queryWhere string
+
+		params   = []interface{}{}
+		querySet = []string{}
+		paramNum = 0
 	)
 
 	if req.Status != 0 {
@@ -118,19 +118,19 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 		params = append(params, req.DriverID)
 		querySet = append(querySet, fmt.Sprintf("driver_id = $%d", paramNum))
 	}
-	if req.Distance != 0 {
+	if req.Distance != nil {
 		paramNum += 1
-		params = append(params, req.Distance)
+		params = append(params, *req.Distance)
 		querySet = append(querySet, fmt.Sprintf("distance = $%d", paramNum))
 	}
-	if req.Fare != 0 {
+	if req.Fare != nil {
 		paramNum += 1
-		params = append(params, req.Fare)
+		params = append(params, *req.Fare)
 		querySet = append(querySet, fmt.Sprintf("fare = $%d", paramNum))
 	}
-	if req.FinalPrice != 0 {
+	if req.FinalPrice != nil {
 		paramNum += 1
-		params = append(params, req.FinalPrice)
+		params = append(params, *req.FinalPrice)
 		querySet = append(querySet, fmt.Sprintf("final_price = $%d", paramNum))
 	}
 

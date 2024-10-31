@@ -20,7 +20,7 @@ type RidesRepository interface {
 	GetDriverMSISDNByID(ctx context.Context, id int64) (string, error)
 	GetRideData(ctx context.Context, id int64) (model.RideData, error)
 
-	RiderCreateNewRide(context.Context, model.RiderCreateNewRideRequest) (int64, error)
+	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
 	UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error
 }
 

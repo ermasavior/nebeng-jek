@@ -1,11 +1,11 @@
 package error
 
 const (
-	ErrBaseMsg             = "Business error"
-	ErrUnauthorizedMsg     = "Unauthorized user"
-	ErrBadRequestMsg       = "Bad request"
-	ErrResourceNotFoundMsg = "Resource is not found"
-	ErrForbiddenMsg        = "Forbidden action"
+	ErrBaseMsg             = "business error"
+	ErrUnauthorizedMsg     = "unauthorized user"
+	ErrBadRequestMsg       = "bad request"
+	ErrResourceNotFoundMsg = "resource is not found"
+	ErrForbiddenMsg        = "forbidden action"
 
 	ErrBaseCode = 4000 + iota
 	ErrBadRequestCode

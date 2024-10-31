@@ -1,6 +1,3 @@
-init:
-	chmod +x init-project.sh && ./init-project.sh
-
 run-rides:
 	go run cmd/rides/main.go
 
@@ -10,8 +7,14 @@ run-drivers:
 run-riders:
 	go run cmd/riders/main.go
 
-build:
-	go build -a -ldflags "-linkmode external -extldflags '-static' -s -w" -o bin/rides cmd/rides/main.go
+build-rides:
+	cd cmd/rides && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/rides main.go
+
+build-drivers:
+	cd cmd/drivers && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/drivers main.go
+
+build-riders:
+	cd cmd/riders && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/riders main.go
 
 tidy:
 	go mod tidy

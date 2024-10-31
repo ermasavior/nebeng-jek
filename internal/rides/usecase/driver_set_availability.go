@@ -31,11 +31,11 @@ func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.Driv
 
 	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
 	if err != nil {
-		logger.Error(ctx, "error removing available driver", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailRemoveAvailableDriver, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError("error removing available driver")
+		return pkgError.NewInternalServerError(model.ErrMsgFailRemoveAvailableDriver)
 	}
 
 	return nil

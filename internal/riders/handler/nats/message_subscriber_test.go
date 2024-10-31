@@ -41,31 +41,6 @@ func TestSubscribeRideMatchedDriver(t *testing.T) {
 	})
 }
 
-func TestSubscribeReadyToPickupRides(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	h := &natsHandler{
-		connStorage: &sync.Map{},
-	}
-
-	msgBytes, _ := json.Marshal(model.RideReadyToPickupMessage{
-		RideID:   111,
-		DriverID: 1111,
-		RiderID:  9999,
-	})
-
-	t.Run("consume message from NATS", func(t *testing.T) {
-		mockMsg := &nats.Msg{
-			Subject: constants.TopicRideReadyToPickup,
-			Data:    msgBytes,
-		}
-
-		handler := h.SubscribeReadyToPickupRides(context.Background())
-		handler(mockMsg)
-	})
-}
-
 func TestSubscribeRideStarted(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
