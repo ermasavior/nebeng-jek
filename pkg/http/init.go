@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"nebeng-jek/pkg/http/middleware"
-	otelMiddleware "nebeng-jek/pkg/http/middleware/otelmetrics"
 	httpUtils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/logger"
 	pkgOtel "nebeng-jek/pkg/otel"
@@ -36,7 +35,6 @@ func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry)
 	router.Use(middleware.CorsHandler())
 	router.Use(otelgin.Middleware(appName))
 	router.Use(middleware.TracerIDHandler())
-	router.Use(otelMiddleware.Middleware(appName, otel.Meter))
 
 	router.GET("/", healthCheck)
 	router.GET("/healthz", healthCheck)
@@ -51,7 +49,7 @@ func healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse("Service is up and running."))
 }
 
-func (s *Server) Start() *http.Server {
+func (s *Server) Start(ctx context.Context) *http.Server {
 	httpServer := &http.Server{
 		Addr:         s.address,
 		Handler:      s.Router,
@@ -60,10 +58,10 @@ func (s *Server) Start() *http.Server {
 	}
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal(context.Background(), "error running server", map[string]interface{}{logger.ErrorKey: err})
+			logger.Fatal(ctx, "error running server", map[string]interface{}{logger.ErrorKey: err})
 		}
 	}()
-	logger.Info(context.Background(), fmt.Sprintf("server running on address: %s", s.address), nil)
+	logger.Info(ctx, fmt.Sprintf("server running on address: %s", s.address), nil)
 
 	return httpServer
 }

@@ -22,7 +22,7 @@ type RegisterHandlerParam struct {
 	JWTGen jwt.JWTInterface
 }
 
-func RegisterHandler(reg RegisterHandlerParam) {
+func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	wsUpgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -34,7 +34,6 @@ func RegisterHandler(reg RegisterHandlerParam) {
 	reg.Router.GET("/ws/riders", mid.RiderAuthMiddleware, httpHandler.RiderWebsocket)
 
 	natsHandler := handler_nats.NewHandler(connStorage)
-	ctx := context.Background()
 
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx), "rider_matched_driver")
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx), "rider_ride_started")

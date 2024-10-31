@@ -27,7 +27,7 @@ type RegisterHandlerParam struct {
 	JWTGen jwt.JWTInterface
 }
 
-func RegisterHandler(reg RegisterHandlerParam) {
+func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	ridesPubSub := nats_pkg.NewPubsubRepository(reg.NatsJS)
 	repoCache := repo_redis.NewRepository(reg.Redis)
 	repoDB := repo_db.NewRepository(reg.DB)
@@ -55,7 +55,6 @@ func RegisterHandler(reg RegisterHandlerParam) {
 	}
 
 	natsHandler := handler_nats.NewHandler(uc)
-	ctx := context.Background()
 
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx), "consumer_live_location")
 }

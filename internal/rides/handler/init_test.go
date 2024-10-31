@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"nebeng-jek/internal/pkg/constants"
 	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
@@ -28,7 +29,7 @@ func TestRegisterHandler(t *testing.T) {
 		NatsJS: natsConn,
 		JWTGen: nil, // no tests
 	}
-	RegisterHandler(reg)
+	RegisterHandler(context.Background(), reg)
 
 	expectedRoutes := map[string]gin.RouteInfo{
 		"PUT:/drivers/availability": {
