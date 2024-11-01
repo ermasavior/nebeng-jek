@@ -28,7 +28,11 @@ func NewLogger(cfg *configs.Config) (func(), error) {
 	}
 
 	logZap = logZap.With(zap.String("app_name", cfg.AppName))
-	undo := otelzap.ReplaceGlobals(otelzap.New(logZap))
+	logOtel := otelzap.New(logZap,
+		otelzap.WithCallerDepth(1), otelzap.WithMinLevel(zapcore.InfoLevel),
+		otelzap.WithErrorStatusLevel(zapcore.ErrorLevel),
+	)
+	undo := otelzap.ReplaceGlobals(logOtel)
 
 	return undo, err
 }

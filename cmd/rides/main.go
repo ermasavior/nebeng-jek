@@ -33,7 +33,8 @@ func main() {
 
 	undoLogger, err := logger.NewLogger(cfg)
 	if err != nil {
-		logger.Fatal(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
+		logger.Error(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
+		return
 	}
 	defer undoLogger()
 
@@ -47,7 +48,8 @@ func main() {
 		Db:       cfg.DbName,
 	})
 	if err != nil {
-		logger.Fatal(ctx, "error initializing postgres db", map[string]interface{}{logger.ErrorKey: err})
+		logger.Error(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
+		return
 	}
 
 	redisClient := redis.InitConnection(ctx, cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
@@ -80,18 +82,21 @@ func main() {
 	<-quit
 
 	if err := httpServer.Shutdown(ctx); err != nil {
-		logger.Info(ctx, err.Error(), nil)
+		logger.Error(ctx, err.Error(), nil)
 	}
 
 	if err := pgDb.Close(); err != nil {
-		logger.Fatal(ctx, err.Error(), nil)
+		logger.Error(ctx, err.Error(), nil)
 	}
 
 	if err := otel.EndAPM(ctx); err != nil {
-		logger.Fatal(ctx, err.Error(), nil)
+		logger.Error(ctx, err.Error(), nil)
 	}
 
 	logger.Info(ctx, "server is exiting gracefully.", nil)
-
 	_ = logger.Sync()
+
+	if err := otel.EndAPM(ctx); err != nil {
+		logger.Error(ctx, err.Error(), nil)
+	}
 }

@@ -37,9 +37,8 @@ func InitConnection(ctx context.Context, redisDB, redisHost, redisPort, redisPas
 		c.AddHook(redistrace.NewTracingHook())
 
 		if err := c.Ping(ctx).Err(); err != nil {
-			logger.Fatal(ctx, "cannot connect to redis", map[string]interface{}{
-				"error": err.Error(),
-			})
+			logger.Error(ctx, "error connecting redis", map[string]interface{}{logger.ErrorKey: err})
+			return nil
 		}
 		client = c
 	} else {
@@ -59,9 +58,8 @@ func InitConnection(ctx context.Context, redisDB, redisHost, redisPort, redisPas
 			nodeClient.AddHook(redistrace.NewTracingHook())
 			_, err := nodeClient.Ping(ctx).Result()
 			if err != nil {
-				logger.Fatal(ctx, "cannot connect to redis", map[string]interface{}{
-					"error": err.Error(),
-				})
+				logger.Error(ctx, "error connecting redis", map[string]interface{}{logger.ErrorKey: err})
+				return nil
 			}
 			nodeClient.Close()
 		}

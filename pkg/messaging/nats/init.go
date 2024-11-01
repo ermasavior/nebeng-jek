@@ -10,7 +10,8 @@ import (
 func NewNATSConnection(ctx context.Context, natsURL string) NATSConnection {
 	nc, err := nats.Connect(natsURL)
 	if err != nil {
-		logger.Fatal(ctx, err.Error(), nil)
+		logger.Error(ctx, "error connecting nats", map[string]interface{}{logger.ErrorKey: err})
+		return nil
 	}
 
 	return nc
@@ -19,7 +20,8 @@ func NewNATSConnection(ctx context.Context, natsURL string) NATSConnection {
 func NewNATSJSConnection(ctx context.Context, nc NATSConnection) JetStreamConnection {
 	js, err := nc.JetStream()
 	if err != nil {
-		logger.Fatal(ctx, err.Error(), nil)
+		logger.Error(ctx, "error connecting nats jetstream", map[string]interface{}{logger.ErrorKey: err})
+		return nil
 	}
 
 	return js
