@@ -25,7 +25,7 @@ type RegisterHandlerParam struct {
 	Cfg    *configs.Config
 }
 
-func RegisterHandler(reg RegisterHandlerParam) {
+func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	repo := nats_pkg.NewPubsubRepository(reg.NatsJS)
 	uc := usecase.NewDriverUsecase(repo)
 
@@ -41,7 +41,6 @@ func RegisterHandler(reg RegisterHandlerParam) {
 	reg.Router.GET("/ws/drivers", mid.DriverAuthMiddleware, httpHandler.DriverAllocationWebsocket)
 
 	natsHandler := handler_nats.NewHandler(connStorage, uc)
-	ctx := context.Background()
 
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), "driver_new_ride_request")
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), "driver_ready_to_pickup")

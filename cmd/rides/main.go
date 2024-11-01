@@ -19,6 +19,7 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	projectEnv := os.Getenv("PROJECT_ENV")
 	consulAddress := os.Getenv("CONSUL_ADDRESS")
 	cfg := configs.NewConfig(configs.ConfigLoader{
@@ -26,12 +27,16 @@ func main() {
 		ConsulAddress: consulAddress,
 	}, "./configs/rides")
 
-	err := logger.NewLogger(cfg.AppName, cfg.AppEnv)
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
-	}
-
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
+	ctx, span := otel.StartTransaction(ctx, "app started")
+	defer otel.EndTransaction(span)
+
+	undoLogger, err := logger.NewLogger(cfg)
+	if err != nil {
+		logger.Fatal(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer undoLogger()
+
 	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
 	pgDb, err := db.NewPostgresDB(db.PostgresDsn{
@@ -42,15 +47,15 @@ func main() {
 		Db:       cfg.DbName,
 	})
 	if err != nil {
-		logger.Fatal(context.Background(), "error initializing postgres db", map[string]interface{}{logger.ErrorKey: err})
+		logger.Fatal(ctx, "error initializing postgres db", map[string]interface{}{logger.ErrorKey: err})
 	}
 
-	redisClient := redis.InitConnection(cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
+	redisClient := redis.InitConnection(ctx, cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
 		cfg.RedisPassword, cfg.RedisAppConfig)
 
-	natsMsg := nats.NewNATSConnection(cfg.NatsURL)
+	natsMsg := nats.NewNATSConnection(ctx, cfg.NatsURL)
 	defer natsMsg.Close()
-	natsJS := nats.NewNATSJSConnection(natsMsg)
+	natsJS := nats.NewNATSJSConnection(ctx, natsMsg)
 
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
@@ -61,15 +66,15 @@ func main() {
 		NatsJS: natsJS,
 		JWTGen: jwtGen,
 	}
-	ridesHandler.RegisterHandler(reg)
+	ridesHandler.RegisterHandler(ctx, reg)
 
-	httpServer := srv.Start()
+	httpServer := srv.Start(ctx)
 
 	// graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	<-quit
@@ -82,7 +87,7 @@ func main() {
 		logger.Fatal(ctx, err.Error(), nil)
 	}
 
-	if err := otel.EndAPM(); err != nil {
+	if err := otel.EndAPM(ctx); err != nil {
 		logger.Fatal(ctx, err.Error(), nil)
 	}
 

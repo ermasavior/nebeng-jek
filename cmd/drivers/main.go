@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
 	projectEnv := os.Getenv("PROJECT_ENV")
 	consulAddress := os.Getenv("CONSUL_ADDRESS")
 	cfg := configs.NewConfig(configs.ConfigLoader{
@@ -24,16 +25,17 @@ func main() {
 		ConsulAddress: consulAddress,
 	}, "./configs/drivers")
 
-	err := logger.NewLogger(cfg.AppName, cfg.AppEnv)
-	if err != nil {
-		logger.Fatal(context.Background(), "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
-	}
-
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
 
-	natsMsg := nats.NewNATSConnection(cfg.NatsURL)
+	undoLogger, err := logger.NewLogger(cfg)
+	if err != nil {
+		logger.Fatal(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})
+	}
+	defer undoLogger()
+
+	natsMsg := nats.NewNATSConnection(ctx, cfg.NatsURL)
 	defer natsMsg.Close()
-	natsJS := nats.NewNATSJSConnection(natsMsg)
+	natsJS := nats.NewNATSJSConnection(ctx, natsMsg)
 
 	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
@@ -44,15 +46,15 @@ func main() {
 		NatsJS: natsJS,
 		JWTGen: jwtGen,
 	}
-	driversHandler.RegisterHandler(reg)
+	driversHandler.RegisterHandler(ctx, reg)
 
-	httpServer := srv.Start()
+	httpServer := srv.Start(ctx)
 
 	// graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	<-quit
@@ -61,7 +63,7 @@ func main() {
 		logger.Info(ctx, err.Error(), nil)
 	}
 
-	if err := otel.EndAPM(); err != nil {
+	if err := otel.EndAPM(ctx); err != nil {
 		logger.Fatal(ctx, err.Error(), nil)
 	}
 

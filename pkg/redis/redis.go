@@ -16,7 +16,7 @@ type RedisClient struct {
 	Client interface{}
 }
 
-func InitConnection(redisDB, redisHost, redisPort, redisPassword string, appConfig string) Collections {
+func InitConnection(ctx context.Context, redisDB, redisHost, redisPort, redisPassword string, appConfig string) Collections {
 	var client interface{}
 
 	if appConfig != "cluster" {
@@ -36,8 +36,8 @@ func InitConnection(redisDB, redisHost, redisPort, redisPassword string, appConf
 
 		c.AddHook(redistrace.NewTracingHook())
 
-		if err := c.Ping(context.Background()).Err(); err != nil {
-			logger.Fatal(context.Background(), "cannot connect to redis", map[string]interface{}{
+		if err := c.Ping(ctx).Err(); err != nil {
+			logger.Fatal(ctx, "cannot connect to redis", map[string]interface{}{
 				"error": err.Error(),
 			})
 		}
@@ -57,9 +57,9 @@ func InitConnection(redisDB, redisHost, redisPort, redisPassword string, appConf
 				Password: redisPassword,
 			})
 			nodeClient.AddHook(redistrace.NewTracingHook())
-			_, err := nodeClient.Ping(context.Background()).Result()
+			_, err := nodeClient.Ping(ctx).Result()
 			if err != nil {
-				logger.Fatal(context.Background(), "cannot connect to redis", map[string]interface{}{
+				logger.Fatal(ctx, "cannot connect to redis", map[string]interface{}{
 					"error": err.Error(),
 				})
 			}

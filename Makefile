@@ -16,6 +16,15 @@ build-drivers:
 build-riders:
 	cd cmd/riders && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/riders main.go
 
+tidy-rides:
+	cd cmd/rides && go mod tidy
+
+tidy-drivers:
+	cd cmd/drivers && go mod tidy
+
+tidy-riders:
+	cd cmd/riders && go mod tidy
+
 tidy:
 	go mod tidy
 

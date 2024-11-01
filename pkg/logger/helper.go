@@ -1,14 +1,16 @@
 package logger
 
 import (
-	"nebeng-jek/pkg/utils"
 	"context"
 	"fmt"
+	"nebeng-jek/pkg/utils"
 	"runtime"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+const ErrorKey = "error"
 
 func initBaseLoggerFields(ctx context.Context) []zapcore.Field {
 	fileName, methodName := traceFileNameAndMethodName()
@@ -19,7 +21,7 @@ func initBaseLoggerFields(ctx context.Context) []zapcore.Field {
 
 	traceID, ok := ctx.Value(utils.TraceID).(string)
 	if ok {
-		fields = append(fields, zap.String("trace_id", traceID))
+		fields = append(fields, zap.String("trace.id", traceID))
 	}
 
 	return fields

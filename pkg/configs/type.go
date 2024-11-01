@@ -17,6 +17,7 @@ type Config struct {
 	RedisAppConfig string `env:"REDIS_APP_CONFIG"`
 	NatsURL        string `env:"NATS_URL"`
 	JWTSecretKey   string `env:"JWT_SECRET_KEY"`
+	LogFilePath    string `env:"LOG_FILE_PATH"`
 }
 
 type ConfigLoader struct {

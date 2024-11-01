@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"testing"
 
 	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
@@ -27,7 +28,7 @@ func TestRegisterHandler(t *testing.T) {
 		NatsJS: natsConn,
 		JWTGen: nil, // no tests
 	}
-	RegisterHandler(reg)
+	RegisterHandler(context.Background(), reg)
 
 	expectedRoutes := gin.RoutesInfo{
 		{

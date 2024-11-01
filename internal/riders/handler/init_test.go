@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"testing"
 
 	"nebeng-jek/internal/pkg/constants"
@@ -29,7 +30,7 @@ func TestRegisterHandler(t *testing.T) {
 		NatsJS: natsConn,
 		JWTGen: nil, // no tests
 	}
-	RegisterHandler(reg)
+	RegisterHandler(context.Background(), reg)
 
 	expectedRoutes := gin.RoutesInfo{
 		{

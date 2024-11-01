@@ -2,12 +2,17 @@ package pkg_otel
 
 import (
 	"context"
-	"nebeng-jek/pkg/logger"
+	"log"
 	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
+	sdklogger "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -31,78 +36,96 @@ func NewOpenTelemetry(serviceHost, serviceName, appEnv string) *OpenTelemetry {
 		),
 	)
 	if err != nil {
-		logger.Error(ctx, err.Error(), nil)
+		log.Fatal(ctx, "error init otel resource", err)
 	}
 
-	exp, err := initGRPCExporters(ctx, serviceHost)
-	if err != nil {
-		logger.Error(ctx, err.Error(), nil)
-	}
+	tp := initTracerProvider(ctx, res)
+	mp := initMeterProvider(ctx, res)
+	lp := initLoggerProvider(ctx, res)
 
-	err = initTracerProvider(res, exp.TraceExporter)
-	if err != nil {
-		logger.Error(ctx, err.Error(), nil)
-	}
-	err = initMeterProvider(res, exp.MetricExporter)
-	if err != nil {
-		logger.Error(ctx, err.Error(), nil)
-	}
-
-	tracer := otel.Tracer(serviceName)
-	meter := otel.Meter(serviceName)
+	tracer := tp.Tracer(serviceName)
+	meter := mp.Meter(serviceName)
+	logger := lp.Logger(serviceName)
 
 	return &OpenTelemetry{
-		tracer: tracer,
+		Tracer: tracer,
 		Meter:  meter,
+		Logger: logger,
 	}
 }
 
 // Initializes an OTLP exporter, and configures the corresponding trace provider.
-func initTracerProvider(res *resource.Resource, exporter sdktrace.SpanExporter) error {
-	// Register the trace exporter with a TracerProvider, using a batch
-	// span processor to aggregate spans before export.
-	bsp := sdktrace.NewBatchSpanProcessor(exporter)
-	tracerProvider := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+func initTracerProvider(ctx context.Context, res *resource.Resource) *sdktrace.TracerProvider {
+	exp, err := otlptracehttp.New(ctx)
+	if err != nil {
+		log.Fatal(ctx, "error init tracer provider", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		// sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithResource(res),
-		sdktrace.WithSpanProcessor(bsp),
+		sdktrace.WithBatcher(exp),
 	)
-	otel.SetTracerProvider(tracerProvider)
+
+	otel.SetTracerProvider(tp)
 
 	// Set global propagator to tracecontext (the default is no-op).
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
-	// Shutdown will flush any remaining spans and shut down the exporter.
-	return nil
+	return tp
 }
 
-// Initializes an OTLP exporter, and configures the corresponding meter provider.
-func initMeterProvider(res *resource.Resource, exporter sdkmetric.Exporter) error {
-	meterProvider := sdkmetric.NewMeterProvider(
+func initMeterProvider(ctx context.Context, res *resource.Resource) *sdkmetric.MeterProvider {
+	exp, err := otlpmetrichttp.New(ctx)
+	if err != nil {
+		log.Fatal(ctx, "error init meter provider", err)
+	}
+
+	mp := sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(
 			sdkmetric.NewPeriodicReader(
-				exporter,
+				exp,
 				// Default is 1m. Set to 3s for demonstrative purposes.
 				sdkmetric.WithInterval(3*time.Second),
 			),
 		),
 		sdkmetric.WithResource(res),
 	)
-	otel.SetMeterProvider(meterProvider)
 
-	return nil
+	otel.SetMeterProvider(mp)
+
+	return mp
+}
+
+func initLoggerProvider(ctx context.Context, res *resource.Resource) *sdklogger.LoggerProvider {
+	exp, err := otlploghttp.New(ctx)
+	if err != nil {
+		log.Fatal(ctx, "error init logger provider", err)
+	}
+	lp := sdklogger.NewLoggerProvider(
+		sdklogger.WithProcessor(sdklogger.NewBatchProcessor(exp)),
+		sdklogger.WithResource(res),
+	)
+
+	global.SetLoggerProvider(lp)
+
+	return lp
 }
 
 // EndAPM shutdown the tracer
-func (o *OpenTelemetry) EndAPM() error {
+func (o *OpenTelemetry) EndAPM(ctx context.Context) error {
 	if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
-		err := tp.Shutdown(context.Background())
+		err := tp.Shutdown(ctx)
 		return err
 	}
 
-	// shutdown the meter
 	if mp, ok := otel.GetMeterProvider().(*sdkmetric.MeterProvider); ok {
-		err := mp.Shutdown(context.Background())
+		err := mp.Shutdown(ctx)
+		return err
+	}
+
+	if lp, ok := global.GetLoggerProvider().(*sdklogger.LoggerProvider); ok {
+		err := lp.Shutdown(ctx)
 		return err
 	}
 
@@ -111,7 +134,7 @@ func (o *OpenTelemetry) EndAPM() error {
 
 // StartTransaction starts a new OpenTelemetry span with the given name from a context.
 func (o *OpenTelemetry) StartTransaction(ctx context.Context, name string, attributes ...trace.SpanStartOption) (context.Context, interface{}) {
-	ctx, span := o.tracer.Start(ctx, name, attributes...)
+	ctx, span := o.Tracer.Start(ctx, name, attributes...)
 	return ctx, span
 }
 
