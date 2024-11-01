@@ -58,7 +58,8 @@ func (s *Server) Start(ctx context.Context) *http.Server {
 	}
 	go func() {
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal(ctx, "error running server", map[string]interface{}{logger.ErrorKey: err})
+			logger.Error(ctx, "error running server", map[string]interface{}{logger.ErrorKey: err})
+			return
 		}
 	}()
 	logger.Info(ctx, fmt.Sprintf("server running on address: %s", s.address), nil)

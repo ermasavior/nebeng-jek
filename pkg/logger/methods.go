@@ -11,31 +11,21 @@ func Sync() error {
 }
 
 func Info(ctx context.Context, msg string, fields map[string]interface{}) {
-	zapFields := mapToZapFields(fields)
-	zapFields = append(zapFields, initBaseLoggerFields(ctx)...)
-	otelzap.L().Info(msg, zapFields...)
+	zapFields := initBaseLoggerFields(fields)
+	otelzap.L().Ctx(ctx).Info(msg, zapFields...)
 }
 
 func Debug(ctx context.Context, msg string, fields map[string]interface{}) {
-	zapFields := mapToZapFields(fields)
-	zapFields = append(zapFields, initBaseLoggerFields(ctx)...)
-	otelzap.L().Debug(msg, zapFields...)
+	zapFields := initBaseLoggerFields(fields)
+	otelzap.L().Ctx(ctx).Debug(msg, zapFields...)
 }
 
 func Warn(ctx context.Context, msg string, fields map[string]interface{}) {
-	zapFields := mapToZapFields(fields)
-	zapFields = append(zapFields, initBaseLoggerFields(ctx)...)
-	otelzap.L().Warn(msg, zapFields...)
+	zapFields := initBaseLoggerFields(fields)
+	otelzap.L().Ctx(ctx).Warn(msg, zapFields...)
 }
 
 func Error(ctx context.Context, msg string, fields map[string]interface{}) {
-	zapFields := mapToZapFields(fields)
-	zapFields = append(zapFields, initBaseLoggerFields(ctx)...)
-	otelzap.L().Error(msg, zapFields...)
-}
-
-func Fatal(ctx context.Context, msg string, fields map[string]interface{}) {
-	zapFields := mapToZapFields(fields)
-	zapFields = append(zapFields, initBaseLoggerFields(ctx)...)
-	otelzap.L().Fatal(msg, zapFields...)
+	zapFields := initBaseLoggerFields(fields)
+	otelzap.L().Ctx(ctx).Error(msg, zapFields...)
 }
