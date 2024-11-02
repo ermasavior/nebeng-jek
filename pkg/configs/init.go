@@ -1,17 +1,24 @@
 package configs
 
-import "log"
+import (
+	"log"
 
-func NewConfig(c ConfigLoader, envFilePath string) *Config {
-	if c.ConsulAddress != "" {
-		conf, err := c.loadFromConsul()
-		if err != nil {
-			log.Fatal("error loading config from consul", err)
-		}
-		return conf
+	"github.com/caarlos0/env"
+	"github.com/joho/godotenv"
+)
+
+func NewConfig(envFilePath string) *Config {
+	err := godotenv.Load(envFilePath)
+	if err != nil {
+		log.Println("error loading config from file", err)
 	}
 
-	return c.loadFromEnvFile(envFilePath)
+	cfg := new(Config)
+	if err := env.Parse(cfg); err != nil {
+		log.Fatal("error parsing config from file", err)
+	}
+
+	return cfg
 }
 
 func NewMockConfig() *Config {

@@ -21,12 +21,9 @@ import (
 
 func main() {
 	ctx := context.Background()
-	projectEnv := os.Getenv("PROJECT_ENV")
-	consulAddress := os.Getenv("CONSUL_ADDRESS")
-	cfg := configs.NewConfig(configs.ConfigLoader{
-		Env:           projectEnv,
-		ConsulAddress: consulAddress,
-	}, "./configs/rides")
+
+	envFilePath := os.Getenv("ENV_PATH")
+	cfg := configs.NewConfig(envFilePath)
 
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
 	ctx, span := otel.StartTransaction(ctx, "app started")
@@ -89,6 +86,8 @@ func main() {
 	if err := httpServer.Shutdown(ctx); err != nil {
 		logger.Error(ctx, err.Error(), nil)
 	}
+
+	natsMsg.Close()
 
 	if err := pgDb.Close(); err != nil {
 		logger.Error(ctx, err.Error(), nil)

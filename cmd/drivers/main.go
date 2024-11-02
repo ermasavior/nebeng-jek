@@ -18,12 +18,9 @@ import (
 
 func main() {
 	ctx := context.Background()
-	projectEnv := os.Getenv("PROJECT_ENV")
-	consulAddress := os.Getenv("CONSUL_ADDRESS")
-	cfg := configs.NewConfig(configs.ConfigLoader{
-		Env:           projectEnv,
-		ConsulAddress: consulAddress,
-	}, "./configs/drivers")
+
+	envFilePath := os.Getenv("ENV_PATH")
+	cfg := configs.NewConfig(envFilePath)
 
 	otel := pkgOtel.NewOpenTelemetry(cfg.OTLPEndpoint, cfg.AppName, cfg.AppEnv)
 
