@@ -17,16 +17,16 @@ build-riders:
 	cd cmd/riders && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/riders main.go
 
 docker-run-drivers:
-	docker build -f deployments/drivers/Dockerfile -t nebengjek-drivers:v1.0.0 .
-	docker run --env-file ./configs/drivers/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-drivers nebengjek-drivers:v1.0.0
+	docker build -f deployments/drivers/Dockerfile -t nebengjek/drivers:v1.0.0 .
+	docker run --env-file ./configs/drivers/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-drivers nebengjek/drivers:v1.0.0
 
 docker-run-riders:
-	docker build -f deployments/riders/Dockerfile -t nebengjek-riders:v1.0.0 .
-	docker run --env-file ./configs/riders/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-riders nebengjek-riders:v1.0.0
+	docker build -f deployments/riders/Dockerfile -t nebengjek/riders:v1.0.0 .
+	docker run --env-file ./configs/riders/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-riders nebengjek/riders:v1.0.0
 
 docker-run-rides:
-	docker build -f deployments/rides/Dockerfile -t nebengjek-rides:v1.0.0 .
-	docker run --env-file ./configs/rides/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-rides nebengjek-rides:v1.0.0
+	docker build -f deployments/rides/Dockerfile -t nebengjek/rides:v1.0.0 .
+	docker run --env-file ./configs/rides/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-rides nebengjek/rides:v1.0.0
 
 tidy-rides:
 	cd cmd/rides && go mod tidy
