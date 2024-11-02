@@ -11,7 +11,7 @@ on:
 
 jobs:
   golangci-lint:
-    name: Lint
+    name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,3 +46,11 @@ jobs:
           if (( $(echo "$coverage < 80" | bc -l) )); then
             echo "Code coverage below threshold!" && exit 1
           fi
+  hadolint:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
