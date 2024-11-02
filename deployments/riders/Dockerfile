@@ -5,7 +5,8 @@ COPY ./.. .
 RUN make build-riders
 
 FROM alpine:3.18.2 as alpine
-RUN apk update && apk add --no-cache ca-certificates tzdata && update-ca-certificates
+RUN apk update && \
+    apk add --no-cache ca-certificates=20240226-r0 tzdata=2024a-r0 && update-ca-certificates
 
 FROM alpine:3.18.2
 
