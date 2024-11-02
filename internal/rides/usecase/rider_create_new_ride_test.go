@@ -85,6 +85,13 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
+	t.Run("failed - driver data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(model.RiderData{}, constants.ErrorDataNotFound)
+
+		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrUnauthorizedCode)
+	})
+
 	t.Run("failed - should return error when get nearest available driver", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)

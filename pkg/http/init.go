@@ -34,7 +34,6 @@ func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry)
 	router.Use(gin.Recovery())
 	router.Use(middleware.CorsHandler())
 	router.Use(otelgin.Middleware(appName))
-	router.Use(middleware.TracerIDHandler())
 
 	router.GET("/", healthCheck)
 	router.GET("/healthz", healthCheck)

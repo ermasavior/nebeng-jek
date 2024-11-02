@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *httpHandler) DriverConfirmPrice(c *gin.Context) {
-	req := model.DriverConfirmPriceRequest{}
+func (h *httpHandler) DriverConfirmPayment(c *gin.Context) {
+	req := model.DriverConfirmPaymentRequest{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -21,7 +21,7 @@ func (h *httpHandler) DriverConfirmPrice(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	data, err := h.usecase.DriverConfirmPrice(ctx, req)
+	data, err := h.usecase.DriverConfirmPayment(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error from usecase", map[string]interface{}{
 			logger.ErrorKey: err.Error(),

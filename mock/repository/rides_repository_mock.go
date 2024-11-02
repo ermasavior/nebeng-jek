@@ -220,6 +220,20 @@ func (mr *MockRidesRepositoryMockRecorder) GetRiderMSISDNByID(ctx, id interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRiderMSISDNByID", reflect.TypeOf((*MockRidesRepository)(nil).GetRiderMSISDNByID), ctx, id)
 }
 
+// StoreRideCommission mocks base method.
+func (m *MockRidesRepository) StoreRideCommission(ctx context.Context, req model.StoreRideCommissionRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreRideCommission", ctx, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StoreRideCommission indicates an expected call of StoreRideCommission.
+func (mr *MockRidesRepositoryMockRecorder) StoreRideCommission(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreRideCommission", reflect.TypeOf((*MockRidesRepository)(nil).StoreRideCommission), ctx, req)
+}
+
 // UpdateRideData mocks base method.
 func (m *MockRidesRepository) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
 	m.ctrl.T.Helper()
@@ -269,4 +283,55 @@ func (m *MockRidesPubsubRepository) BroadcastMessage(arg0 context.Context, arg1 
 func (mr *MockRidesPubsubRepositoryMockRecorder) BroadcastMessage(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastMessage", reflect.TypeOf((*MockRidesPubsubRepository)(nil).BroadcastMessage), arg0, arg1, arg2)
+}
+
+// MockPaymentRepository is a mock of PaymentRepository interface.
+type MockPaymentRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockPaymentRepositoryMockRecorder
+}
+
+// MockPaymentRepositoryMockRecorder is the mock recorder for MockPaymentRepository.
+type MockPaymentRepositoryMockRecorder struct {
+	mock *MockPaymentRepository
+}
+
+// NewMockPaymentRepository creates a new mock instance.
+func NewMockPaymentRepository(ctrl *gomock.Controller) *MockPaymentRepository {
+	mock := &MockPaymentRepository{ctrl: ctrl}
+	mock.recorder = &MockPaymentRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockPaymentRepository) EXPECT() *MockPaymentRepositoryMockRecorder {
+	return m.recorder
+}
+
+// AddCredit mocks base method.
+func (m *MockPaymentRepository) AddCredit(arg0 context.Context, arg1 model.AddCreditRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCredit", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCredit indicates an expected call of AddCredit.
+func (mr *MockPaymentRepositoryMockRecorder) AddCredit(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCredit", reflect.TypeOf((*MockPaymentRepository)(nil).AddCredit), arg0, arg1)
+}
+
+// DeductCredit mocks base method.
+func (m *MockPaymentRepository) DeductCredit(arg0 context.Context, arg1 model.DeductCreditRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeductCredit", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeductCredit indicates an expected call of DeductCredit.
+func (mr *MockPaymentRepositoryMockRecorder) DeductCredit(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeductCredit", reflect.TypeOf((*MockPaymentRepository)(nil).DeductCredit), arg0, arg1)
 }

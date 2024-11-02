@@ -76,12 +76,27 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 		}).Return(nil)
 
 		data, err := usecaseMock.RiderConfirmRide(ctx, model.RiderConfirmRideRequest{
-			RiderID:  req.RiderID,
 			RideID:   req.RideID,
 			IsAccept: false,
 		})
 		assert.Nil(t, err)
 		assert.Equal(t, model.StatusNumRideCancelled, data.StatusNum)
+	})
+
+	t.Run("failed - invalid ride data", func(t *testing.T) {
+		invalidRide := rideData
+		invalidRide.StatusNum = model.StatusNumRideCancelled
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
+
+		_, err := usecaseMock.RiderConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
+	})
+
+	t.Run("failed - ride data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, constants.ErrorDataNotFound)
+
+		_, err := usecaseMock.RiderConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrResourceNotFoundCode, err.GetCode())
 	})
 
 	t.Run("failed - get ride data returns error", func(t *testing.T) {

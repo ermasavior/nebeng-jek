@@ -5,12 +5,11 @@ import (
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
-	"nebeng-jek/internal/rides/service/payment"
 	pkgError "nebeng-jek/pkg/error"
 	"nebeng-jek/pkg/logger"
 )
 
-func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverConfirmPriceRequest) (model.RideData, pkgError.AppError) {
+func (u *ridesUsecase) DriverConfirmPayment(ctx context.Context, req model.DriverConfirmPaymentRequest) (model.RideData, pkgError.AppError) {
 	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
@@ -25,17 +24,18 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
-	if rideData.DriverID == nil || *rideData.DriverID != driverID {
-		return model.RideData{}, pkgError.NewForbiddenError((pkgError.ErrForbiddenMsg))
+	if err := model.ValidateConfirmPayment(rideData, driverID, req.CustomPrice); err != nil {
+		return model.RideData{}, err
 	}
-	if rideData.StatusNum != model.StatusNumRideEnded {
-		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
+
+	var finalPrice = *rideData.Fare
+	if req.CustomPrice > 0 {
+		finalPrice = req.CustomPrice
 	}
-	if rideData.Fare == nil {
-		return model.RideData{}, pkgError.NewForbiddenError("invalid fare, must not be empty")
-	}
-	if req.CustomPrice > *rideData.Fare {
-		return model.RideData{}, pkgError.NewBadRequestError("custom price must be lower than fare price")
+
+	var distance = float64(0)
+	if rideData.Distance != nil {
+		distance = *rideData.Distance
 	}
 
 	driverMSISDN, err := u.ridesRepo.GetDriverMSISDNByID(ctx, *rideData.DriverID)
@@ -56,23 +56,13 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRiderMSISDN)
 	}
 
-	var finalPrice = req.CustomPrice
-	if req.CustomPrice > 0 && rideData.Fare != nil {
-		finalPrice = *rideData.Fare
-	}
-
-	var distance = float64(0)
-	if rideData.Distance != nil {
-		distance = *rideData.Distance
-	}
-
-	err = u.handlePaymentTransaction(ctx, finalPrice, riderMSISDN, driverMSISDN)
+	err = u.processPayment(ctx, req.RideID, finalPrice, riderMSISDN, driverMSISDN)
 	if err != nil {
-		logger.Error(ctx, "error handle payment", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailProcessPayment, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError("error handle payment")
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailProcessPayment)
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -88,6 +78,10 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
 
+	rideData.SetDistance(distance)
+	rideData.SetFinalPrice(finalPrice)
+	rideData.SetStatus(model.StatusNumRidePaid)
+
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRidePaid, model.RidePaidMessage{
 		RideID:     rideData.RideID,
 		Distance:   distance,
@@ -102,47 +96,40 @@ func (u *ridesUsecase) DriverConfirmPrice(ctx context.Context, req model.DriverC
 		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting ride ended")
 	}
 
-	rideData.SetDistance(distance)
-	rideData.SetFinalPrice(finalPrice)
-	rideData.SetStatus(model.StatusNumRidePaid)
-
 	return rideData, nil
 }
 
-func (u *ridesUsecase) handlePaymentTransaction(ctx context.Context, finalPrice float64, payerMSISDN, payeeMSISDN string) error {
-	rideFee := finalPrice * model.RideFeeDiscount
-	err := u.paymentService.DeductCredit(ctx, payment.DeductCreditRequest{
+func (u *ridesUsecase) processPayment(ctx context.Context, rideID int64, finalPrice float64, payerMSISDN, payeeMSISDN string) error {
+	commission := finalPrice * model.RideFeeDiscount
+	netPrice := finalPrice - commission
+
+	err := u.paymentRepo.DeductCredit(ctx, model.DeductCreditRequest{
 		MSISDN: payerMSISDN,
-		Value:  finalPrice - rideFee,
+		Value:  netPrice,
 	})
 	if err != nil {
 		logger.Error(ctx, "error deduct credit", map[string]interface{}{
-			"payer": payerMSISDN,
-			"payee": payeeMSISDN,
-			"error": err,
+			"payer": payerMSISDN, "payee": payeeMSISDN, "error": err,
 		})
 		return err
 	}
-	err = u.paymentService.AddCredit(ctx, payment.AddCreditRequest{
+	err = u.paymentRepo.AddCredit(ctx, model.AddCreditRequest{
 		MSISDN: payeeMSISDN,
-		Value:  finalPrice - rideFee,
+		Value:  netPrice,
 	})
 	if err != nil {
 		logger.Error(ctx, "error add credit", map[string]interface{}{
-			"payer": payerMSISDN,
-			"payee": payeeMSISDN,
-			"error": err,
+			"payer": payerMSISDN, "payee": payeeMSISDN, "error": err,
 		})
 		return err
 	}
-	err = u.paymentService.AddRevenue(ctx, payment.AddRevenueRequest{
-		Value: rideFee,
+	err = u.ridesRepo.StoreRideCommission(ctx, model.StoreRideCommissionRequest{
+		RideID:     rideID,
+		Commission: commission,
 	})
 	if err != nil {
-		logger.Error(ctx, "error add credit revenue", map[string]interface{}{
-			"payer": payerMSISDN,
-			"payee": payeeMSISDN,
-			"error": err,
+		logger.Error(ctx, "error store ride commission", map[string]interface{}{
+			"payer": payerMSISDN, "payee": payeeMSISDN, "error": err,
 		})
 		return err
 	}

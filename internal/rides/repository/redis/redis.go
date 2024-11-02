@@ -59,11 +59,6 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, driverID int6
 	key := model.GetDriverPathKey(rideID, driverID)
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
-	if res.Err() != nil {
-		logger.Error(ctx, "error get zrange", map[string]interface{}{logger.ErrorKey: res.Err()})
-		return nil, res.Err()
-	}
-
 	coordinates, err := res.Result()
 	if err != nil {
 		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})

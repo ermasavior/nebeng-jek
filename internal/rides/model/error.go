@@ -2,11 +2,12 @@ package model
 
 const (
 	ErrMsgInvalidRideStatus         = "invalid ride status"
-	ErrMsgFailGetRideData           = "fail get ride data"
-	ErrMsgFailUpdateRideData        = "fail update ride data"
-	ErrMsgFailBroadcastMessage      = "fail broadcasting message"
-	ErrMsgFailRemoveAvailableDriver = "fail remove available driver"
-	ErrMsgFailGetDriverData         = "fail get driver data"
-	ErrMsgFailGetDriverMSISDN       = "fail get driver msisdn"
-	ErrMsgFailGetRiderMSISDN        = "fail get rider msisdn"
+	ErrMsgFailGetRideData           = "error get ride data"
+	ErrMsgFailUpdateRideData        = "error update ride data"
+	ErrMsgFailBroadcastMessage      = "error broadcasting message"
+	ErrMsgFailRemoveAvailableDriver = "error remove available driver"
+	ErrMsgFailGetDriverData         = "error get driver data"
+	ErrMsgFailGetDriverMSISDN       = "error get driver msisdn"
+	ErrMsgFailGetRiderMSISDN        = "error get rider msisdn"
+	ErrMsgFailProcessPayment        = "error processing payment"
 )

@@ -24,11 +24,8 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
-	if rideData.RiderID != riderID || rideData.DriverID == nil {
-		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
-	}
-	if rideData.StatusNum != model.StatusNumRideMatchedDriver {
-		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
+	if err := model.ValidateRiderConfirmRide(rideData, riderID); err != nil {
+		return model.RideData{}, err
 	}
 
 	var status = model.StatusNumRideReadyToPickup

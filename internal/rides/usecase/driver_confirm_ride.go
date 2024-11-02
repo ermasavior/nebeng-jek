@@ -39,11 +39,8 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
-	if rideData.DriverID == nil || *rideData.DriverID != driverID {
-		return pkgError.NewForbiddenError((pkgError.ErrForbiddenMsg))
-	}
-	if rideData.StatusNum != model.StatusNumRideNewRequest {
-		return pkgError.NewForbiddenError(model.ErrMsgInvalidRideStatus)
+	if err := model.ValidateDriverConfirmRide(rideData, driverID); err != nil {
+		return err
 	}
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{

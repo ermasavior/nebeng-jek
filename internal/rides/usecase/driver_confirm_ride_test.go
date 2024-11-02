@@ -88,7 +88,33 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(model.DriverData{}, expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
+	})
+
+	t.Run("failed - driver data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(model.DriverData{}, constants.ErrorDataNotFound)
+
+		err := usecaseMock.DriverConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrUnauthorizedCode, err.GetCode())
+	})
+
+	t.Run("failed - invalid ride data", func(t *testing.T) {
+		invalidRide := rideData
+		invalidRide.StatusNum = model.StatusNumRideCancelled
+
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
+
+		err := usecaseMock.DriverConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
+	})
+
+	t.Run("failed - ride data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverData, nil)
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, constants.ErrorDataNotFound)
+
+		err := usecaseMock.DriverConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrResourceNotFoundCode, err.GetCode())
 	})
 
 	t.Run("failed - get ride data returns error", func(t *testing.T) {
@@ -97,7 +123,7 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
 	t.Run("failed - update ride data returns error", func(t *testing.T) {
@@ -111,7 +137,7 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
 	t.Run("failed - broadcast message returns error", func(t *testing.T) {
@@ -131,6 +157,6 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		err := usecaseMock.DriverConfirmRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 }
