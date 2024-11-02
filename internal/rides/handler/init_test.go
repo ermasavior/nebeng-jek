@@ -6,6 +6,8 @@ import (
 	"nebeng-jek/internal/pkg/constants"
 	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
 	mock_redis "nebeng-jek/mock/pkg/redis"
+	"nebeng-jek/pkg/configs"
+	"net/http"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -23,11 +25,13 @@ func TestRegisterHandler(t *testing.T) {
 	router := gin.New()
 
 	reg := RegisterHandlerParam{
-		Router: &router.RouterGroup,
-		Redis:  mock_redis.NewMockCollections(ctrl),
-		DB:     nil, // no tests
-		NatsJS: natsConn,
-		JWTGen: nil, // no tests
+		Router:     &router.RouterGroup,
+		Redis:      mock_redis.NewMockCollections(ctrl),
+		DB:         nil, // no tests
+		NatsJS:     natsConn,
+		JWTGen:     nil, // no tests
+		Cfg:        configs.NewMockConfig(),
+		HttpClient: http.DefaultClient,
 	}
 	RegisterHandler(context.Background(), reg)
 
@@ -52,10 +56,10 @@ func TestRegisterHandler(t *testing.T) {
 			Path:    "/drivers/ride/end",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverEndRide-fm",
 		},
-		"POST:/drivers/ride/confirm-price": {
+		"POST:/drivers/ride/confirm-payment": {
 			Method:  "POST",
-			Path:    "/drivers/ride/confirm-price",
-			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmPrice-fm",
+			Path:    "/drivers/ride/confirm-payment",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmPayment-fm",
 		},
 		"POST:/riders/ride/create": {
 			Method:  "POST",

@@ -31,7 +31,7 @@ func TestMiddleware_DriverAuthMiddleware(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.Use(mid.RiderAuthMiddleware)
+	router.Use(mid.DriverAuthMiddleware)
 	router.GET(path)
 
 	t.Run("failed - return status unauthorized 401 - no auth header", func(t *testing.T) {

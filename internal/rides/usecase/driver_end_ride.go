@@ -13,18 +13,6 @@ import (
 func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRideRequest) (model.RideData, pkgError.AppError) {
 	driverID := pkgContext.GetDriverIDFromContext(ctx)
 
-	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, driverID)
-	if err != nil {
-		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
-			"driver_id": driverID,
-			"error":     err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError("error get distance traversed")
-	}
-
-	distance := calculateTotalDistance(ridePath)
-	fare := calculateRideFare(distance)
-
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err == constants.ErrorDataNotFound {
 		return model.RideData{}, pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)
@@ -36,12 +24,22 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
-	if rideData.DriverID == nil || *rideData.DriverID != driverID {
-		return model.RideData{}, pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
+
+	if err := model.ValidateEndRide(rideData, driverID); err != nil {
+		return model.RideData{}, err
 	}
-	if rideData.StatusNum != model.StatusNumRideStarted {
-		return model.RideData{}, pkgError.NewBadRequestError(model.ErrMsgInvalidRideStatus)
+
+	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, driverID)
+	if err != nil {
+		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
+			"driver_id": driverID,
+			"error":     err,
+		})
+		return model.RideData{}, pkgError.NewInternalServerError("error get distance traversed")
 	}
+
+	distance := calculateTotalDistance(ridePath)
+	fare := calculateRideFare(distance)
 
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
 		RideID:   req.RideID,
@@ -56,7 +54,10 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		})
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
+
 	rideData.SetStatus(model.StatusNumRideEnded)
+	rideData.SetDistance(distance)
+	rideData.SetFare(fare)
 
 	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
 		RideID:   req.RideID,
@@ -72,8 +73,6 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting ride ended")
 	}
 
-	rideData.SetDistance(distance)
-	rideData.SetFare(fare)
 	return rideData, nil
 }
 

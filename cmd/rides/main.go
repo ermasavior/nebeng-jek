@@ -10,6 +10,7 @@ import (
 	"nebeng-jek/pkg/configs"
 	db "nebeng-jek/pkg/db/postgres"
 	pkgHttp "nebeng-jek/pkg/http"
+	"nebeng-jek/pkg/http_client"
 	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/logger"
 	"nebeng-jek/pkg/messaging/nats"
@@ -59,14 +60,18 @@ func main() {
 	defer natsMsg.Close()
 	natsJS := nats.NewNATSJSConnection(ctx, natsMsg)
 
+	httpClient := http_client.HttpClient()
+
 	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
 
 	reg := ridesHandler.RegisterHandlerParam{
-		Router: srv.Router.Group("/v1"),
-		Redis:  redisClient,
-		DB:     pgDb,
-		NatsJS: natsJS,
-		JWTGen: jwtGen,
+		Router:     srv.Router.Group("/v1"),
+		Redis:      redisClient,
+		DB:         pgDb,
+		NatsJS:     natsJS,
+		JWTGen:     jwtGen,
+		Cfg:        cfg,
+		HttpClient: httpClient,
 	}
 	ridesHandler.RegisterHandler(ctx, reg)
 

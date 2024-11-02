@@ -1,6 +1,8 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Coordinate struct {
 	Longitude float64 `json:"longitude" binding:"required"`

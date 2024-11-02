@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_DriverConfirmPrice(t *testing.T) {
+func TestHandler_DriverConfirmPayment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -28,19 +28,19 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST(url, h.DriverConfirmPrice)
+	router.POST(url, h.DriverConfirmPayment)
 
 	rideData := model.RideData{
 		RideID: 666,
 	}
-	reqBody := model.DriverConfirmPriceRequest{
+	reqBody := model.DriverConfirmPaymentRequest{
 		RideID:      666,
 		CustomPrice: 9999,
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
 	t.Run("success - returns status code 200 when successfully confirm new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().DriverConfirmPrice(gomock.Any(), reqBody).Return(rideData, nil)
+		mockUsecase.EXPECT().DriverConfirmPayment(gomock.Any(), reqBody).Return(rideData, nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -53,7 +53,7 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 	})
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
-		reqBody := model.DriverConfirmPriceRequest{}
+		reqBody := model.DriverConfirmPaymentRequest{}
 		reqBytes, _ := json.Marshal(reqBody)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
@@ -69,7 +69,7 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 	t.Run("failed - returns 404 when usecase returns not found", func(t *testing.T) {
 		expectedError := errorPkg.NewNotFoundError("not found")
 
-		mockUsecase.EXPECT().DriverConfirmPrice(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverConfirmPayment(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -85,7 +85,7 @@ func TestHandler_DriverConfirmPrice(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errorPkg.NewInternalServerError("error from usecase")
 
-		mockUsecase.EXPECT().DriverConfirmPrice(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
+		mockUsecase.EXPECT().DriverConfirmPayment(gomock.Any(), reqBody).Return(model.RideData{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

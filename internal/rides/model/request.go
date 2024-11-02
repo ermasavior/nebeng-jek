@@ -12,25 +12,21 @@ type DriverSetAvailabilityRequest struct {
 }
 
 type RiderConfirmRideRequest struct {
-	RiderID  int64 `json:"-"`
 	RideID   int64 `json:"ride_id" binding:"required"`
 	IsAccept bool  `json:"is_accept" binding:"required"`
 }
 
 type DriverConfirmRideRequest struct {
-	DriverID int64 `json:"-"`
 	RideID   int64 `json:"ride_id" binding:"required"`
 	IsAccept bool  `json:"is_accept" binding:"required"`
 }
 
 type DriverStartRideRequest struct {
-	DriverID int64 `json:"-"`
-	RideID   int64 `json:"ride_id" binding:"required"`
+	RideID int64 `json:"ride_id" binding:"required"`
 }
 
 type DriverEndRideRequest struct {
-	DriverID int64 `json:"-"`
-	RideID   int64 `json:"ride_id" binding:"required"`
+	RideID int64 `json:"ride_id" binding:"required"`
 }
 
 type UpdateRideByDriverRequest struct {
@@ -51,10 +47,9 @@ type UpdateRideDataRequest struct {
 	Status     int
 }
 
-type DriverConfirmPriceRequest struct {
-	DriverID    int64   `json:"-"`
+type DriverConfirmPaymentRequest struct {
 	RideID      int64   `json:"ride_id" binding:"required"`
-	CustomPrice float64 `json:"custom_price"`
+	CustomPrice float64 `json:"custom_price" binding:"gte=0"`
 }
 
 type TrackUserLocationRequest struct {

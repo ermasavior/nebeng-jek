@@ -22,11 +22,7 @@ func (r *ridesMiddleware) DriverAuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	driverID, ok := claims[DriverID].(float64)
-	if !ok {
-		c.Next()
-		return
-	}
+	driverID, _ := claims[DriverID].(float64)
 	ctx := pkg_context.SetDriverIDToContext(c.Request.Context(), int64(driverID))
 	c.Request = c.Request.WithContext(ctx)
 	c.Next()
@@ -45,11 +41,7 @@ func (r *ridesMiddleware) RiderAuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	riderID, ok := claims[RiderID].(float64)
-	if !ok {
-		c.Next()
-		return
-	}
+	riderID, _ := claims[RiderID].(float64)
 	ctx := pkg_context.SetRiderIDToContext(c.Request.Context(), int64(riderID))
 	c.Request = c.Request.WithContext(ctx)
 	c.Next()

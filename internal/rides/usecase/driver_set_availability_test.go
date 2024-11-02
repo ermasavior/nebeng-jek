@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
@@ -56,6 +57,13 @@ func TestUsecase_DriverSetAvailability(t *testing.T) {
 
 		err := usecaseMock.DriverSetAvailability(ctx, req)
 		assert.Nil(t, err)
+	})
+
+	t.Run("failed - driver msisdn is not found", func(t *testing.T) {
+		repoRidesMock.EXPECT().GetDriverMSISDNByID(ctx, driverID).Return("", constants.ErrorDataNotFound)
+
+		err := usecaseMock.DriverSetAvailability(ctx, req)
+		assert.Equal(t, pkgError.ErrUnauthorizedCode, err.GetCode())
 	})
 
 	t.Run("failed - should return error when add available driver failed", func(t *testing.T) {

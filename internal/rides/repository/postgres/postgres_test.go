@@ -462,3 +462,47 @@ func TestRepository_UpdateRideData(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestRepository_StoreRideCommission(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	req := model.StoreRideCommissionRequest{
+		RideID:     1111,
+		Commission: 20000,
+	}
+
+	expectedQuery := queryInsertRideCommission
+
+	t.Run("should execute insert query", func(t *testing.T) {
+		sqlMock.ExpectExec(expectedQuery).
+			WithArgs(req.RideID, req.Commission).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		err := repoMock.StoreRideCommission(ctx, req)
+
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectExec(expectedQuery).
+			WithArgs(req.RideID, req.Commission).
+			WillReturnError(rowErr)
+
+		err := repoMock.StoreRideCommission(ctx, req)
+
+		assert.NotNil(t, err)
+	})
+}

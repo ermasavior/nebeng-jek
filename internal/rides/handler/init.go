@@ -7,31 +7,36 @@ import (
 	nats_pkg "nebeng-jek/internal/pkg/nats"
 	handler_http "nebeng-jek/internal/rides/handler/http"
 	handler_nats "nebeng-jek/internal/rides/handler/nats"
+	"nebeng-jek/internal/rides/repository/external_api/payment"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
 	repo_redis "nebeng-jek/internal/rides/repository/redis"
-	"nebeng-jek/internal/rides/service/payment"
 	"nebeng-jek/internal/rides/usecase"
+	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/messaging/nats"
 	"nebeng-jek/pkg/redis"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
 type RegisterHandlerParam struct {
-	Router *gin.RouterGroup
-	Redis  redis.Collections
-	DB     *sqlx.DB
-	NatsJS nats.JetStreamConnection
-	JWTGen jwt.JWTInterface
+	Router     *gin.RouterGroup
+	Redis      redis.Collections
+	DB         *sqlx.DB
+	NatsJS     nats.JetStreamConnection
+	JWTGen     jwt.JWTInterface
+	Cfg        *configs.Config
+	HttpClient *http.Client
 }
 
 func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	ridesPubSub := nats_pkg.NewPubsubRepository(reg.NatsJS)
 	repoCache := repo_redis.NewRepository(reg.Redis)
 	repoDB := repo_db.NewRepository(reg.DB)
-	paymentSvc := payment.NewPaymentService()
+	paymentSvc := payment.NewPaymentRepository(reg.Cfg, reg.HttpClient)
+
 	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub, paymentSvc)
 
 	httpHandler := handler_http.NewHandler(uc)
@@ -44,7 +49,7 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 		group.POST("/ride/confirm", httpHandler.DriverConfirmRide)
 		group.POST("/ride/start", httpHandler.DriverStartRide)
 		group.POST("/ride/end", httpHandler.DriverEndRide)
-		group.POST("/ride/confirm-price", httpHandler.DriverConfirmPrice)
+		group.POST("/ride/confirm-payment", httpHandler.DriverConfirmPayment)
 	}
 
 	group = reg.Router.Group("/riders")
@@ -55,6 +60,5 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	}
 
 	natsHandler := handler_nats.NewHandler(uc)
-
 	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx), "consumer_live_location")
 }

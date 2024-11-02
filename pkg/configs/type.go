@@ -18,6 +18,9 @@ type Config struct {
 	NatsURL        string `env:"NATS_URL"`
 	JWTSecretKey   string `env:"JWT_SECRET_KEY"`
 	LogFilePath    string `env:"LOG_FILE_PATH"`
+
+	PaymentServiceURL    string `env:"PAYMENT_SERVICE_URL"`
+	PaymentServiceAPIKey string `env:"PAYMENT_SERVICE_API_KEY"`
 }
 
 type ConfigLoader struct {

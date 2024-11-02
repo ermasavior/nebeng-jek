@@ -2,26 +2,25 @@ package usecase
 
 import (
 	"nebeng-jek/internal/rides/repository"
-	"nebeng-jek/internal/rides/service/payment"
 )
 
 type ridesUsecase struct {
-	locationRepo   repository.RidesLocationRepository
-	ridesRepo      repository.RidesRepository
-	ridesPubSub    repository.RidesPubsubRepository
-	paymentService payment.PaymentService
+	locationRepo repository.RidesLocationRepository
+	ridesRepo    repository.RidesRepository
+	ridesPubSub  repository.RidesPubsubRepository
+	paymentRepo  repository.PaymentRepository
 }
 
 func NewUsecase(
 	locationRepo repository.RidesLocationRepository,
 	ridesRepo repository.RidesRepository,
 	ridesPubSub repository.RidesPubsubRepository,
-	paymentService payment.PaymentService) RidesUsecase {
+	paymentRepo repository.PaymentRepository) RidesUsecase {
 
 	return &ridesUsecase{
-		locationRepo:   locationRepo,
-		ridesRepo:      ridesRepo,
-		ridesPubSub:    ridesPubSub,
-		paymentService: paymentService,
+		locationRepo: locationRepo,
+		ridesRepo:    ridesRepo,
+		ridesPubSub:  ridesPubSub,
+		paymentRepo:  paymentRepo,
 	}
 }

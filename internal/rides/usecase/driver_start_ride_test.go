@@ -41,8 +41,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 			},
 		}
 		req = model.DriverStartRideRequest{
-			RideID:   111,
-			DriverID: 1111,
+			RideID: 111,
 		}
 	)
 
@@ -68,6 +67,22 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		assert.Equal(t, model.StatusNumRideStarted, res.StatusNum)
 	})
 
+	t.Run("failed - invalid ride data", func(t *testing.T) {
+		invalidRide := rideData
+		invalidRide.StatusNum = model.StatusNumRideCancelled
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
+
+		_, err := usecaseMock.DriverStartRide(ctx, req)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
+	})
+
+	t.Run("failed - ride data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, constants.ErrorDataNotFound)
+
+		_, err := usecaseMock.DriverStartRide(ctx, req)
+		assert.Equal(t, pkgError.ErrResourceNotFoundCode, err.GetCode())
+	})
+
 	t.Run("failed - get ride data returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, expectedErr)
@@ -86,7 +101,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 		assert.Equal(t, model.RideData{}, res)
 	})
 
@@ -100,7 +115,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverID).Return(expectedErr)
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 		assert.Equal(t, model.RideData{}, res)
 	})
 
@@ -119,7 +134,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 		assert.Equal(t, model.RideData{}, res)
 	})
 }

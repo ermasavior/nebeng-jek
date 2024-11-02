@@ -85,8 +85,8 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	ctx = pkgContext.SetDriverIDToContext(ctx, driverID)
 
 	t.Run("success - should create new ride and publish message broadcast", func(t *testing.T) {
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			Status:   model.StatusNumRideEnded,
@@ -106,27 +106,43 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		assert.Equal(t, expectedRes, actual)
 	})
 
-	t.Run("failed - should return error when get ride path failed", func(t *testing.T) {
-		expectedErr := errors.New("error from repo")
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return([]model.Coordinate{}, expectedErr)
+	t.Run("failed - invalid ride data", func(t *testing.T) {
+		invalidRide := rideData
+		invalidRide.StatusNum = model.StatusNumRideCancelled
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
+	})
+
+	t.Run("failed - ride data is not found", func(t *testing.T) {
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, constants.ErrorDataNotFound)
+
+		_, err := usecaseMock.DriverEndRide(ctx, req)
+		assert.Equal(t, pkgError.ErrResourceNotFoundCode, err.GetCode())
 	})
 
 	t.Run("failed - should return error when get ride data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(model.RideData{}, expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
+	})
+
+	t.Run("failed - should return error when get ride path failed", func(t *testing.T) {
+		expectedErr := errors.New("error from repo")
+		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return([]model.Coordinate{}, expectedErr)
+
+		_, err := usecaseMock.DriverEndRide(ctx, req)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
 	t.Run("failed - should return error when update ride data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			Status:   model.StatusNumRideEnded,
@@ -135,13 +151,13 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
 	t.Run("failed - should return error when broadcast data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID:   req.RideID,
 			Status:   model.StatusNumRideEnded,
@@ -157,6 +173,6 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		}).Return(expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 }
