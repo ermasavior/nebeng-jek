@@ -15,7 +15,7 @@ services:
     restart: always
     volumes:
       - /data/rides/pg:/var/lib/postgresql/data
-      - ../data/init-sql:/docker-entrypoint-initdb.d
+      - ../db:/docker-entrypoint-initdb.d
     networks:
       local:
   redis:

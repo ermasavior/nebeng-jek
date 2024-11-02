@@ -62,6 +62,11 @@ func (r *RideData) SetStatus(statusNum int) {
 	r.StatusNum = statusNum
 }
 
+type StoreRideCommissionRequest struct {
+	RideID     int64
+	Commission float64
+}
+
 type NewRideRequestMessage struct {
 	RideID           int64          `json:"ride_id"`
 	Rider            RiderData      `json:"rider"`

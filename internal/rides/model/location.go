@@ -14,7 +14,7 @@ const (
 	NearestRadiusUnit = "km"
 
 	// longitude:latitude:timestamp
-	coordinateFormat = "%.2f:%.2f:%d"
+	coordinateFormat = "%.8f:%.8f:%d"
 )
 
 type Coordinate struct {
@@ -26,22 +26,26 @@ func (c *Coordinate) ToStringValue(timestamp int64) string {
 	return fmt.Sprintf(coordinateFormat, c.Longitude, c.Latitude, timestamp)
 }
 
-func ParseCoordinate(coordinateStr string) (coor Coordinate, err error) {
+func ParseCoordinate(coordinateStr string) (Coordinate, error) {
 	latlon := strings.Split(coordinateStr, ":")
 	if len(latlon) < 2 {
-		err = errors.New("invalid coordinate format input")
-		return
+		return Coordinate{}, errors.New("invalid coordinate format input")
 	}
+
+	var (
+		coor Coordinate
+		err  error
+	)
 
 	coor.Longitude, err = strconv.ParseFloat(latlon[0], 64)
 	if err != nil {
-		return
+		return Coordinate{}, err
 	}
 
 	coor.Latitude, err = strconv.ParseFloat(latlon[1], 64)
 	if err != nil {
-		return
+		return Coordinate{}, err
 	}
 
-	return
+	return coor, nil
 }

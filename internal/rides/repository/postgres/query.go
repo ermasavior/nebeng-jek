@@ -34,4 +34,8 @@ const (
 		SET %s
 		WHERE %s 
 	`
+	queryInsertRideCommission = `
+		INSERT INTO ride_commissions(ride_id, commission)
+		VALUES($1, $2)
+	`
 )

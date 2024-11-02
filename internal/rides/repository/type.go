@@ -22,8 +22,14 @@ type RidesRepository interface {
 
 	CreateNewRide(context.Context, model.CreateNewRideRequest) (int64, error)
 	UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error
+	StoreRideCommission(ctx context.Context, req model.StoreRideCommissionRequest) error
 }
 
 type RidesPubsubRepository interface {
 	BroadcastMessage(context.Context, string, interface{}) error
+}
+
+type PaymentRepository interface {
+	DeductCredit(context.Context, model.DeductCreditRequest) error
+	AddCredit(context.Context, model.AddCreditRequest) error
 }
