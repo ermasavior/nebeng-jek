@@ -3,8 +3,8 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	"nebeng-jek/internal/location/model"
 	nats_pkg "nebeng-jek/internal/pkg/nats"
-	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/pkg/logger"
 
 	"github.com/nats-io/nats.go"

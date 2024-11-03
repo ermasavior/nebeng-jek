@@ -21,4 +21,6 @@ type Config struct {
 
 	PaymentServiceURL    string `env:"PAYMENT_SERVICE_URL"`
 	PaymentServiceAPIKey string `env:"PAYMENT_SERVICE_API_KEY"`
+
+	InternalAPIKey string `env:"INTERNAL_API_KEY"`
 }

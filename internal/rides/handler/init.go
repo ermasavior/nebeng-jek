@@ -2,11 +2,9 @@ package handler
 
 import (
 	"context"
-	"nebeng-jek/internal/pkg/constants"
 	"nebeng-jek/internal/pkg/middleware"
 	nats_pkg "nebeng-jek/internal/pkg/nats"
 	handler_http "nebeng-jek/internal/rides/handler/http"
-	handler_nats "nebeng-jek/internal/rides/handler/nats"
 	"nebeng-jek/internal/rides/repository/external_api/payment"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
 	repo_redis "nebeng-jek/internal/rides/repository/redis"
@@ -58,7 +56,4 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 		group.POST("/ride/create", httpHandler.RiderCreateNewRide)
 		group.POST("/ride/confirm", httpHandler.RiderConfirmRide)
 	}
-
-	natsHandler := handler_nats.NewHandler(uc)
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx), "consumer_live_location")
 }

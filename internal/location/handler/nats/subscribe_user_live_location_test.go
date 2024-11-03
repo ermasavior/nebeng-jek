@@ -3,8 +3,8 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	"nebeng-jek/internal/location/model"
 	"nebeng-jek/internal/pkg/constants"
-	"nebeng-jek/internal/rides/model"
 	mock_usecase "nebeng-jek/mock/usecase"
 	errorPkg "nebeng-jek/pkg/error"
 	"testing"
@@ -18,7 +18,7 @@ func TestSubscribeUserLiveLocation(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUsecase := mock_usecase.NewMockRidesUsecase(ctrl)
+	mockUsecase := mock_usecase.NewMockLocationUsecase(ctrl)
 	h := NewHandler(mockUsecase)
 
 	req := model.TrackUserLocationRequest{

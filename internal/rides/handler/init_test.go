@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"nebeng-jek/internal/pkg/constants"
 	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
 	mock_redis "nebeng-jek/mock/pkg/redis"
 	"nebeng-jek/pkg/configs"
@@ -20,7 +19,6 @@ func TestRegisterHandler(t *testing.T) {
 	defer ctrl.Finish()
 
 	natsConn := mock_nats.NewMockJetStreamConnection(ctrl)
-	natsConn.EXPECT().Subscribe(constants.TopicUserLiveLocation, gomock.Any(), gomock.Any()).AnyTimes()
 
 	router := gin.New()
 
