@@ -22,8 +22,3 @@ type Config struct {
 	PaymentServiceURL    string `env:"PAYMENT_SERVICE_URL"`
 	PaymentServiceAPIKey string `env:"PAYMENT_SERVICE_API_KEY"`
 }
-
-type ConfigLoader struct {
-	Env           string
-	ConsulAddress string
-}
