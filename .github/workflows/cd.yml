@@ -35,7 +35,7 @@ jobs:
         run: make tidy-${{ github.event.inputs.service_name }}
       - name: Build docker images
         run: |
-          docker build -f deployments/${{ github.event.inputs.service_name }}/Dockerfile -t nebengjek/${{ github.event.inputs.service_name }}:{{ github.event.inputs.version }} .
+          docker build -f deployments/${{ github.event.inputs.service_name }}/Dockerfile -t nebengjek/${{ github.event.inputs.service_name }}:${{ github.event.inputs.version }} .
   push-image:
     name: Push Docker Image
     runs-on: ubuntu-latest
