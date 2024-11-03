@@ -31,11 +31,6 @@ jobs:
         run: make tidy && make tidy-rides && make tidy-riders && make tidy-drivers
       - name: Run tests with coverage
         run: go test -coverprofile=coverage.out ./internal/...
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage.out
       - name: Check code coverage
         run: |
           coverage=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')

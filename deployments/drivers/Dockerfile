@@ -1,10 +1,10 @@
-FROM golang:1.22.4 as golang
+FROM golang:1.22.4 AS golang
 
 WORKDIR /app
 COPY ./.. .
 RUN make build-drivers
 
-FROM alpine:3.18.2 as alpine
+FROM alpine:3.18.2 AS alpine
 RUN apk update && \
     apk add --no-cache ca-certificates=20240226-r0 tzdata=2024a-r0 && update-ca-certificates
 
