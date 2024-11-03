@@ -39,7 +39,7 @@ jobs:
   push-image:
     name: Push Docker Image (Rides)
     runs-on: ubuntu-latest
-    needs: build-{{ github.event.inputs.service_name }}
+    needs: build
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v3.3.0
