@@ -7,6 +7,7 @@ import (
 
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
 	pkgError "nebeng-jek/pkg/error"
@@ -32,16 +33,16 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 			RiderID:   6666,
 			DriverID:  &driverID,
 			StatusNum: model.StatusNumRideStarted,
-			PickupLocation: model.Coordinate{
+			PickupLocation: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},
-			Destination: model.Coordinate{
+			Destination: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},
 		}
-		ridePath = []model.Coordinate{
+		ridePath = []pkgLocation.Coordinate{
 			{
 				Longitude: 1,
 				Latitude:  1,
@@ -64,11 +65,11 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 			RiderID:   6666,
 			DriverID:  &driverID,
 			StatusNum: model.StatusNumRideEnded,
-			PickupLocation: model.Coordinate{
+			PickupLocation: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},
-			Destination: model.Coordinate{
+			Destination: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},
@@ -133,7 +134,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	t.Run("failed - should return error when get ride path failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return([]model.Coordinate{}, expectedErr)
+		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return([]pkgLocation.Coordinate{}, expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())

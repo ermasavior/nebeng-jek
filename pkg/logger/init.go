@@ -27,7 +27,9 @@ func NewLogger(cfg *configs.Config) (func(), error) {
 		return func() {}, err
 	}
 
-	logZap = logZap.With(zap.String("app_name", cfg.AppName))
+	logZap = logZap.With(zap.String("app_name", cfg.AppName)).
+		WithOptions(zap.WithCaller(true), zap.AddCallerSkip(1))
+
 	logOtel := otelzap.New(logZap,
 		otelzap.WithCallerDepth(1), otelzap.WithMinLevel(zapcore.InfoLevel),
 		otelzap.WithErrorStatusLevel(zapcore.ErrorLevel),

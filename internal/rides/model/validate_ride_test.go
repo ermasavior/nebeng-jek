@@ -9,31 +9,24 @@ import (
 
 func TestValidateDriverConfirmRide(t *testing.T) {
 	var (
-		riderID  = int64(1111)
-		driverID = int64(2222)
+		riderID = int64(1111)
 
 		r = RideData{
 			RiderID:   riderID,
-			DriverID:  &driverID,
 			StatusNum: StatusNumRideNewRequest,
 		}
 	)
 
 	t.Run("success - ride data is valid", func(t *testing.T) {
-		err := ValidateDriverConfirmRide(r, driverID)
+		err := ValidateDriverConfirmRide(r)
 		assert.Nil(t, err)
 	})
 	t.Run("error - status is invalid", func(t *testing.T) {
 		r := RideData{
 			RiderID:   riderID,
-			DriverID:  &driverID,
 			StatusNum: StatusNumRideStarted,
 		}
-		err := ValidateDriverConfirmRide(r, driverID)
-		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
-	})
-	t.Run("error - driver id is invalid", func(t *testing.T) {
-		err := ValidateDriverConfirmRide(r, 999999)
+		err := ValidateDriverConfirmRide(r)
 		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
 	})
 }

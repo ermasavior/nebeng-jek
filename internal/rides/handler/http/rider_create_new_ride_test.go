@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mock_usecase "nebeng-jek/mock/usecase"
 	errorPkg "nebeng-jek/pkg/error"
@@ -34,11 +35,11 @@ func TestHandler_RiderCreateNewRide(t *testing.T) {
 	router.POST(url, handler.RiderCreateNewRide)
 
 	reqBody := model.CreateNewRideRequest{
-		PickupLocation: model.Coordinate{
+		PickupLocation: pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		},
-		Destination: model.Coordinate{
+		Destination: pkgLocation.Coordinate{
 			Longitude: 12,
 			Latitude:  12,
 		},

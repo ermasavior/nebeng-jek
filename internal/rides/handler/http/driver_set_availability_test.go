@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mock_usecase "nebeng-jek/mock/usecase"
 	errorPkg "nebeng-jek/pkg/error"
@@ -34,7 +35,7 @@ func TestHandler_DriverSetAvailability(t *testing.T) {
 
 	reqBody := model.DriverSetAvailabilityRequest{
 		IsAvailable: true,
-		CurrentLocation: model.Coordinate{
+		CurrentLocation: pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		},
@@ -57,7 +58,7 @@ func TestHandler_DriverSetAvailability(t *testing.T) {
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
 		reqBody := model.DriverSetAvailabilityRequest{
-			CurrentLocation: model.Coordinate{
+			CurrentLocation: pkgLocation.Coordinate{
 				Longitude: 11,
 				Latitude:  11,
 			},

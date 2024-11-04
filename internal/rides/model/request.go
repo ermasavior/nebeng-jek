@@ -1,14 +1,16 @@
 package model
 
+import pkgLocation "nebeng-jek/internal/pkg/location"
+
 type CreateNewRideRequest struct {
-	RiderID        int64      `json:"-"`
-	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
-	Destination    Coordinate `json:"destination" binding:"required"`
+	RiderID        int64                  `json:"-"`
+	PickupLocation pkgLocation.Coordinate `json:"pickup_location" binding:"required"`
+	Destination    pkgLocation.Coordinate `json:"destination" binding:"required"`
 }
 
 type DriverSetAvailabilityRequest struct {
-	IsAvailable     bool       `json:"is_available" binding:"required"`
-	CurrentLocation Coordinate `json:"current_location" binding:"required"`
+	IsAvailable     bool                   `json:"is_available" binding:"required"`
+	CurrentLocation pkgLocation.Coordinate `json:"current_location" binding:"required"`
 }
 
 type RiderConfirmRideRequest struct {
@@ -50,12 +52,4 @@ type UpdateRideDataRequest struct {
 type DriverConfirmPaymentRequest struct {
 	RideID      int64   `json:"ride_id" binding:"required"`
 	CustomPrice float64 `json:"custom_price" binding:"gte=0"`
-}
-
-type TrackUserLocationRequest struct {
-	RideID    int64      `json:"ride_id" binding:"required"`
-	UserID    int64      `json:"user_id" binding:"required"`
-	Timestamp int64      `json:"timestamp" binding:"required"`
-	Location  Coordinate `json:"location" binding:"required"`
-	IsDriver  bool       `json:"is_driver"`
 }

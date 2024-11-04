@@ -2,6 +2,8 @@ package handler_http
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"nebeng-jek/internal/drivers/model"
 	pkg_context "nebeng-jek/internal/pkg/context"
 	mock_usecase "nebeng-jek/mock/usecase"
@@ -61,17 +63,19 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 	driverID := int64(2222)
 	ctx := pkg_context.SetDriverIDToContext(context.TODO(), driverID)
 
+	req, _ := json.Marshal(map[string]interface{}{
+		"ride_id":   111,
+		"timestamp": 12345678,
+		"location": map[string]float64{
+			"longitude": 1.111,
+			"latitude":  2.0001,
+		},
+	})
+
 	t.Run("route real time location", func(t *testing.T) {
 		msg := model.DriverMessage{
 			Event: model.EventRealTimeLocation,
-			Data: map[string]interface{}{
-				"ride_id":   111,
-				"timestamp": 12345678,
-				"location": map[string]float64{
-					"longitude": 1.111,
-					"latitude":  2.0001,
-				},
-			},
+			Data:  req,
 		}
 
 		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
@@ -85,4 +89,50 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 
 		h.routeMessage(ctx, msg)
 	})
+
+	t.Run("route real time location", func(t *testing.T) {
+		msg := model.DriverMessage{
+			Event: model.EventRealTimeLocation,
+			Data:  req,
+		}
+
+		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
+			RideID:    111,
+			UserID:    driverID,
+			Timestamp: 12345678,
+			Location: model.Coordinate{
+				Longitude: 1.111, Latitude: 2.0001,
+			},
+		}).Return(nil)
+
+		h.routeMessage(ctx, msg)
+	})
+
+	t.Run("ignore - invalid data", func(t *testing.T) {
+		msg := model.DriverMessage{
+			Event: model.EventRealTimeLocation,
+			Data:  []byte("/"),
+		}
+
+		h.routeMessage(ctx, msg)
+	})
+
+	t.Run("ignore - usecase returns error", func(t *testing.T) {
+		msg := model.DriverMessage{
+			Event: model.EventRealTimeLocation,
+			Data:  req,
+		}
+
+		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
+			RideID:    111,
+			UserID:    driverID,
+			Timestamp: 12345678,
+			Location: model.Coordinate{
+				Longitude: 1.111, Latitude: 2.0001,
+			},
+		}).Return(errors.New("error"))
+
+		h.routeMessage(ctx, msg)
+	})
+
 }

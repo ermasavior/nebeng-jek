@@ -2,15 +2,15 @@ package repository
 
 import (
 	"context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 )
 
 type RidesLocationRepository interface {
-	AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error
+	AddAvailableDriver(ctx context.Context, driverID int64, location pkgLocation.Coordinate) error
 	RemoveAvailableDriver(ctx context.Context, driverID int64) error
-	GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error)
-	GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error)
-	TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error
+	GetNearestAvailableDrivers(ctx context.Context, location pkgLocation.Coordinate) ([]int64, error)
+	GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error)
 }
 
 type RidesRepository interface {

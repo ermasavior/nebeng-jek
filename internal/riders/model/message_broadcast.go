@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 const (
 	EventMatchedRide       = "matched_ride"
 	EventRideReadyToPickup = "ride_ready_to_pickup"
@@ -9,6 +11,6 @@ const (
 )
 
 type RiderMessage struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
+	Event string          `json:"event"`
+	Data  json.RawMessage `json:"data"`
 }

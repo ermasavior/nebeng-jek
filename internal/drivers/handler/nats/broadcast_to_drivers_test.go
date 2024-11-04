@@ -37,6 +37,13 @@ func Test_broadcastToDrivers(t *testing.T) {
 		2222: true,
 	}
 
+	data, _ := json.Marshal(model.NewRideRequestBroadcast{
+		RideID:         rideID,
+		Rider:          riderData,
+		PickupLocation: pickupLocation,
+		Destination:    destination,
+	})
+
 	connStorage := &sync.Map{}
 	mockConn1 := mock_ws.NewMockWebsocketInterface(ctrl)
 	mockConn2 := mock_ws.NewMockWebsocketInterface(ctrl)
@@ -48,12 +55,7 @@ func Test_broadcastToDrivers(t *testing.T) {
 	t.Run("write message to websocket available drivers", func(t *testing.T) {
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventNewRideRequest,
-			Data: model.NewRideRequestBroadcast{
-				RideID:         rideID,
-				Rider:          riderData,
-				PickupLocation: pickupLocation,
-				Destination:    destination,
-			},
+			Data:  data,
 		}
 
 		msgBytes, _ := json.Marshal(broadcastMsg)
@@ -67,12 +69,7 @@ func Test_broadcastToDrivers(t *testing.T) {
 	t.Run("error - skip write message to websocket available drivers", func(t *testing.T) {
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventNewRideRequest,
-			Data: model.NewRideRequestBroadcast{
-				RideID:         rideID,
-				Rider:          riderData,
-				PickupLocation: pickupLocation,
-				Destination:    destination,
-			},
+			Data:  data,
 		}
 
 		msgBytes, _ := json.Marshal(broadcastMsg)

@@ -2,11 +2,13 @@ package handler_http
 
 import (
 	"context"
+	"encoding/json"
 	"nebeng-jek/internal/drivers/model"
 	pkg_context "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/pkg/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
@@ -29,10 +31,17 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 		var msg model.DriverMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				logger.Debug(ctx, "websocket connection closed", map[string]interface{}{
+					logger.ErrorKey: err, "driver_id": driverID,
+				})
+				break
+			}
+
 			logger.Error(ctx, "error reading message from driver", map[string]interface{}{
-				"error": err,
+				logger.ErrorKey: err, "driver_id": driverID,
 			})
-			continue
+			break
 		}
 
 		h.routeMessage(ctx, msg)
@@ -41,9 +50,10 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 
 func (h *httpHandler) routeMessage(ctx context.Context, msg model.DriverMessage) {
 	if msg.Event == model.EventRealTimeLocation {
-		req, err := model.ToTrackUserLocationRequest(msg.Data)
+		var req model.TrackUserLocationRequest
+		err := json.Unmarshal(msg.Data, &req)
 		if err != nil {
-			logger.Error(ctx, "error reading track location request", map[string]interface{}{
+			logger.Error(ctx, "error parsing track location request", map[string]interface{}{
 				"error": err,
 			})
 			return

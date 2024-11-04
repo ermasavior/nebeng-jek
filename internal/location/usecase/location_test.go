@@ -1,11 +1,12 @@
-package repository_redis
+package usecase
 
 import (
 	"context"
 	"testing"
 
+	"nebeng-jek/internal/location/model"
 	pkgContext "nebeng-jek/internal/pkg/context"
-	"nebeng-jek/internal/rides/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	mockRedis "nebeng-jek/mock/pkg/redis"
 
 	"github.com/go-redis/redis/v8"
@@ -13,17 +14,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRepository_AddAvailableDriver(t *testing.T) {
+func TestLocationUsecase_AddAvailableDriver(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := NewRepository(redisMock)
+	locationUCMock := NewLocationUsecase(redisMock)
 
 	var (
 		driverID    = int64(1111)
 		driverIDKey = "1111"
-		location    = model.Coordinate{
+		location    = pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		}
@@ -34,39 +35,39 @@ func TestRepository_AddAvailableDriver(t *testing.T) {
 
 	t.Run("success - should execute redis GEOADD", func(t *testing.T) {
 		res := &redis.IntCmd{}
-		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+		redisMock.EXPECT().GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)
 
-		err := repositoryMock.AddAvailableDriver(ctx, driverID, location)
+		err := locationUCMock.AddAvailableDriver(ctx, driverID, location)
 		assert.Nil(t, err)
 	})
 
 	t.Run("failed - should return error when GEOADD returns error", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+		redisMock.EXPECT().GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
 		}).Return(res)
 
-		err := repositoryMock.AddAvailableDriver(ctx, driverID, location)
+		err := locationUCMock.AddAvailableDriver(ctx, driverID, location)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
 
-func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
+func TestLocationUsecase_GetNearestAvailableDrivers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := NewRepository(redisMock)
+	locationUCMock := NewLocationUsecase(redisMock)
 
 	var (
-		location = model.Coordinate{
+		location = pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		}
@@ -79,14 +80,14 @@ func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
 		res.SetVal([]redis.GeoLocation{
 			{Name: "123"}, {Name: "456"}, {Name: "789"},
 		})
-		redisMock.EXPECT().GeoRadius(ctx, model.KeyAvailableDrivers,
+		redisMock.EXPECT().GeoRadius(ctx, pkgLocation.KeyAvailableDrivers,
 			location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-				Radius:   model.NearestRadius,
-				Unit:     model.NearestRadiusUnit,
+				Radius:   pkgLocation.NearestRadius,
+				Unit:     pkgLocation.NearestRadiusUnit,
 				WithDist: true,
 			}).Return(res)
 
-		actual, err := repositoryMock.GetNearestAvailableDrivers(ctx, location)
+		actual, err := locationUCMock.GetNearestAvailableDrivers(ctx, location)
 		assert.Nil(t, err)
 		assert.Equal(t, []int64{123, 456, 789}, actual)
 	})
@@ -94,24 +95,24 @@ func TestRepository_GetNearestAvailableDrivers(t *testing.T) {
 	t.Run("failed - should return error when GeoRadius returns error", func(t *testing.T) {
 		res := &redis.GeoLocationCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().GeoRadius(ctx, model.KeyAvailableDrivers,
+		redisMock.EXPECT().GeoRadius(ctx, pkgLocation.KeyAvailableDrivers,
 			location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-				Radius:   model.NearestRadius,
-				Unit:     model.NearestRadiusUnit,
+				Radius:   pkgLocation.NearestRadius,
+				Unit:     pkgLocation.NearestRadiusUnit,
 				WithDist: true,
 			}).Return(res)
 
-		_, err := repositoryMock.GetNearestAvailableDrivers(ctx, location)
+		_, err := locationUCMock.GetNearestAvailableDrivers(ctx, location)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
 
-func TestRepository_RemoveAvailableDriver(t *testing.T) {
+func TestLocationUsecase_RemoveAvailableDriver(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := ridesRepo{
+	locationUCMock := locationUC{
 		cache: redisMock,
 	}
 
@@ -124,28 +125,28 @@ func TestRepository_RemoveAvailableDriver(t *testing.T) {
 
 	t.Run("success - should execute redis ZREM", func(t *testing.T) {
 		res := &redis.IntCmd{}
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
+		redisMock.EXPECT().ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Return(res)
 
-		err := repositoryMock.RemoveAvailableDriver(ctx, driverID)
+		err := locationUCMock.RemoveAvailableDriver(ctx, driverID)
 		assert.Nil(t, err)
 	})
 
 	t.Run("failed - should return error when ZREM returns error", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
+		redisMock.EXPECT().ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Return(res)
 
-		err := repositoryMock.RemoveAvailableDriver(ctx, driverID)
+		err := locationUCMock.RemoveAvailableDriver(ctx, driverID)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
 
-func TestRepository_GetRidePath(t *testing.T) {
+func TestLocationUsecase_GetRidePath(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := NewRepository(redisMock)
+	locationUCMock := NewLocationUsecase(redisMock)
 
 	var (
 		rideID   = int64(666)
@@ -154,7 +155,7 @@ func TestRepository_GetRidePath(t *testing.T) {
 		keyRedis    = model.GetDriverPathKey(rideID, driverID)
 		start, stop = int64(0), int64(-1)
 
-		expectedPath = []model.Coordinate{
+		expectedPath = []pkgLocation.Coordinate{
 			{Longitude: 0.00000001, Latitude: -1}, {Longitude: 0.1, Latitude: -1.1}, {Longitude: 0.2, Latitude: -1.2},
 		}
 	)
@@ -168,7 +169,7 @@ func TestRepository_GetRidePath(t *testing.T) {
 		})
 		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
 
-		actual, err := repositoryMock.GetRidePath(ctx, rideID, driverID)
+		actual, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPath, actual)
@@ -181,10 +182,10 @@ func TestRepository_GetRidePath(t *testing.T) {
 		})
 		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
 
-		actual, err := repositoryMock.GetRidePath(ctx, rideID, driverID)
+		actual, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
 
 		assert.Nil(t, err)
-		assert.Equal(t, []model.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}}, actual)
+		assert.Equal(t, []pkgLocation.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}}, actual)
 	})
 
 	t.Run("failed - should return error when ZRange returns error", func(t *testing.T) {
@@ -192,17 +193,17 @@ func TestRepository_GetRidePath(t *testing.T) {
 		res.SetErr(redis.ErrClosed)
 		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
 
-		_, err := repositoryMock.GetRidePath(ctx, rideID, driverID)
+		_, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
 
-func TestRepository_TrackUserLocation(t *testing.T) {
+func TestLocationUsecase_TrackUserLocation(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	redisMock := mockRedis.NewMockCollections(ctrl)
-	repositoryMock := ridesRepo{
+	locationUCMock := locationUC{
 		cache: redisMock,
 	}
 
@@ -212,7 +213,7 @@ func TestRepository_TrackUserLocation(t *testing.T) {
 			RideID:    666,
 			UserID:    driverID,
 			Timestamp: 123456789,
-			Location: model.Coordinate{
+			Location: pkgLocation.Coordinate{
 				Longitude: 1,
 				Latitude:  2.3,
 			},
@@ -231,7 +232,7 @@ func TestRepository_TrackUserLocation(t *testing.T) {
 			Member: "1.00000000:2.30000000:123456789",
 		}).Return(res)
 
-		err := repositoryMock.TrackUserLocation(ctx, req)
+		err := locationUCMock.TrackUserLocation(ctx, req)
 		assert.Nil(t, err)
 	})
 }

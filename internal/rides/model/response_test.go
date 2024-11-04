@@ -1,6 +1,7 @@
 package model
 
 import (
+	"nebeng-jek/internal/pkg/location"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,11 +17,11 @@ func TestRideData_ToResponse(t *testing.T) {
 		RideID:   111,
 		RiderID:  6666,
 		DriverID: &driverID,
-		PickupLocation: Coordinate{
+		PickupLocation: location.Coordinate{
 			Longitude: 1,
 			Latitude:  1,
 		},
-		Destination: Coordinate{
+		Destination: location.Coordinate{
 			Longitude: 2,
 			Latitude:  2,
 		},
@@ -34,11 +35,11 @@ func TestRideData_ToResponse(t *testing.T) {
 		RideID:   111,
 		RiderID:  6666,
 		DriverID: 7777,
-		PickupLocation: Coordinate{
+		PickupLocation: location.Coordinate{
 			Longitude: 1,
 			Latitude:  1,
 		},
-		Destination: Coordinate{
+		Destination: location.Coordinate{
 			Longitude: 2,
 			Latitude:  2,
 		},

@@ -6,6 +6,7 @@ import (
 	"nebeng-jek/pkg/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 func (h *httpHandler) RiderWebsocket(c *gin.Context) {
@@ -25,14 +26,23 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 		conn.Close()
 	}()
 
+	ctx := c.Request.Context()
+
 	for {
 		var msg model.RiderMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			logger.Error(c.Request.Context(), "error reading message from rider", map[string]interface{}{
-				"error": err,
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				logger.Debug(ctx, "websocket connection closed", map[string]interface{}{
+					logger.ErrorKey: err, "rider_id": riderID,
+				})
+				break
+			}
+
+			logger.Error(ctx, "error reading message from rider", map[string]interface{}{
+				logger.ErrorKey: err, "rider_id": riderID,
 			})
-			continue
+			break
 		}
 	}
 }

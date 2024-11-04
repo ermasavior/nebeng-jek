@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"nebeng-jek/internal/pkg/constants"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	"testing"
 
@@ -267,11 +268,11 @@ func TestRepository_CreateNewRide(t *testing.T) {
 	expectedID := int64(8888)
 	req := model.CreateNewRideRequest{
 		RiderID: 999,
-		PickupLocation: model.Coordinate{
+		PickupLocation: pkgLocation.Coordinate{
 			Latitude:  1,
 			Longitude: 2,
 		},
-		Destination: model.Coordinate{
+		Destination: pkgLocation.Coordinate{
 			Latitude:  9,
 			Longitude: 10,
 		},
@@ -329,11 +330,11 @@ func TestRepository_GetRideData(t *testing.T) {
 		RideID:   111,
 		RiderID:  666,
 		DriverID: &driverID,
-		PickupLocation: model.Coordinate{
+		PickupLocation: pkgLocation.Coordinate{
 			Latitude:  1,
 			Longitude: 2,
 		},
-		Destination: model.Coordinate{
+		Destination: pkgLocation.Coordinate{
 			Latitude:  10,
 			Longitude: 20,
 		},

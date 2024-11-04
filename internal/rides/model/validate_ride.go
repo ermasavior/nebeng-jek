@@ -2,10 +2,7 @@ package model
 
 import pkgError "nebeng-jek/pkg/error"
 
-func ValidateDriverConfirmRide(r RideData, driverID int64) pkgError.AppError {
-	if r.DriverID == nil || *r.DriverID != driverID {
-		return pkgError.NewForbiddenError((pkgError.ErrForbiddenMsg))
-	}
+func ValidateDriverConfirmRide(r RideData) pkgError.AppError {
 	if r.StatusNum != StatusNumRideNewRequest {
 		return pkgError.NewForbiddenError(ErrMsgInvalidRideStatus)
 	}
@@ -50,13 +47,13 @@ func ValidateConfirmPayment(r RideData, driverID int64, customPrice float64) pkg
 		return pkgError.NewForbiddenError(ErrMsgInvalidRideStatus)
 	}
 	if r.Fare == nil {
-		return pkgError.NewForbiddenError("invalid fare, must not be empty")
+		return pkgError.NewForbiddenError(ErrMsgInvalidFare)
 	}
 	if r.Distance == nil {
-		return pkgError.NewForbiddenError("invalid distance, must not be empty")
+		return pkgError.NewForbiddenError(ErrMsgInvalidDistance)
 	}
 	if customPrice > *r.Fare {
-		return pkgError.NewBadRequestError("custom price must be lower than fare price")
+		return pkgError.NewBadRequestError(ErrMsgInvalidCustomPrice)
 	}
 	return nil
 }

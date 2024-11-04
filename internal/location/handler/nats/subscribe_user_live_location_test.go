@@ -3,8 +3,9 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	"nebeng-jek/internal/location/model"
 	"nebeng-jek/internal/pkg/constants"
-	"nebeng-jek/internal/rides/model"
+	"nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	errorPkg "nebeng-jek/pkg/error"
 	"testing"
@@ -18,14 +19,14 @@ func TestSubscribeUserLiveLocation(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUsecase := mock_usecase.NewMockRidesUsecase(ctrl)
+	mockUsecase := mock_usecase.NewMockLocationUsecase(ctrl)
 	h := NewHandler(mockUsecase)
 
 	req := model.TrackUserLocationRequest{
 		RideID:    111,
 		UserID:    1111,
 		Timestamp: time.Now().Unix(),
-		Location: model.Coordinate{
+		Location: location.Coordinate{
 			Longitude: 11,
 			Latitude:  -18,
 		},

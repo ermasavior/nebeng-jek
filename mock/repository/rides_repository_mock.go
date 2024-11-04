@@ -6,6 +6,7 @@ package mock_repository
 
 import (
 	context "context"
+	location "nebeng-jek/internal/pkg/location"
 	model "nebeng-jek/internal/rides/model"
 	reflect "reflect"
 
@@ -36,7 +37,7 @@ func (m *MockRidesLocationRepository) EXPECT() *MockRidesLocationRepositoryMockR
 }
 
 // AddAvailableDriver mocks base method.
-func (m *MockRidesLocationRepository) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
+func (m *MockRidesLocationRepository) AddAvailableDriver(ctx context.Context, driverID int64, location location.Coordinate) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddAvailableDriver", ctx, driverID, location)
 	ret0, _ := ret[0].(error)
@@ -50,7 +51,7 @@ func (mr *MockRidesLocationRepositoryMockRecorder) AddAvailableDriver(ctx, drive
 }
 
 // GetNearestAvailableDrivers mocks base method.
-func (m *MockRidesLocationRepository) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
+func (m *MockRidesLocationRepository) GetNearestAvailableDrivers(ctx context.Context, location location.Coordinate) ([]int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNearestAvailableDrivers", ctx, location)
 	ret0, _ := ret[0].([]int64)
@@ -65,10 +66,10 @@ func (mr *MockRidesLocationRepositoryMockRecorder) GetNearestAvailableDrivers(ct
 }
 
 // GetRidePath mocks base method.
-func (m *MockRidesLocationRepository) GetRidePath(ctx context.Context, rideID, driverID int64) ([]model.Coordinate, error) {
+func (m *MockRidesLocationRepository) GetRidePath(ctx context.Context, rideID, driverID int64) ([]location.Coordinate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRidePath", ctx, rideID, driverID)
-	ret0, _ := ret[0].([]model.Coordinate)
+	ret0, _ := ret[0].([]location.Coordinate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -91,20 +92,6 @@ func (m *MockRidesLocationRepository) RemoveAvailableDriver(ctx context.Context,
 func (mr *MockRidesLocationRepositoryMockRecorder) RemoveAvailableDriver(ctx, driverID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).RemoveAvailableDriver), ctx, driverID)
-}
-
-// TrackUserLocation mocks base method.
-func (m *MockRidesLocationRepository) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TrackUserLocation", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// TrackUserLocation indicates an expected call of TrackUserLocation.
-func (mr *MockRidesLocationRepositoryMockRecorder) TrackUserLocation(ctx, req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUserLocation", reflect.TypeOf((*MockRidesLocationRepository)(nil).TrackUserLocation), ctx, req)
 }
 
 // MockRidesRepository is a mock of RidesRepository interface.

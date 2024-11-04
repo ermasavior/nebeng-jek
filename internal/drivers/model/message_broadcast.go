@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 const (
 	EventNewRideRequest    = "new_ride_request"
 	EventRideReadyToPickup = "ride_ready_to_pickup"
@@ -9,8 +11,8 @@ const (
 )
 
 type DriverMessage struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
+	Event string          `json:"event"`
+	Data  json.RawMessage `json:"data"`
 }
 
 type NewRideRequestBroadcast struct {

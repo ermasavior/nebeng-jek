@@ -1,9 +1,9 @@
-package repository_redis
+package usecase
 
 import (
 	"context"
-	"nebeng-jek/internal/rides/model"
-	"nebeng-jek/internal/rides/repository"
+	"nebeng-jek/internal/location/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/pkg/logger"
 	pkgRedis "nebeng-jek/pkg/redis"
 	"strconv"
@@ -11,32 +11,32 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type ridesRepo struct {
+type locationUC struct {
 	cache pkgRedis.Collections
 }
 
-func NewRepository(cache pkgRedis.Collections) repository.RidesLocationRepository {
-	return &ridesRepo{
+func NewLocationUsecase(cache pkgRedis.Collections) LocationUsecase {
+	return &locationUC{
 		cache: cache,
 	}
 }
 
-func (r *ridesRepo) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
-	return r.cache.GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+func (r *locationUC) AddAvailableDriver(ctx context.Context, driverID int64, location pkgLocation.Coordinate) error {
+	return r.cache.GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 		Name:      strconv.FormatInt(driverID, 10),
 		Longitude: location.Longitude,
 		Latitude:  location.Latitude,
 	}).Err()
 }
 
-func (r *ridesRepo) RemoveAvailableDriver(ctx context.Context, driverID int64) error {
-	return r.cache.ZRem(ctx, model.KeyAvailableDrivers, driverID).Err()
+func (r *locationUC) RemoveAvailableDriver(ctx context.Context, driverID int64) error {
+	return r.cache.ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Err()
 }
 
-func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
-	res := r.cache.GeoRadius(ctx, model.KeyAvailableDrivers, location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-		Radius:   model.NearestRadius,
-		Unit:     model.NearestRadiusUnit,
+func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location pkgLocation.Coordinate) ([]int64, error) {
+	res := r.cache.GeoRadius(ctx, pkgLocation.KeyAvailableDrivers, location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
+		Radius:   pkgLocation.NearestRadius,
+		Unit:     pkgLocation.NearestRadiusUnit,
 		WithDist: true,
 	})
 
@@ -55,7 +55,7 @@ func (r *ridesRepo) GetNearestAvailableDrivers(ctx context.Context, location mod
 	return driverIDs, nil
 }
 
-func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error) {
+func (r *locationUC) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error) {
 	key := model.GetDriverPathKey(rideID, driverID)
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
@@ -65,10 +65,10 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, driverID int6
 		return nil, err
 	}
 
-	result := make([]model.Coordinate, 0, len(coordinates))
+	result := make([]pkgLocation.Coordinate, 0, len(coordinates))
 
 	for _, coorString := range coordinates {
-		coor, err := model.ParseCoordinate(coorString)
+		coor, err := pkgLocation.ParseCoordinate(coorString)
 		if err != nil {
 			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
 				"ride_id":       rideID,
@@ -82,7 +82,7 @@ func (r *ridesRepo) GetRidePath(ctx context.Context, rideID int64, driverID int6
 	return result, nil
 }
 
-func (r *ridesRepo) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
+func (r *locationUC) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
 	key := model.GetDriverPathKey(req.RideID, req.UserID)
 	res := r.cache.ZAdd(ctx, key, &redis.Z{
 		Score:  float64(req.Timestamp),
