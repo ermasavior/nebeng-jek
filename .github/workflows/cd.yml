@@ -25,7 +25,7 @@ jobs:
           previous_run_status=$(gh run list --workflow="Golang Continuous Integration" --limit=1 --json conclusion -q '.[0].conclusion')
           echo "Continuous Integration conclusion: $previous_run_status"
 
-          if [[ "$previous_run_status != "success" ]]; then
+          if [[ "$previous_run_status" != "success" ]]; then
             echo "Continuous Integration did not succeed. Aborting."
             exit 1
           else
