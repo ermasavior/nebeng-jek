@@ -7,28 +7,13 @@ import (
 	"nebeng-jek/pkg/configs"
 	http_utils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/http_client"
-	"net"
+	"nebeng-jek/pkg/utils"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
-
-func mockHTTPServer(t *testing.T, baseURL string, handlerMock http.Handler) *httptest.Server {
-	l, err := net.Listen("tcp", baseURL)
-	if err != nil {
-		assert.Fail(t, "error create test server", err.Error())
-	}
-	server := httptest.NewUnstartedServer(handlerMock)
-
-	server.Listener.Close()
-	server.Listener = l
-	server.Start()
-
-	return server
-}
 
 func TestPaymentRepository_DeductCredit(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -69,7 +54,7 @@ func TestPaymentRepository_DeductCredit(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.DeductCredit(context.TODO(), param)
@@ -81,7 +66,7 @@ func TestPaymentRepository_DeductCredit(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.DeductCredit(context.TODO(), param)
@@ -134,7 +119,7 @@ func TestPaymentRepository_AddCredit(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.AddCredit(context.TODO(), param)
@@ -146,7 +131,7 @@ func TestPaymentRepository_AddCredit(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.AddCredit(context.TODO(), param)

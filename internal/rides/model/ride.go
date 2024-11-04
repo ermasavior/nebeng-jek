@@ -1,5 +1,7 @@
 package model
 
+import "nebeng-jek/internal/pkg/location"
+
 const (
 	StatusNumRideNewRequest    = 1
 	StatusNumRideMatchedDriver = 2
@@ -34,16 +36,16 @@ var (
 )
 
 type RideData struct {
-	RideID         int64      `db:"id" json:"ride_id"`
-	RiderID        int64      `db:"rider_id" json:"rider_id"`
-	DriverID       *int64     `db:"driver_id" json:"driver_id"`
-	PickupLocation Coordinate `db:"pickup_location" json:"pickup_location"`
-	Destination    Coordinate `db:"destination" json:"destination"`
-	Distance       *float64   `db:"distance" json:"distance"`
-	Fare           *float64   `db:"fare" json:"fare"`
-	FinalPrice     *float64   `db:"final_price" json:"final_price"`
-	StatusNum      int        `db:"status" json:"-"`
-	Status         string     `json:"status"`
+	RideID         int64               `db:"id" json:"ride_id"`
+	RiderID        int64               `db:"rider_id" json:"rider_id"`
+	DriverID       *int64              `db:"driver_id" json:"driver_id"`
+	PickupLocation location.Coordinate `db:"pickup_location" json:"pickup_location"`
+	Destination    location.Coordinate `db:"destination" json:"destination"`
+	Distance       *float64            `db:"distance" json:"distance"`
+	Fare           *float64            `db:"fare" json:"fare"`
+	FinalPrice     *float64            `db:"final_price" json:"final_price"`
+	StatusNum      int                 `db:"status" json:"-"`
+	Status         string              `json:"status"`
 }
 
 func (r *RideData) SetDistance(distance float64) {
@@ -68,11 +70,11 @@ type StoreRideCommissionRequest struct {
 }
 
 type NewRideRequestMessage struct {
-	RideID           int64          `json:"ride_id"`
-	Rider            RiderData      `json:"rider"`
-	PickupLocation   Coordinate     `json:"pickup_location"`
-	Destination      Coordinate     `json:"destination"`
-	AvailableDrivers map[int64]bool `json:"available_drivers"`
+	RideID           int64               `json:"ride_id"`
+	Rider            RiderData           `json:"rider"`
+	PickupLocation   location.Coordinate `json:"pickup_location"`
+	Destination      location.Coordinate `json:"destination"`
+	AvailableDrivers map[int64]bool      `json:"available_drivers"`
 }
 
 type RideMatchedDriverMessage struct {

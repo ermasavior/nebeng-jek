@@ -7,6 +7,7 @@ import (
 
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
 	pkgError "nebeng-jek/pkg/error"
@@ -40,11 +41,11 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			RiderID:   riderID,
 			DriverID:  &driverID,
 			StatusNum: model.StatusNumRideEnded,
-			PickupLocation: model.Coordinate{
+			PickupLocation: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},
-			Destination: model.Coordinate{
+			Destination: pkgLocation.Coordinate{
 				Latitude:  1,
 				Longitude: 2,
 			},

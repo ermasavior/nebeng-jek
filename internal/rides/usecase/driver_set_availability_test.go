@@ -7,6 +7,7 @@ import (
 
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
 	pkgError "nebeng-jek/pkg/error"
@@ -27,7 +28,7 @@ func TestUsecase_DriverSetAvailability(t *testing.T) {
 		driverID     = int64(1111)
 		driverMSISDN = "081111"
 		req          = model.DriverSetAvailabilityRequest{
-			CurrentLocation: model.Coordinate{
+			CurrentLocation: pkgLocation.Coordinate{
 				Longitude: 11,
 				Latitude:  11,
 			},

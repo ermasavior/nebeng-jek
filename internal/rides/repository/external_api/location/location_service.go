@@ -3,15 +3,14 @@ package location
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/configs"
 	http_utils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/http_client"
 	"nebeng-jek/pkg/logger"
-	"nebeng-jek/pkg/utils"
 	"net/http"
 )
 
@@ -20,11 +19,6 @@ const (
 	removeAvailableDriver      = "/v1/drivers/available/%d"
 	getNearestAvailableDrivers = "/v1/drivers/available/nearby"
 	getRidePath                = "/v1/drivers/ride-path"
-)
-
-var (
-	ErrorInternalLocationService = errors.New("failed http request to location service")
-	ErrorParsingResponse         = errors.New("error parsing response")
 )
 
 type locationRepo struct {
@@ -41,7 +35,7 @@ func NewLocationRepository(cfg *configs.Config, httpClient *http.Client) reposit
 	}
 }
 
-func (s *locationRepo) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
+func (s *locationRepo) AddAvailableDriver(ctx context.Context, driverID int64, location pkgLocation.Coordinate) error {
 	req := model.AddAvailableDriverRequest{
 		DriverID: driverID,
 		Location: location,
@@ -55,30 +49,12 @@ func (s *locationRepo) AddAvailableDriver(ctx context.Context, driverID int64, l
 		Payload: req,
 	}
 
-	httpRes, err := http_client.Request(ctx, s.HttpClient, transport)
+	_, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "failed http request", map[string]interface{}{
+		logger.Error(ctx, "error request http", map[string]interface{}{
 			logger.ErrorKey: err,
-			"url":           transport.Url,
-			"method":        transport.Method,
-			"payload":       req,
 		})
 		return err
-	}
-	defer httpRes.Body.Close()
-
-	if httpRes.StatusCode/100 != 2 {
-		var res http_utils.ClientResponse
-		_ = utils.ParseResponseBody(httpRes.Body, &res)
-
-		logger.Error(ctx, "error http response", map[string]interface{}{
-			"status_code": httpRes.StatusCode,
-			"response":    res,
-			"url":         transport.Url,
-			"method":      transport.Method,
-			"payload":     req,
-		})
-		return ErrorInternalLocationService
 	}
 
 	return nil
@@ -93,34 +69,18 @@ func (s *locationRepo) RemoveAvailableDriver(ctx context.Context, driverID int64
 		},
 	}
 
-	httpRes, err := http_client.Request(ctx, s.HttpClient, transport)
+	_, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "failed http request", map[string]interface{}{
+		logger.Error(ctx, "error request http", map[string]interface{}{
 			logger.ErrorKey: err,
-			"url":           transport.Url,
-			"method":        transport.Method,
 		})
 		return err
-	}
-	defer httpRes.Body.Close()
-
-	if httpRes.StatusCode/100 != 2 {
-		var res http_utils.ClientResponse
-		_ = utils.ParseResponseBody(httpRes.Body, &res)
-
-		logger.Error(ctx, "error http response", map[string]interface{}{
-			"status_code": httpRes.StatusCode,
-			"response":    res,
-			"url":         transport.Url,
-			"method":      transport.Method,
-		})
-		return ErrorInternalLocationService
 	}
 
 	return nil
 }
 
-func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
+func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location pkgLocation.Coordinate) ([]int64, error) {
 	req := model.GetNearestAvailableDriversRequest{
 		Location: location,
 	}
@@ -133,30 +93,12 @@ func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location 
 		Payload: req,
 	}
 
-	httpRes, err := http_client.Request(ctx, s.HttpClient, transport)
+	res, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "failed http request", map[string]interface{}{
+		logger.Error(ctx, "error request http", map[string]interface{}{
 			logger.ErrorKey: err,
-			"url":           transport.Url,
-			"method":        transport.Method,
-			"payload":       req,
 		})
 		return nil, err
-	}
-	defer httpRes.Body.Close()
-
-	var res http_utils.ClientResponse
-	_ = utils.ParseResponseBody(httpRes.Body, &res)
-
-	if httpRes.StatusCode/100 != 2 {
-		logger.Error(ctx, "error http response", map[string]interface{}{
-			"status_code": httpRes.StatusCode,
-			"response":    res,
-			"url":         transport.Url,
-			"method":      transport.Method,
-			"payload":     req,
-		})
-		return nil, ErrorInternalLocationService
 	}
 
 	var data model.GetNearestAvailableDriversResponse
@@ -171,7 +113,7 @@ func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location 
 	return data.DriverIDs, nil
 }
 
-func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error) {
+func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error) {
 	req := model.GetRidePathRequest{
 		RideID:   rideID,
 		DriverID: driverID,
@@ -185,30 +127,12 @@ func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID i
 		Payload: req,
 	}
 
-	httpRes, err := http_client.Request(ctx, s.HttpClient, transport)
+	res, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "failed http request", map[string]interface{}{
+		logger.Error(ctx, "error request http", map[string]interface{}{
 			logger.ErrorKey: err,
-			"url":           transport.Url,
-			"method":        transport.Method,
-			"payload":       req,
 		})
 		return nil, err
-	}
-	defer httpRes.Body.Close()
-
-	var res http_utils.ClientResponse
-	_ = utils.ParseResponseBody(httpRes.Body, &res)
-
-	if httpRes.StatusCode/100 != 2 {
-		logger.Error(ctx, "error http response", map[string]interface{}{
-			"status_code": httpRes.StatusCode,
-			"response":    res,
-			"url":         transport.Url,
-			"method":      transport.Method,
-			"payload":     req,
-		})
-		return nil, ErrorInternalLocationService
 	}
 
 	var data model.GetRidePathResponse

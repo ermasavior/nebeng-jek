@@ -7,6 +7,7 @@ package mock_usecase
 import (
 	context "context"
 	model "nebeng-jek/internal/location/model"
+	location "nebeng-jek/internal/pkg/location"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,7 +37,7 @@ func (m *MockLocationUsecase) EXPECT() *MockLocationUsecaseMockRecorder {
 }
 
 // AddAvailableDriver mocks base method.
-func (m *MockLocationUsecase) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
+func (m *MockLocationUsecase) AddAvailableDriver(ctx context.Context, driverID int64, location location.Coordinate) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddAvailableDriver", ctx, driverID, location)
 	ret0, _ := ret[0].(error)
@@ -50,7 +51,7 @@ func (mr *MockLocationUsecaseMockRecorder) AddAvailableDriver(ctx, driverID, loc
 }
 
 // GetNearestAvailableDrivers mocks base method.
-func (m *MockLocationUsecase) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
+func (m *MockLocationUsecase) GetNearestAvailableDrivers(ctx context.Context, location location.Coordinate) ([]int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNearestAvailableDrivers", ctx, location)
 	ret0, _ := ret[0].([]int64)
@@ -65,10 +66,10 @@ func (mr *MockLocationUsecaseMockRecorder) GetNearestAvailableDrivers(ctx, locat
 }
 
 // GetRidePath mocks base method.
-func (m *MockLocationUsecase) GetRidePath(ctx context.Context, rideID, driverID int64) ([]model.Coordinate, error) {
+func (m *MockLocationUsecase) GetRidePath(ctx context.Context, rideID, driverID int64) ([]location.Coordinate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRidePath", ctx, rideID, driverID)
-	ret0, _ := ret[0].([]model.Coordinate)
+	ret0, _ := ret[0].([]location.Coordinate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

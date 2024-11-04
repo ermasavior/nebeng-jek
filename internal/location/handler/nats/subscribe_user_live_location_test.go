@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"nebeng-jek/internal/location/model"
 	"nebeng-jek/internal/pkg/constants"
+	"nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	errorPkg "nebeng-jek/pkg/error"
 	"testing"
@@ -25,7 +26,7 @@ func TestSubscribeUserLiveLocation(t *testing.T) {
 		RideID:    111,
 		UserID:    1111,
 		Timestamp: time.Now().Unix(),
-		Location: model.Coordinate{
+		Location: location.Coordinate{
 			Longitude: 11,
 			Latitude:  -18,
 		},

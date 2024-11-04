@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"nebeng-jek/internal/location/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	httpUtils "nebeng-jek/pkg/http/utils"
 
@@ -31,7 +32,7 @@ func TestHandler_GetNearestAvailableDrivers(t *testing.T) {
 	router.POST(url, h.GetNearestAvailableDrivers)
 
 	reqBody := model.GetNearestAvailableDriversRequest{
-		Location: model.Coordinate{
+		Location: pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  12,
 		},

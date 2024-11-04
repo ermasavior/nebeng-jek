@@ -1,14 +1,16 @@
 package model
 
+import pkgLocation "nebeng-jek/internal/pkg/location"
+
 type CreateNewRideRequest struct {
-	RiderID        int64      `json:"-"`
-	PickupLocation Coordinate `json:"pickup_location" binding:"required"`
-	Destination    Coordinate `json:"destination" binding:"required"`
+	RiderID        int64                  `json:"-"`
+	PickupLocation pkgLocation.Coordinate `json:"pickup_location" binding:"required"`
+	Destination    pkgLocation.Coordinate `json:"destination" binding:"required"`
 }
 
 type DriverSetAvailabilityRequest struct {
-	IsAvailable     bool       `json:"is_available" binding:"required"`
-	CurrentLocation Coordinate `json:"current_location" binding:"required"`
+	IsAvailable     bool                   `json:"is_available" binding:"required"`
+	CurrentLocation pkgLocation.Coordinate `json:"current_location" binding:"required"`
 }
 
 type RiderConfirmRideRequest struct {

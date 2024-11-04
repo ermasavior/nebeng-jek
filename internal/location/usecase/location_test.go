@@ -6,6 +6,7 @@ import (
 
 	"nebeng-jek/internal/location/model"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	mockRedis "nebeng-jek/mock/pkg/redis"
 
 	"github.com/go-redis/redis/v8"
@@ -23,7 +24,7 @@ func TestLocationUsecase_AddAvailableDriver(t *testing.T) {
 	var (
 		driverID    = int64(1111)
 		driverIDKey = "1111"
-		location    = model.Coordinate{
+		location    = pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		}
@@ -34,7 +35,7 @@ func TestLocationUsecase_AddAvailableDriver(t *testing.T) {
 
 	t.Run("success - should execute redis GEOADD", func(t *testing.T) {
 		res := &redis.IntCmd{}
-		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+		redisMock.EXPECT().GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
@@ -47,7 +48,7 @@ func TestLocationUsecase_AddAvailableDriver(t *testing.T) {
 	t.Run("failed - should return error when GEOADD returns error", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+		redisMock.EXPECT().GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 			Name:      driverIDKey,
 			Longitude: location.Longitude,
 			Latitude:  location.Latitude,
@@ -66,7 +67,7 @@ func TestLocationUsecase_GetNearestAvailableDrivers(t *testing.T) {
 	locationUCMock := NewLocationUsecase(redisMock)
 
 	var (
-		location = model.Coordinate{
+		location = pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  11,
 		}
@@ -79,10 +80,10 @@ func TestLocationUsecase_GetNearestAvailableDrivers(t *testing.T) {
 		res.SetVal([]redis.GeoLocation{
 			{Name: "123"}, {Name: "456"}, {Name: "789"},
 		})
-		redisMock.EXPECT().GeoRadius(ctx, model.KeyAvailableDrivers,
+		redisMock.EXPECT().GeoRadius(ctx, pkgLocation.KeyAvailableDrivers,
 			location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-				Radius:   model.NearestRadius,
-				Unit:     model.NearestRadiusUnit,
+				Radius:   pkgLocation.NearestRadius,
+				Unit:     pkgLocation.NearestRadiusUnit,
 				WithDist: true,
 			}).Return(res)
 
@@ -94,10 +95,10 @@ func TestLocationUsecase_GetNearestAvailableDrivers(t *testing.T) {
 	t.Run("failed - should return error when GeoRadius returns error", func(t *testing.T) {
 		res := &redis.GeoLocationCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().GeoRadius(ctx, model.KeyAvailableDrivers,
+		redisMock.EXPECT().GeoRadius(ctx, pkgLocation.KeyAvailableDrivers,
 			location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-				Radius:   model.NearestRadius,
-				Unit:     model.NearestRadiusUnit,
+				Radius:   pkgLocation.NearestRadius,
+				Unit:     pkgLocation.NearestRadiusUnit,
 				WithDist: true,
 			}).Return(res)
 
@@ -124,7 +125,7 @@ func TestLocationUsecase_RemoveAvailableDriver(t *testing.T) {
 
 	t.Run("success - should execute redis ZREM", func(t *testing.T) {
 		res := &redis.IntCmd{}
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
+		redisMock.EXPECT().ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Return(res)
 
 		err := locationUCMock.RemoveAvailableDriver(ctx, driverID)
 		assert.Nil(t, err)
@@ -133,7 +134,7 @@ func TestLocationUsecase_RemoveAvailableDriver(t *testing.T) {
 	t.Run("failed - should return error when ZREM returns error", func(t *testing.T) {
 		res := &redis.IntCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().ZRem(ctx, model.KeyAvailableDrivers, driverID).Return(res)
+		redisMock.EXPECT().ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Return(res)
 
 		err := locationUCMock.RemoveAvailableDriver(ctx, driverID)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
@@ -154,7 +155,7 @@ func TestLocationUsecase_GetRidePath(t *testing.T) {
 		keyRedis    = model.GetDriverPathKey(rideID, driverID)
 		start, stop = int64(0), int64(-1)
 
-		expectedPath = []model.Coordinate{
+		expectedPath = []pkgLocation.Coordinate{
 			{Longitude: 0.00000001, Latitude: -1}, {Longitude: 0.1, Latitude: -1.1}, {Longitude: 0.2, Latitude: -1.2},
 		}
 	)
@@ -184,7 +185,7 @@ func TestLocationUsecase_GetRidePath(t *testing.T) {
 		actual, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
 
 		assert.Nil(t, err)
-		assert.Equal(t, []model.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}}, actual)
+		assert.Equal(t, []pkgLocation.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}}, actual)
 	})
 
 	t.Run("failed - should return error when ZRange returns error", func(t *testing.T) {
@@ -212,7 +213,7 @@ func TestLocationUsecase_TrackUserLocation(t *testing.T) {
 			RideID:    666,
 			UserID:    driverID,
 			Timestamp: 123456789,
-			Location: model.Coordinate{
+			Location: pkgLocation.Coordinate{
 				Longitude: 1,
 				Latitude:  2.3,
 			},

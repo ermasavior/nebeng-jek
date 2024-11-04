@@ -4,6 +4,7 @@ import (
 	"context"
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	pkgError "nebeng-jek/pkg/error"
 	"nebeng-jek/pkg/haversine"
@@ -76,7 +77,7 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 	return rideData, nil
 }
 
-func calculateTotalDistance(path []model.Coordinate) float64 {
+func calculateTotalDistance(path []pkgLocation.Coordinate) float64 {
 	distance := float64(0)
 	if len(path) >= 2 {
 		i := 0

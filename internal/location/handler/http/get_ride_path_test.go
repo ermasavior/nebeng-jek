@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"nebeng-jek/internal/location/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	httpUtils "nebeng-jek/pkg/http/utils"
 
@@ -36,7 +37,7 @@ func TestHandler_GetRidePath(t *testing.T) {
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
-	ridePath := []model.Coordinate{
+	ridePath := []pkgLocation.Coordinate{
 		{Longitude: 1, Latitude: 2},
 		{Longitude: 2, Latitude: 3},
 		{Longitude: 3, Latitude: 4},

@@ -7,6 +7,7 @@ import (
 
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
 	pkgError "nebeng-jek/pkg/error"
@@ -39,11 +40,11 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		}
 
 		req = model.CreateNewRideRequest{
-			PickupLocation: model.Coordinate{
+			PickupLocation: pkgLocation.Coordinate{
 				Longitude: 10,
 				Latitude:  10,
 			},
-			Destination: model.Coordinate{
+			Destination: pkgLocation.Coordinate{
 				Longitude: 11,
 				Latitude:  11,
 			},

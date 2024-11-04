@@ -1,21 +1,24 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"nebeng-jek/internal/pkg/location"
+)
 
 type CreateNewRideResponse struct {
 	ID int64 `json:"ride_id"`
 }
 
 type RideDataResponse struct {
-	RideID         int64      `json:"ride_id"`
-	RiderID        int64      `json:"rider_id"`
-	DriverID       int64      `json:"driver_id,omitempty"`
-	PickupLocation Coordinate `json:"pickup_location"`
-	Destination    Coordinate `json:"destination,omitempty"`
-	Distance       string     `json:"distance,omitempty"`
-	Fare           string     `json:"fare,omitempty"`
-	FinalPrice     string     `json:"final_price,omitempty"`
-	Status         string     `json:"status"`
+	RideID         int64               `json:"ride_id"`
+	RiderID        int64               `json:"rider_id"`
+	DriverID       int64               `json:"driver_id,omitempty"`
+	PickupLocation location.Coordinate `json:"pickup_location"`
+	Destination    location.Coordinate `json:"destination,omitempty"`
+	Distance       string              `json:"distance,omitempty"`
+	Fare           string              `json:"fare,omitempty"`
+	FinalPrice     string              `json:"final_price,omitempty"`
+	Status         string              `json:"status"`
 }
 
 func (r RideData) ToResponse() RideDataResponse {

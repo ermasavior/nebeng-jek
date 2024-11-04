@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"nebeng-jek/internal/location/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/pkg/logger"
 	pkgRedis "nebeng-jek/pkg/redis"
 	"strconv"
@@ -20,8 +21,8 @@ func NewLocationUsecase(cache pkgRedis.Collections) LocationUsecase {
 	}
 }
 
-func (r *locationUC) AddAvailableDriver(ctx context.Context, driverID int64, location model.Coordinate) error {
-	return r.cache.GeoAdd(ctx, model.KeyAvailableDrivers, &redis.GeoLocation{
+func (r *locationUC) AddAvailableDriver(ctx context.Context, driverID int64, location pkgLocation.Coordinate) error {
+	return r.cache.GeoAdd(ctx, pkgLocation.KeyAvailableDrivers, &redis.GeoLocation{
 		Name:      strconv.FormatInt(driverID, 10),
 		Longitude: location.Longitude,
 		Latitude:  location.Latitude,
@@ -29,13 +30,13 @@ func (r *locationUC) AddAvailableDriver(ctx context.Context, driverID int64, loc
 }
 
 func (r *locationUC) RemoveAvailableDriver(ctx context.Context, driverID int64) error {
-	return r.cache.ZRem(ctx, model.KeyAvailableDrivers, driverID).Err()
+	return r.cache.ZRem(ctx, pkgLocation.KeyAvailableDrivers, driverID).Err()
 }
 
-func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error) {
-	res := r.cache.GeoRadius(ctx, model.KeyAvailableDrivers, location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
-		Radius:   model.NearestRadius,
-		Unit:     model.NearestRadiusUnit,
+func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location pkgLocation.Coordinate) ([]int64, error) {
+	res := r.cache.GeoRadius(ctx, pkgLocation.KeyAvailableDrivers, location.Longitude, location.Latitude, &redis.GeoRadiusQuery{
+		Radius:   pkgLocation.NearestRadius,
+		Unit:     pkgLocation.NearestRadiusUnit,
 		WithDist: true,
 	})
 
@@ -54,7 +55,7 @@ func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location mo
 	return driverIDs, nil
 }
 
-func (r *locationUC) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error) {
+func (r *locationUC) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error) {
 	key := model.GetDriverPathKey(rideID, driverID)
 	res := r.cache.ZRange(ctx, key, 0, -1)
 
@@ -64,10 +65,10 @@ func (r *locationUC) GetRidePath(ctx context.Context, rideID int64, driverID int
 		return nil, err
 	}
 
-	result := make([]model.Coordinate, 0, len(coordinates))
+	result := make([]pkgLocation.Coordinate, 0, len(coordinates))
 
 	for _, coorString := range coordinates {
-		coor, err := model.ParseCoordinate(coorString)
+		coor, err := pkgLocation.ParseCoordinate(coorString)
 		if err != nil {
 			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
 				"ride_id":       rideID,

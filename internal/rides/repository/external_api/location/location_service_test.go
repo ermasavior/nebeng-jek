@@ -3,32 +3,18 @@ package location
 import (
 	"context"
 	"encoding/json"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/pkg/configs"
 	http_utils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/http_client"
-	"net"
+	"nebeng-jek/pkg/utils"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
-
-func mockHTTPServer(t *testing.T, baseURL string, handlerMock http.Handler) *httptest.Server {
-	l, err := net.Listen("tcp", baseURL)
-	if err != nil {
-		assert.Fail(t, "error create test server", err.Error())
-	}
-	server := httptest.NewUnstartedServer(handlerMock)
-
-	server.Listener.Close()
-	server.Listener = l
-	server.Start()
-
-	return server
-}
 
 func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -43,7 +29,7 @@ func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 	serviceMock := NewLocationRepository(mockConfig, http_client.HttpClient())
 
 	driverID := int64(1111)
-	location := model.Coordinate{
+	location := pkgLocation.Coordinate{
 		Longitude: 1, Latitude: 2,
 	}
 
@@ -69,7 +55,7 @@ func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.AddAvailableDriver(context.TODO(), driverID, location)
@@ -81,7 +67,7 @@ func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.AddAvailableDriver(context.TODO(), driverID, location)
@@ -131,7 +117,7 @@ func TestLocationRepository_RemoveAvailableDriver(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.RemoveAvailableDriver(context.TODO(), driverID)
@@ -143,7 +129,7 @@ func TestLocationRepository_RemoveAvailableDriver(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		err := serviceMock.RemoveAvailableDriver(context.TODO(), driverID)
@@ -169,7 +155,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 	}
 	serviceMock := NewLocationRepository(mockConfig, http_client.HttpClient())
 
-	location := model.Coordinate{Longitude: 1, Latitude: 2}
+	location := pkgLocation.Coordinate{Longitude: 1, Latitude: 2}
 	driverIDs := []int64{2222, 4444, 7777}
 	data, _ := json.Marshal(model.GetNearestAvailableDriversResponse{
 		DriverIDs: driverIDs,
@@ -197,7 +183,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetNearestAvailableDrivers(context.TODO(), location)
@@ -210,7 +196,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 			w.WriteHeader(http.StatusBadGateway)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetNearestAvailableDrivers(context.TODO(), location)
@@ -224,7 +210,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetNearestAvailableDrivers(context.TODO(), location)
@@ -254,7 +240,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 
 	rideID := int64(666)
 	driverID := int64(1111)
-	ridePath := []model.Coordinate{
+	ridePath := []pkgLocation.Coordinate{
 		{Longitude: 1, Latitude: 2}, {Longitude: 2, Latitude: 3},
 	}
 
@@ -284,7 +270,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
@@ -297,7 +283,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
@@ -311,7 +297,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
@@ -328,7 +314,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(failedJson)
 		})
-		server := mockHTTPServer(t, baseURL, handlerMock)
+		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
 		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)

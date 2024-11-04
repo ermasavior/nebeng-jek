@@ -1,12 +1,14 @@
 package model
 
+import "nebeng-jek/internal/pkg/location"
+
 type AddAvailableDriverRequest struct {
-	DriverID int64      `json:"driver_id" binding:"required"`
-	Location Coordinate `json:"location" binding:"required"`
+	DriverID int64               `json:"driver_id" binding:"required"`
+	Location location.Coordinate `json:"location" binding:"required"`
 }
 
 type GetNearestAvailableDriversRequest struct {
-	Location Coordinate `json:"location" binding:"required"`
+	Location location.Coordinate `json:"location" binding:"required"`
 }
 
 type GetRidePathRequest struct {
@@ -15,11 +17,11 @@ type GetRidePathRequest struct {
 }
 
 type TrackUserLocationRequest struct {
-	RideID    int64      `json:"ride_id" binding:"required"`
-	UserID    int64      `json:"user_id" binding:"required"`
-	Timestamp int64      `json:"timestamp" binding:"required"`
-	Location  Coordinate `json:"location" binding:"required"`
-	IsDriver  bool       `json:"is_driver"`
+	RideID    int64               `json:"ride_id" binding:"required"`
+	UserID    int64               `json:"user_id" binding:"required"`
+	Timestamp int64               `json:"timestamp" binding:"required"`
+	Location  location.Coordinate `json:"location" binding:"required"`
+	IsDriver  bool                `json:"is_driver"`
 }
 
 type GetNearestAvailableDriversResponse struct {
@@ -27,5 +29,5 @@ type GetNearestAvailableDriversResponse struct {
 }
 
 type GetRidePathResponse struct {
-	Path []Coordinate `json:"path"`
+	Path []location.Coordinate `json:"path"`
 }

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"nebeng-jek/internal/location/model"
+	pkgLocation "nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	httpUtils "nebeng-jek/pkg/http/utils"
 
@@ -32,7 +33,7 @@ func TestHandler_AddAvailableDriver(t *testing.T) {
 
 	reqBody := model.AddAvailableDriverRequest{
 		DriverID: 2222,
-		Location: model.Coordinate{
+		Location: pkgLocation.Coordinate{
 			Longitude: 11,
 			Latitude:  12,
 		},
