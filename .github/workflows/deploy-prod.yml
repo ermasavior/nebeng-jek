@@ -1,0 +1,26 @@
+name: Deploy to Production
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - run: |
+          echo "Processing deployment to Production..."
+          echo "Service name: ${{ github.event.release.name }}"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+      - name: Validate service name based on release name
+        run: |
+          if [[ "${{ github.event.release.name }}" != "rides" && \
+                "${{ github.event.release.name }}" != "riders" && \
+                "${{ github.event.release.name }}" != "location" && \
+                "${{ github.event.release.name }}" != "drivers" ]]; then
+            echo "Invalid service name specified: ${{ github.event.release.name }}"
+            exit 1
+          fi
+          echo "Building service: ${{ github.event.release.name }}"
