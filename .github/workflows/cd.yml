@@ -12,6 +12,11 @@ on:
         required: false
         default: 'latest'
 
+permissions:
+  contents: read
+  actions: read
+  workflows: read
+
 jobs:
   check-ci:
     runs-on: ubuntu-latest
@@ -22,8 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the status of the last run of "First Workflow"
-          previous_run_status=$(gh run list --workflow="First Workflow" --limit=1 --json conclusion -q '.[0].conclusion')
+          previous_run_status=$(gh run list --workflow="Golang Continuous Integration" --limit=1 --json conclusion -q '.[0].conclusion')
           echo "Continuous Integration conclusion: $previous_run_status"
 
           if [[ "$previous_run_status != "success" ]]; then
