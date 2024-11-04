@@ -16,6 +16,7 @@ jobs:
   check-ci:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Check Continuous Integration Status
         id: check_status
         env:
@@ -36,7 +37,7 @@ jobs:
     needs: check-ci
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Validate service name
         run: |
           if [[ "${{ github.event.inputs.service_name }}" != "rides" && \
