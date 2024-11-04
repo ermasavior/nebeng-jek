@@ -1,10 +1,20 @@
-name: Golang CI
+name: Golang CI/CD
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      service_name:
+        description: 'Service to be deployed (rides, drivers, riders)'
+        required: true
+        default: 'rides'
+      version:
+        description: 'Version tag of the application'
+        required: false
+        default: 'latest'
 
 jobs:
   golangci-lint:
@@ -72,22 +82,32 @@ jobs:
       with:
         args: >
           -Dsonar.go.coverage.reportPaths=coverage/coverage.out
-  build:
-    name: Build Apps
+
+  build-image:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: [sonarqube]
-    strategy:
-      matrix:
-        service:
-          - rides
-          - riders
-          - drivers
+    needs: [sonarqube, hadolint]
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v3
+      - name: Validate service name
+        run: |
+          if [[ "${{ github.event.inputs.service_name }}" != "rides" && \
+                "${{ github.event.inputs.service_name }}" != "riders" && \
+                "${{ github.event.inputs.service_name }}" != "drivers" ]]; then
+            echo "Invalid service name specified: ${{ github.event.inputs.service_name }}"
+            exit 1
+          fi
+          echo "Building service: ${{ github.event.inputs.service_name }}"
+      - uses: docker/login-action@v3.3.0
         with:
-          go-version: '1.22'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Install dependencies
-        run: make tidy-${{ matrix.service }}
-      - name: Build app
-        run: make build-${{ matrix.service }}
+        run: make tidy-${{ github.event.inputs.service_name }}
+      - name: Build docker image
+        run: |
+          docker build -f deployments/${{ github.event.inputs.service_name }}/Dockerfile -t ermasavior/nebengjek-${{ github.event.inputs.service_name }}:${{ github.event.inputs.version }} .
+      - name: Push docker image
+        run: |
+          docker push ermasavior/nebengjek-${{ github.event.inputs.service_name }}:${{ github.event.inputs.version }}

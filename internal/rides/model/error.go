@@ -14,4 +14,6 @@ const (
 	ErrMsgInvalidFare        = "invalid fare, must not be empty"
 	ErrMsgInvalidDistance    = "invalid distance, must not be empty"
 	ErrMsgInvalidCustomPrice = "custom price must be lower than fare price"
+
+	ErrMsgFailedHTTPRequest = "error request http to client"
 )
