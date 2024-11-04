@@ -24,20 +24,29 @@ build-location:
 	cd cmd/location && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/location main.go
 
 
-docker-run-drivers:
+docker-build-drivers:
 	docker build -f deployments/drivers/Dockerfile -t nebengjek/drivers:v1.0.0 .
+
+docker-build-riders:
+	docker build -f deployments/riders/Dockerfile -t nebengjek/riders:v1.0.0 .
+
+docker-build-rides:
+	docker build -f deployments/rides/Dockerfile -t nebengjek/rides:v1.0.0 .
+
+docker-build-location:
+	docker build -f deployments/location/Dockerfile -t nebengjek/location:v1.0.0 .
+
+
+docker-run-drivers:
 	docker run --env-file ./configs/drivers/.env --rm -p 9998:9998 --network deployments_local --name nebengjek-drivers nebengjek/drivers:v1.0.0
 
 docker-run-riders:
-	docker build -f deployments/riders/Dockerfile -t nebengjek/riders:v1.0.0 .
 	docker run --env-file ./configs/riders/.env --rm -p 9997:9997 --network deployments_local --name nebengjek-riders nebengjek/riders:v1.0.0
 
 docker-run-rides:
-	docker build -f deployments/rides/Dockerfile -t nebengjek/rides:v1.0.0 .
 	docker run --env-file ./configs/rides/.env --rm -p 9999:9999 --network deployments_local --name nebengjek-rides nebengjek/rides:v1.0.0
 
 docker-run-location:
-	docker build -f deployments/location/Dockerfile -t nebengjek/location:v1.0.0 .
 	docker run --env-file ./configs/location/.env --rm -p 9996:9996 --network deployments_local --name nebengjek-location nebengjek/location:v1.0.0
 
 

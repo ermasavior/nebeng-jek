@@ -8,9 +8,11 @@ import (
 )
 
 func NewConfig(envFilePath string) *Config {
-	err := godotenv.Load(envFilePath)
-	if err != nil {
-		log.Println("error loading config from file", err)
+	if envFilePath != "" {
+		err := godotenv.Load(envFilePath)
+		if err != nil {
+			log.Println("error loading config from file", err)
+		}
 	}
 
 	cfg := new(Config)

@@ -29,13 +29,14 @@ func TestBroadcastToRider(t *testing.T) {
 		VehiclePlate: "B1212",
 	}
 
+	data, _ := json.Marshal(model.RideMatchedDriverMessage{
+		RideID:  rideID,
+		Driver:  driverData,
+		RiderID: riderID,
+	})
 	broadcastMsg := model.RiderMessage{
 		Event: model.EventMatchedRide,
-		Data: model.RideMatchedDriverMessage{
-			RideID:  rideID,
-			Driver:  driverData,
-			RiderID: riderID,
-		},
+		Data:  data,
 	}
 
 	connStorage := &sync.Map{}

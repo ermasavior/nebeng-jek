@@ -39,7 +39,7 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
-	if err := model.ValidateDriverConfirmRide(rideData, driverID); err != nil {
+	if err := model.ValidateDriverConfirmRide(rideData); err != nil {
 		return err
 	}
 

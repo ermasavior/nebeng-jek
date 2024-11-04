@@ -17,9 +17,14 @@
 
 1. Initialize `.env` file into each `./configs/*` folders
 2. Go to `/deployments`, then execute `docker-compose up -d` to run dependency services
-3. To run the service independently:
+3. Run docker build and run for each services independently:
     ```sh
+    make docker-build-drivers
     make docker-run-drivers
+
+    make docker-build-riders
     make docker-run-riders
+
+    make docker-build-rides
     make docker-run-rides
     ```
