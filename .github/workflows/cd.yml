@@ -1,10 +1,6 @@
 name: Continuous Delivery
 
 on:
-  workflow_run:
-    workflows: ["Golang Continuous Integration"]
-    types:
-      - completed
   workflow_dispatch:
     inputs:
       service_name:
@@ -17,10 +13,26 @@ on:
         default: 'latest'
 
 jobs:
+  check-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Continuous Integration Status
+        id: check_status
+        run: |
+          # Get the status of the last run of "First Workflow"
+          previous_run_status=$(gh run list --workflow="First Workflow" --limit=1 --json conclusion -q '.[0].conclusion')
+          echo "Continuous Integration conclusion: $previous_run_status"
+
+          if [[ "$previous_run_status != "success" ]]; then
+            echo "Continuous Integration did not succeed. Aborting."
+            exit 1
+          else
+            echo "Continuous Integration succeeded. Continuing..."
+          fi
   build-image:
     name: Build and Push Docker Image
+    needs: check-ci
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v3
       - name: Validate service name
