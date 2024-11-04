@@ -12,11 +12,6 @@ on:
         required: false
         default: 'latest'
 
-permissions:
-  contents: read
-  actions: read
-  workflows: read
-
 jobs:
   check-ci:
     runs-on: ubuntu-latest
