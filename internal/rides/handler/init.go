@@ -5,9 +5,9 @@ import (
 	"nebeng-jek/internal/pkg/middleware"
 	nats_pkg "nebeng-jek/internal/pkg/nats"
 	handler_http "nebeng-jek/internal/rides/handler/http"
+	location "nebeng-jek/internal/rides/repository/external_api/location"
 	"nebeng-jek/internal/rides/repository/external_api/payment"
 	repo_db "nebeng-jek/internal/rides/repository/postgres"
-	repo_redis "nebeng-jek/internal/rides/repository/redis"
 	"nebeng-jek/internal/rides/usecase"
 	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/jwt"
@@ -31,8 +31,8 @@ type RegisterHandlerParam struct {
 
 func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	ridesPubSub := nats_pkg.NewPubsubRepository(reg.NatsJS)
-	repoCache := repo_redis.NewRepository(reg.Redis)
 	repoDB := repo_db.NewRepository(reg.DB)
+	repoCache := location.NewLocationRepository(reg.Cfg, reg.HttpClient)
 	paymentSvc := payment.NewPaymentRepository(reg.Cfg, reg.HttpClient)
 
 	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub, paymentSvc)

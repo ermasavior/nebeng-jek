@@ -93,20 +93,6 @@ func (mr *MockRidesLocationRepositoryMockRecorder) RemoveAvailableDriver(ctx, dr
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveAvailableDriver", reflect.TypeOf((*MockRidesLocationRepository)(nil).RemoveAvailableDriver), ctx, driverID)
 }
 
-// TrackUserLocation mocks base method.
-func (m *MockRidesLocationRepository) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TrackUserLocation", ctx, req)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// TrackUserLocation indicates an expected call of TrackUserLocation.
-func (mr *MockRidesLocationRepositoryMockRecorder) TrackUserLocation(ctx, req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TrackUserLocation", reflect.TypeOf((*MockRidesLocationRepository)(nil).TrackUserLocation), ctx, req)
-}
-
 // MockRidesRepository is a mock of RidesRepository interface.
 type MockRidesRepository struct {
 	ctrl     *gomock.Controller

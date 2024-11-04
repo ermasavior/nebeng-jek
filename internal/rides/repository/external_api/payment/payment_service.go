@@ -2,23 +2,22 @@ package payment
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"io"
 	"nebeng-jek/internal/rides/model"
 	"nebeng-jek/internal/rides/repository"
 	"nebeng-jek/pkg/configs"
 	httpUtils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/http_client"
 	"nebeng-jek/pkg/logger"
+	"nebeng-jek/pkg/utils"
 	"net/http"
 
 	"github.com/google/uuid"
 )
 
 const (
-	DeductCreditPath = "/v1/deduct/credit"
-	AddCreditPath    = "/v1/add/credit"
+	deductCreditPath = "/v1/deduct/credit"
+	addCreditPath    = "/v1/add/credit"
 )
 
 var (
@@ -42,7 +41,7 @@ func NewPaymentRepository(cfg *configs.Config, httpClient *http.Client) reposito
 func (s *paymentRepo) AddCredit(ctx context.Context, req model.AddCreditRequest) error {
 	idempotencyKey := uuid.New().String()
 	transport := http_client.RestTransport{
-		Url:    s.BaseUrl + AddCreditPath,
+		Url:    s.BaseUrl + addCreditPath,
 		Method: http.MethodPost,
 		Header: http.Header{
 			httpUtils.HeaderApiKey:   []string{s.APIKey},
@@ -61,9 +60,12 @@ func (s *paymentRepo) AddCredit(ctx context.Context, req model.AddCreditRequest)
 	defer httpRes.Body.Close()
 
 	if httpRes.StatusCode/100 != 2 {
+		var res httpUtils.Response
+		_ = utils.ParseResponseBody(httpRes.Body, &res)
+
 		logger.Error(ctx, "error http response", map[string]interface{}{
 			"status_code": httpRes.StatusCode,
-			"response":    parseResponseBody(httpRes.Body),
+			"response":    res,
 		})
 		return ErrorInternalPaymentService
 	}
@@ -74,7 +76,7 @@ func (s *paymentRepo) AddCredit(ctx context.Context, req model.AddCreditRequest)
 func (s *paymentRepo) DeductCredit(ctx context.Context, req model.DeductCreditRequest) error {
 	idempotencyKey := uuid.New().String()
 	transport := http_client.RestTransport{
-		Url:    s.BaseUrl + DeductCreditPath,
+		Url:    s.BaseUrl + deductCreditPath,
 		Method: http.MethodPost,
 		Header: http.Header{
 			httpUtils.HeaderApiKey:   []string{s.APIKey},
@@ -93,19 +95,15 @@ func (s *paymentRepo) DeductCredit(ctx context.Context, req model.DeductCreditRe
 	defer httpRes.Body.Close()
 
 	if httpRes.StatusCode/100 != 2 {
+		var res httpUtils.Response
+		_ = utils.ParseResponseBody(httpRes.Body, &res)
+
 		logger.Error(ctx, "error http response", map[string]interface{}{
 			"status_code": httpRes.StatusCode,
-			"response":    parseResponseBody(httpRes.Body),
+			"response":    res,
 		})
 		return ErrorInternalPaymentService
 	}
 
 	return nil
-}
-
-func parseResponseBody(resBody io.ReadCloser) model.PaymentResponse {
-	var res model.PaymentResponse
-	b, _ := io.ReadAll(resBody)
-	_ = json.Unmarshal(b, &res)
-	return res
 }

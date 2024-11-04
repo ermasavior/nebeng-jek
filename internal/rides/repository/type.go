@@ -10,7 +10,6 @@ type RidesLocationRepository interface {
 	RemoveAvailableDriver(ctx context.Context, driverID int64) error
 	GetNearestAvailableDrivers(ctx context.Context, location model.Coordinate) ([]int64, error)
 	GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]model.Coordinate, error)
-	TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error
 }
 
 type RidesRepository interface {

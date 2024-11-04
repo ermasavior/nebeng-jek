@@ -51,11 +51,3 @@ type DriverConfirmPaymentRequest struct {
 	RideID      int64   `json:"ride_id" binding:"required"`
 	CustomPrice float64 `json:"custom_price" binding:"gte=0"`
 }
-
-type TrackUserLocationRequest struct {
-	RideID    int64      `json:"ride_id" binding:"required"`
-	UserID    int64      `json:"user_id" binding:"required"`
-	Timestamp int64      `json:"timestamp" binding:"required"`
-	Location  Coordinate `json:"location" binding:"required"`
-	IsDriver  bool       `json:"is_driver"`
-}

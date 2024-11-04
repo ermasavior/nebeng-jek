@@ -14,5 +14,4 @@ type RidesUsecase interface {
 	DriverStartRide(context.Context, model.DriverStartRideRequest) (model.RideData, pkgError.AppError)
 	DriverEndRide(context.Context, model.DriverEndRideRequest) (model.RideData, pkgError.AppError)
 	DriverConfirmPayment(context.Context, model.DriverConfirmPaymentRequest) (model.RideData, pkgError.AppError)
-	TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) pkgError.AppError
 }

@@ -19,8 +19,10 @@ type Config struct {
 	JWTSecretKey   string `env:"JWT_SECRET_KEY"`
 	LogFilePath    string `env:"LOG_FILE_PATH"`
 
-	PaymentServiceURL    string `env:"PAYMENT_SERVICE_URL"`
-	PaymentServiceAPIKey string `env:"PAYMENT_SERVICE_API_KEY"`
+	PaymentServiceURL     string `env:"PAYMENT_SERVICE_URL"`
+	PaymentServiceAPIKey  string `env:"PAYMENT_SERVICE_API_KEY"`
+	LocationServiceURL    string `env:"LOCATION_SERVICE_URL"`
+	LocationServiceAPIKey string `env:"LOCATION_SERVICE_API_KEY"`
 
 	InternalAPIKey string `env:"INTERNAL_API_KEY"`
 }

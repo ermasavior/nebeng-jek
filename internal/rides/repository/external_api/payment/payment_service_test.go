@@ -47,14 +47,14 @@ func TestPaymentRepository_DeductCredit(t *testing.T) {
 		Value:  20000,
 	}
 
-	responseMock := model.PaymentResponse{
+	responseMock := http_utils.ClientResponse{
 		Meta: http_utils.MetaResponse{
 			Code:    0,
 			Message: "success",
 		},
 	}
 
-	failedResponseMock := model.PaymentResponse{
+	failedResponseMock := http_utils.ClientResponse{
 		Meta: http_utils.MetaResponse{
 			Code:    -1,
 			Message: "failed",
@@ -87,6 +87,12 @@ func TestPaymentRepository_DeductCredit(t *testing.T) {
 		err := serviceMock.DeductCredit(context.TODO(), param)
 		assert.Error(t, err)
 	})
+
+	t.Run("return error - server connection refused", func(t *testing.T) {
+		// no server running
+		err := serviceMock.DeductCredit(context.TODO(), param)
+		assert.Error(t, err)
+	})
 }
 
 func TestPaymentRepository_AddCredit(t *testing.T) {
@@ -106,14 +112,14 @@ func TestPaymentRepository_AddCredit(t *testing.T) {
 		Value:  20000,
 	}
 
-	responseMock := model.PaymentResponse{
+	responseMock := http_utils.ClientResponse{
 		Meta: http_utils.MetaResponse{
 			Code:    0,
 			Message: "success",
 		},
 	}
 
-	failedResponseMock := model.PaymentResponse{
+	failedResponseMock := http_utils.ClientResponse{
 		Meta: http_utils.MetaResponse{
 			Code:    -1,
 			Message: "failed",
@@ -143,6 +149,12 @@ func TestPaymentRepository_AddCredit(t *testing.T) {
 		server := mockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
+		err := serviceMock.AddCredit(context.TODO(), param)
+		assert.Error(t, err)
+	})
+
+	t.Run("return error - server connection refused", func(t *testing.T) {
+		// no server running
 		err := serviceMock.AddCredit(context.TODO(), param)
 		assert.Error(t, err)
 	})
