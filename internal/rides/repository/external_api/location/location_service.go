@@ -51,7 +51,7 @@ func (s *locationRepo) AddAvailableDriver(ctx context.Context, driverID int64, l
 
 	_, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "error request http", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedHTTPRequest, map[string]interface{}{
 			logger.ErrorKey: err,
 		})
 		return err
@@ -71,7 +71,7 @@ func (s *locationRepo) RemoveAvailableDriver(ctx context.Context, driverID int64
 
 	_, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "error request http", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedHTTPRequest, map[string]interface{}{
 			logger.ErrorKey: err,
 		})
 		return err
@@ -95,7 +95,7 @@ func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location 
 
 	res, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "error request http", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedHTTPRequest, map[string]interface{}{
 			logger.ErrorKey: err,
 		})
 		return nil, err
@@ -129,7 +129,7 @@ func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID i
 
 	res, err := http_client.RequestHTTPAndParseResponse(ctx, s.HttpClient, transport)
 	if err != nil {
-		logger.Error(ctx, "error request http", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedHTTPRequest, map[string]interface{}{
 			logger.ErrorKey: err,
 		})
 		return nil, err

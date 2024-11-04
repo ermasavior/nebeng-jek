@@ -8,6 +8,8 @@ const (
 	EventRideStarted       = "ride_started"
 	EventRideEnded         = "ride_ended"
 	EventRidePaid          = "ride_paid"
+
+	ErrMsgInvalidMessageFmt = "invalid message data format"
 )
 
 type RiderMessage struct {

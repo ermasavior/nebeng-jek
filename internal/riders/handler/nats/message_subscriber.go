@@ -15,7 +15,7 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 		var data model.RideMatchedDriverMessage
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
-			logger.Error(ctx, "invalid message data", map[string]interface{}{logger.ErrorKey: err})
+			logger.Error(ctx, model.ErrMsgInvalidMessageFmt, map[string]interface{}{logger.ErrorKey: err})
 			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
@@ -38,7 +38,7 @@ func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) 
 		var data model.RideStartedMessage
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
-			logger.Error(ctx, "invalid message data", map[string]interface{}{logger.ErrorKey: err})
+			logger.Error(ctx, model.ErrMsgInvalidMessageFmt, map[string]interface{}{logger.ErrorKey: err})
 			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
@@ -61,7 +61,7 @@ func (h *natsHandler) SubscribeRideEnded(ctx context.Context) func(*nats.Msg) {
 		var data model.RideEndedMessage
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
-			logger.Error(ctx, "invalid message data", map[string]interface{}{logger.ErrorKey: err})
+			logger.Error(ctx, model.ErrMsgInvalidMessageFmt, map[string]interface{}{logger.ErrorKey: err})
 			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
@@ -84,7 +84,7 @@ func (h *natsHandler) SubscribeRidePaid(ctx context.Context) func(*nats.Msg) {
 		var data model.RidePaidMessage
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
-			logger.Error(ctx, "invalid message data", map[string]interface{}{logger.ErrorKey: err})
+			logger.Error(ctx, model.ErrMsgInvalidMessageFmt, map[string]interface{}{logger.ErrorKey: err})
 			nats_pkg.AckMessage(ctx, msg)
 			return
 		}
