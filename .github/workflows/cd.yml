@@ -14,10 +14,11 @@ on:
 
 jobs:
   check-ci:
+    name: Check CI Result
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check Continuous Integration Status
+      - name: Check CI
         id: check_status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +27,7 @@ jobs:
           echo "Continuous Integration conclusion: $previous_run_status"
 
           if [[ "$previous_run_status" != "success" ]]; then
-            echo "Continuous Integration did not succeed. Aborting."
+            echo "Continuous Integration did not succeed or unfinished yet. Aborting."
             exit 1
           else
             echo "Continuous Integration succeeded. Continuing..."
