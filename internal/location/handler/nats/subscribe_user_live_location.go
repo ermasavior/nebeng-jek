@@ -25,7 +25,6 @@ func (h *natsHandler) SubscribeUserLiveLocation(ctx context.Context) func(*nats.
 			logger.Error(ctx, "error tracking user location", map[string]interface{}{
 				"req": reqBody,
 			})
-			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 

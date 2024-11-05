@@ -26,7 +26,6 @@ func (h *natsHandler) SubscribeRideMatchedDriver(ctx context.Context) func(*nats
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 		nats_pkg.AckMessage(ctx, msg)
@@ -49,7 +48,6 @@ func (h *natsHandler) SubscribeRideStarted(ctx context.Context) func(*nats.Msg) 
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 		nats_pkg.AckMessage(ctx, msg)
@@ -72,7 +70,6 @@ func (h *natsHandler) SubscribeRideEnded(ctx context.Context) func(*nats.Msg) {
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 		nats_pkg.AckMessage(ctx, msg)
@@ -95,7 +92,6 @@ func (h *natsHandler) SubscribeRidePaid(ctx context.Context) func(*nats.Msg) {
 		}
 		err = h.broadcastToRider(ctx, data.RiderID, broadcastMsg)
 		if err != nil {
-			nats_pkg.NakMessage(ctx, msg)
 			return
 		}
 		nats_pkg.AckMessage(ctx, msg)

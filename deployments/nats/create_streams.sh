@@ -30,6 +30,6 @@ nats stream add USER_LIVE_LOCATION \
     --dupe-window 2m \
     --ack
 
-nats consumer add RIDE_EVENTS riders_service --defaults --ack=explicit --target=pull --max-deliver 5
-nats consumer add RIDE_EVENTS drivers_service --defaults --ack=explicit --target=pull --max-deliver 5
-nats consumer add USER_LIVE_LOCATION rides_service --defaults --ack=explicit --target=pull --max-deliver 5
+nats consumer add RIDE_EVENTS riders_service --defaults --ack=explicit --target=pull --wait=3m --max-deliver 5
+nats consumer add RIDE_EVENTS drivers_service --defaults --ack=explicit --target=pull --wait=3m --max-deliver 5
+nats consumer add USER_LIVE_LOCATION rides_service --defaults --ack=explicit --target=pull --wait=3m --max-deliver 5

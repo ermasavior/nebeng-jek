@@ -78,23 +78,24 @@ func (u *ridesUsecase) DriverConfirmPayment(ctx context.Context, req model.Drive
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateRideData)
 	}
 
+	func() {
+		err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRidePaid, model.RidePaidMessage{
+			RideID:     rideData.RideID,
+			Distance:   distance,
+			FinalPrice: finalPrice,
+			RiderID:    rideData.RiderID,
+		})
+		if err != nil {
+			logger.Error(ctx, "error broadcasting ride ended", map[string]interface{}{
+				"driver_id": driverID,
+				"error":     err,
+			})
+		}
+	}()
+
 	rideData.SetDistance(distance)
 	rideData.SetFinalPrice(finalPrice)
 	rideData.SetStatus(model.StatusNumRidePaid)
-
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRidePaid, model.RidePaidMessage{
-		RideID:     rideData.RideID,
-		Distance:   distance,
-		FinalPrice: finalPrice,
-		RiderID:    rideData.RiderID,
-	})
-	if err != nil {
-		logger.Error(ctx, "error broadcasting ride ended", map[string]interface{}{
-			"driver_id": driverID,
-			"error":     err,
-		})
-		return model.RideData{}, pkgError.NewInternalServerError("error broadcasting ride ended")
-	}
 
 	return rideData, nil
 }

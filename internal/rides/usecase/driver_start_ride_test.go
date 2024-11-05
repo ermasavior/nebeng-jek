@@ -65,7 +65,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
 			RideID:  rideData.RideID,
 			RiderID: rideData.RiderID,
-		}).Return(nil)
+		}).Return(nil).AnyTimes()
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
 		assert.Nil(t, err)
@@ -145,7 +145,7 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		assert.Equal(t, model.RideData{}, res)
 	})
 
-	t.Run("failed - broadcast message returns error", func(t *testing.T) {
+	t.Run("ignore - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -161,10 +161,10 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
 			RideID:  rideData.RideID,
 			RiderID: rideData.RiderID,
-		}).Return(expectedErr)
+		}).Return(expectedErr).AnyTimes()
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
-		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
-		assert.Equal(t, model.RideData{}, res)
+		assert.Nil(t, err)
+		assert.Equal(t, model.StatusNumRideStarted, res.StatusNum)
 	})
 }

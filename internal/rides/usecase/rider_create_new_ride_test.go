@@ -34,10 +34,6 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 			MSISDN: "0812222",
 		}
 		driverList = []int64{1111, 2222}
-		driverMap  = map[int64]bool{
-			1111: true,
-			2222: true,
-		}
 
 		req = model.CreateNewRideRequest{
 			PickupLocation: pkgLocation.Coordinate{
@@ -66,12 +62,19 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		}).Return(rideID, nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.NewRideRequestMessage{
-			RideID:           rideID,
-			Rider:            riderData,
-			PickupLocation:   req.PickupLocation,
-			Destination:      req.Destination,
-			AvailableDrivers: driverMap,
-		}).Return(nil)
+			RideID:            rideID,
+			Rider:             riderData,
+			PickupLocation:    req.PickupLocation,
+			Destination:       req.Destination,
+			AvailableDriverID: driverList[0],
+		}).Return(nil).AnyTimes()
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.NewRideRequestMessage{
+			RideID:            rideID,
+			Rider:             riderData,
+			PickupLocation:    req.PickupLocation,
+			Destination:       req.Destination,
+			AvailableDriverID: driverList[1],
+		}).Return(nil).AnyTimes()
 
 		actual, err := usecaseMock.RiderCreateNewRide(ctx, req)
 		assert.Nil(t, err)
@@ -127,7 +130,7 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
 	})
 
-	t.Run("failed - should return error when fail broadcasting ride to drivers", func(t *testing.T) {
+	t.Run("success - ignore when fail broadcasting ride to drivers", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRiderDataByID(ctx, riderID).Return(riderData, nil)
 		locationRepoMock.EXPECT().GetNearestAvailableDrivers(ctx, req.PickupLocation).
@@ -139,14 +142,21 @@ func TestUsecase_RiderCreateNewRide(t *testing.T) {
 		}).Return(rideID, nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.NewRideRequestMessage{
-			RideID:           rideID,
-			Rider:            riderData,
-			PickupLocation:   req.PickupLocation,
-			Destination:      req.Destination,
-			AvailableDrivers: driverMap,
-		}).Return(expectedErr)
+			RideID:            rideID,
+			Rider:             riderData,
+			PickupLocation:    req.PickupLocation,
+			Destination:       req.Destination,
+			AvailableDriverID: driverList[0],
+		}).Return(expectedErr).AnyTimes()
+		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideNewRequest, model.NewRideRequestMessage{
+			RideID:            rideID,
+			Rider:             riderData,
+			PickupLocation:    req.PickupLocation,
+			Destination:       req.Destination,
+			AvailableDriverID: driverList[1],
+		}).Return(expectedErr).AnyTimes()
 
 		_, err := usecaseMock.RiderCreateNewRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+		assert.Nil(t, err)
 	})
 }

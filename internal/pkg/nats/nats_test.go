@@ -49,13 +49,12 @@ func TestSubscribeMessage(t *testing.T) {
 	natsJS := mock_nats.NewMockJetStreamConnection(ctrl)
 
 	topic := constants.TopicRideStarted
-	consumerName := "consumer_test"
 	msgHandler := func(msg *nats_go.Msg) {}
 
-	t.Run("failed - broadcast message failed", func(t *testing.T) {
+	t.Run("failed - subscribe message failed", func(t *testing.T) {
 		expectedErr := errors.New("error from nats")
 		natsJS.EXPECT().Subscribe(topic, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, expectedErr)
 
-		SubscribeMessage(natsJS, topic, msgHandler, consumerName)
+		SubscribeMessage(natsJS, topic, msgHandler)
 	})
 }

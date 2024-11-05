@@ -42,6 +42,6 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(connStorage, uc)
 
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx), "driver_new_ride_request")
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx), "driver_ready_to_pickup")
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideNewRequest, natsHandler.SubscribeNewRideRequests(ctx))
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideReadyToPickup, natsHandler.SubscribeReadyToPickupRides(ctx))
 }

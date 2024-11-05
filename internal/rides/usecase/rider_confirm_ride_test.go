@@ -62,7 +62,7 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 			RideID:   req.RideID,
 			RiderID:  riderID,
 			DriverID: driverID,
-		}).Return(nil)
+		}).Return(nil).AnyTimes()
 
 		data, err := usecaseMock.RiderConfirmRide(ctx, req)
 		assert.Nil(t, err)
@@ -122,7 +122,7 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 		assert.Equal(t, model.RideData{}, data)
 	})
 
-	t.Run("failed - broadcast message returns error", func(t *testing.T) {
+	t.Run("ignore - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -134,10 +134,10 @@ func TestUsecase_RiderConfirmRide(t *testing.T) {
 			RideID:   rideData.RideID,
 			RiderID:  riderID,
 			DriverID: driverID,
-		}).Return(expectedErr)
+		}).Return(expectedErr).AnyTimes()
 
 		data, err := usecaseMock.RiderConfirmRide(ctx, req)
-		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
-		assert.Equal(t, model.RideData{}, data)
+		assert.Nil(t, err)
+		assert.Equal(t, model.StatusNumRideReadyToPickup, data.StatusNum)
 	})
 }

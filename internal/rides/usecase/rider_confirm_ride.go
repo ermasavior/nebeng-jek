@@ -51,18 +51,19 @@ func (u *ridesUsecase) RiderConfirmRide(ctx context.Context, req model.RiderConf
 		return rideData, nil
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
-		RideID:   rideData.RideID,
-		RiderID:  riderID,
-		DriverID: *rideData.DriverID,
-	})
-	if err != nil {
-		logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
-			"rider_id": riderID,
-			"error":    err,
+	go func() {
+		err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideReadyToPickup, model.RideReadyToPickupMessage{
+			RideID:   rideData.RideID,
+			RiderID:  riderID,
+			DriverID: *rideData.DriverID,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailBroadcastMessage)
-	}
+		if err != nil {
+			logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
+				"rider_id": riderID,
+				"error":    err,
+			})
+		}
+	}()
 
 	return rideData, nil
 }

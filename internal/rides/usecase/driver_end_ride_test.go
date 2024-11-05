@@ -100,7 +100,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 			Distance: distance,
 			Fare:     fare,
 			RiderID:  rideData.RiderID,
-		}).Return(nil)
+		}).Return(nil).AnyTimes()
 
 		actual, err := usecaseMock.DriverEndRide(ctx, req)
 		assert.Nil(t, err)
@@ -155,7 +155,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
-	t.Run("failed - should return error when broadcast data is failed", func(t *testing.T) {
+	t.Run("ignore - broadcast data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
 		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
@@ -171,9 +171,9 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 			Distance: distance,
 			Fare:     fare,
 			RiderID:  rideData.RiderID,
-		}).Return(expectedErr)
+		}).Return(expectedErr).AnyTimes()
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
+		assert.Nil(t, err)
 	})
 }

@@ -36,5 +36,5 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	}
 
 	natsHandler := handler_nats.NewHandler(uc)
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx), "consumer_live_location")
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicUserLiveLocation, natsHandler.SubscribeUserLiveLocation(ctx))
 }

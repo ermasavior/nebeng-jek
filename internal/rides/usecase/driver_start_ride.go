@@ -62,17 +62,18 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailRemoveAvailableDriver)
 	}
 
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
-		RideID:  rideData.RideID,
-		RiderID: rideData.RiderID,
-	})
-	if err != nil {
-		logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
-			"driver_id": driverID,
-			"error":     err,
+	go func() {
+		err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideStarted, model.RideStartedMessage{
+			RideID:  rideData.RideID,
+			RiderID: rideData.RiderID,
 		})
-		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailBroadcastMessage)
-	}
+		if err != nil {
+			logger.Error(ctx, model.ErrMsgFailBroadcastMessage, map[string]interface{}{
+				"driver_id": driverID,
+				"error":     err,
+			})
+		}
+	}()
 
 	return rideData, nil
 }

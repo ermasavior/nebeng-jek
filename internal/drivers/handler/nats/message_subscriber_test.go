@@ -25,9 +25,7 @@ func TestSubscribeNewRideRequests(t *testing.T) {
 			Name:   "Mel",
 			MSISDN: "0812222",
 		},
-		AvailableDrivers: map[int64]bool{
-			1111: true,
-		},
+		AvailableDriverID: 1111,
 	}
 	msgBytes, _ := json.Marshal(msg)
 

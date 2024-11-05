@@ -93,7 +93,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			RiderID:    rideData.RiderID,
 			Distance:   *rideData.Distance,
 			FinalPrice: customPrice,
-		}).Return(nil)
+		}).Return(nil).AnyTimes()
 
 		rideData, err := usecaseMock.DriverConfirmPayment(ctx, req)
 
@@ -230,7 +230,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
-	t.Run("failed - failed broadcast message", func(t *testing.T) {
+	t.Run("ignore - failed broadcast message", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 
 		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, driverID).Return(driverMSISDN, nil)
@@ -260,9 +260,9 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			RiderID:    rideData.RiderID,
 			Distance:   *rideData.Distance,
 			FinalPrice: customPrice,
-		}).Return(expectedErr)
+		}).Return(expectedErr).AnyTimes()
 
 		_, err := usecaseMock.DriverConfirmPayment(ctx, req)
-		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
+		assert.Nil(t, err)
 	})
 }

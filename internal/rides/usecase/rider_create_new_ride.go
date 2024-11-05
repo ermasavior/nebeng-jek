@@ -47,28 +47,25 @@ func (u *ridesUsecase) RiderCreateNewRide(ctx context.Context, req model.CreateN
 		return 0, pkgError.NewInternalServerError("error create new ride")
 	}
 
-	var mapDrivers = map[int64]bool{}
-	for _, d := range drivers {
-		mapDrivers[d] = true
-	}
-
-	msg := model.NewRideRequestMessage{
-		RideID:           rideID,
-		Rider:            riderData,
-		PickupLocation:   req.PickupLocation,
-		Destination:      req.Destination,
-		AvailableDrivers: mapDrivers,
-	}
-	err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideNewRequest, msg)
-
-	if err != nil {
-		logger.Error(ctx, "error broadcasting ride to drivers", map[string]interface{}{
-			"rider_id": riderID,
-			"msg":      msg,
-			"error":    err,
-		})
-		return 0, pkgError.NewInternalServerError("error broadcasting ride to drivers")
-	}
+	go func() {
+		msg := model.NewRideRequestMessage{
+			RideID:         rideID,
+			Rider:          riderData,
+			PickupLocation: req.PickupLocation,
+			Destination:    req.Destination,
+		}
+		for _, id := range drivers {
+			msg.AvailableDriverID = id
+			err = u.ridesPubSub.BroadcastMessage(ctx, constants.TopicRideNewRequest, msg)
+			if err != nil {
+				logger.Error(ctx, "error broadcasting ride to drivers", map[string]interface{}{
+					"rider_id": riderID,
+					"msg":      msg,
+					"error":    err,
+				})
+			}
+		}
+	}()
 
 	return rideID, nil
 }

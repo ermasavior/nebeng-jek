@@ -3,6 +3,7 @@ package handler_nats
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"nebeng-jek/internal/riders/model"
 	"nebeng-jek/pkg/logger"
 	pkg_ws "nebeng-jek/pkg/websocket"
@@ -13,13 +14,18 @@ import (
 func (h *natsHandler) broadcastToRider(ctx context.Context, riderID int64, msg model.RiderMessage) error {
 	conn, ok := h.connStorage.Load(riderID)
 	if !ok {
-		return nil
+		logger.Error(ctx, "rider id not found", map[string]interface{}{
+			"rider_id": riderID,
+		})
+		return errors.New("rider id is not found")
 	}
 
 	wsConn, ok := conn.(pkg_ws.WebsocketInterface)
 	if !ok {
-		logger.Error(ctx, "error loading rider connection websocket", nil)
-		return nil
+		logger.Error(ctx, "error loading rider connection websocket", map[string]interface{}{
+			"rider_id": riderID,
+		})
+		return errors.New("rider connection is invalid")
 	}
 
 	msgBytes, err := json.Marshal(msg)

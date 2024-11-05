@@ -35,8 +35,8 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 
 	natsHandler := handler_nats.NewHandler(connStorage)
 
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx), "rider_matched_driver")
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx), "rider_ride_started")
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideEnded, natsHandler.SubscribeRideEnded(ctx), "rider_ride_ended")
-	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRidePaid, natsHandler.SubscribeRidePaid(ctx), "rider_ride_paid")
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideMatchedDriver, natsHandler.SubscribeRideMatchedDriver(ctx))
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideStarted, natsHandler.SubscribeRideStarted(ctx))
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRideEnded, natsHandler.SubscribeRideEnded(ctx))
+	go nats_pkg.SubscribeMessage(reg.NatsJS, constants.TopicRidePaid, natsHandler.SubscribeRidePaid(ctx))
 }

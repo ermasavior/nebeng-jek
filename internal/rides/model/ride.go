@@ -79,11 +79,11 @@ type UpdateRideDataRequest struct {
 }
 
 type NewRideRequestMessage struct {
-	RideID           int64               `json:"ride_id"`
-	Rider            RiderData           `json:"rider"`
-	PickupLocation   location.Coordinate `json:"pickup_location"`
-	Destination      location.Coordinate `json:"destination"`
-	AvailableDrivers map[int64]bool      `json:"available_drivers"`
+	RideID            int64               `json:"ride_id"`
+	Rider             RiderData           `json:"rider"`
+	PickupLocation    location.Coordinate `json:"pickup_location"`
+	Destination       location.Coordinate `json:"destination"`
+	AvailableDriverID int64               `json:"available_driver_id"`
 }
 
 type RideMatchedDriverMessage struct {

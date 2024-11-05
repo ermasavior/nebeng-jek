@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/websocket"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_broadcastToDrivers(t *testing.T) {
@@ -32,10 +33,7 @@ func Test_broadcastToDrivers(t *testing.T) {
 		Latitude:  9,
 		Longitude: 10,
 	}
-	availableDrivers := map[int64]bool{
-		1111: true,
-		2222: true,
-	}
+	availableDriver := int64(1111)
 
 	data, _ := json.Marshal(model.NewRideRequestBroadcast{
 		RideID:         rideID,
@@ -46,9 +44,7 @@ func Test_broadcastToDrivers(t *testing.T) {
 
 	connStorage := &sync.Map{}
 	mockConn1 := mock_ws.NewMockWebsocketInterface(ctrl)
-	mockConn2 := mock_ws.NewMockWebsocketInterface(ctrl)
 	connStorage.Store(int64(1111), mockConn1)
-	connStorage.Store(int64(2222), mockConn2)
 
 	handler := NewHandler(connStorage, nil)
 
@@ -61,12 +57,12 @@ func Test_broadcastToDrivers(t *testing.T) {
 		msgBytes, _ := json.Marshal(broadcastMsg)
 
 		mockConn1.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
-		mockConn2.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 
-		handler.broadcastToDrivers(ctx, availableDrivers, broadcastMsg)
+		err := handler.broadcastToDriver(ctx, availableDriver, broadcastMsg)
+		assert.Nil(t, err)
 	})
 
-	t.Run("error - skip write message to websocket available drivers", func(t *testing.T) {
+	t.Run("error - returns error", func(t *testing.T) {
 		broadcastMsg := model.DriverMessage{
 			Event: model.EventNewRideRequest,
 			Data:  data,
@@ -75,8 +71,8 @@ func Test_broadcastToDrivers(t *testing.T) {
 		msgBytes, _ := json.Marshal(broadcastMsg)
 
 		mockConn1.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(errors.New("error"))
-		mockConn2.EXPECT().WriteMessage(websocket.TextMessage, msgBytes).Return(nil)
 
-		handler.broadcastToDrivers(ctx, availableDrivers, broadcastMsg)
+		err := handler.broadcastToDriver(ctx, availableDriver, broadcastMsg)
+		assert.Error(t, err)
 	})
 }

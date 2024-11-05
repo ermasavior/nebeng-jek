@@ -19,7 +19,7 @@ func TestPaymentRepository_DeductCredit(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	baseURL := "127.0.0.1:7171"
+	baseURL := "127.0.0.1:7271"
 
 	mockConfig := &configs.Config{
 		PaymentServiceURL:    "http://" + baseURL,
@@ -84,7 +84,7 @@ func TestPaymentRepository_AddCredit(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	baseURL := "127.0.0.1:7171"
+	baseURL := "127.0.0.1:7371"
 
 	mockConfig := &configs.Config{
 		PaymentServiceURL:    "http://" + baseURL,

@@ -30,7 +30,10 @@ func (h *natsHandler) SubscribeNewRideRequests(ctx context.Context) func(msg *na
 			Event: model.EventNewRideRequest,
 			Data:  dataMsg,
 		}
-		h.broadcastToDrivers(ctx, data.AvailableDrivers, broadcastMsg)
+		err = h.broadcastToDriver(ctx, data.AvailableDriverID, broadcastMsg)
+		if err != nil {
+			return
+		}
 		nats_pkg.AckMessage(ctx, msg)
 	}
 }
@@ -49,7 +52,10 @@ func (h *natsHandler) SubscribeReadyToPickupRides(ctx context.Context) func(msg 
 			Event: model.EventRideReadyToPickup,
 			Data:  msg.Data,
 		}
-		h.broadcastToDrivers(ctx, map[int64]bool{data.DriverID: true}, broadcastMsg)
+		err = h.broadcastToDriver(ctx, data.DriverID, broadcastMsg)
+		if err != nil {
+			return
+		}
 		nats_pkg.AckMessage(ctx, msg)
 	}
 }

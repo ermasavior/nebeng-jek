@@ -20,7 +20,7 @@ func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	baseURL := "127.0.0.1:7171"
+	baseURL := "127.0.0.1:7170"
 
 	mockConfig := &configs.Config{
 		LocationServiceURL:    "http://" + baseURL,
@@ -147,7 +147,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	baseURL := "127.0.0.1:7171"
+	baseURL := "127.0.0.1:7172"
 
 	mockConfig := &configs.Config{
 		LocationServiceURL:    "http://" + baseURL,
@@ -230,7 +230,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	baseURL := "127.0.0.1:7171"
+	baseURL := "127.0.0.1:7173"
 
 	mockConfig := &configs.Config{
 		LocationServiceURL:    "http://" + baseURL,
