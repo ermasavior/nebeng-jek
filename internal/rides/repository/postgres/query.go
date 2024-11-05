@@ -6,8 +6,12 @@ const (
 		WHERE id = $1
 	`
 	queryGetDriverDataByID = `
-		SELECT id, name, phone_number, vehicle_type, vehicle_plate FROM drivers
+		SELECT id, name, phone_number, vehicle_type, vehicle_plate, status FROM drivers
 		WHERE id = $1
+	`
+	queryUpdateDriverStatus = `
+		UPDATE drivers
+		SET status = $1, updated_at = NOW() WHERE id = $2 
 	`
 	queryGetRiderMSISDNByID = `
 		SELECT phone_number FROM riders
@@ -31,7 +35,7 @@ const (
 	`
 	queryUpdateRideData = `
 		UPDATE rides
-		SET %s
+		SET %s, updated_at = NOW()
 		WHERE %s 
 	`
 	queryInsertRideCommission = `

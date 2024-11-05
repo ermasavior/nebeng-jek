@@ -41,6 +41,18 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 	}
 	rideData.SetStatus(model.StatusNumRideStarted)
 
+	err = u.ridesRepo.UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+		DriverID: driverID,
+		Status:   model.StatusDriverOff,
+	})
+	if err != nil {
+		logger.Error(ctx, model.ErrMsgFailUpdateStatusDriver, map[string]interface{}{
+			"driver_id": driverID,
+			"error":     err,
+		})
+		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailUpdateStatusDriver)
+	}
+
 	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailRemoveAvailableDriver, map[string]interface{}{

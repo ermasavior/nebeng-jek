@@ -43,17 +43,17 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	group := reg.Router.Group("/drivers")
 	group.Use(mid.DriverAuthMiddleware)
 	{
-		group.PUT("/availability", httpHandler.DriverSetAvailability)
-		group.POST("/ride/confirm", httpHandler.DriverConfirmRide)
-		group.POST("/ride/start", httpHandler.DriverStartRide)
-		group.POST("/ride/end", httpHandler.DriverEndRide)
-		group.POST("/ride/confirm-payment", httpHandler.DriverConfirmPayment)
+		group.PATCH("/availability", httpHandler.DriverSetAvailability)
+		group.PATCH("/ride/confirm", httpHandler.DriverConfirmRide)
+		group.PATCH("/ride/start", httpHandler.DriverStartRide)
+		group.PATCH("/ride/end", httpHandler.DriverEndRide)
+		group.PATCH("/ride/confirm-payment", httpHandler.DriverConfirmPayment)
 	}
 
 	group = reg.Router.Group("/riders")
 	group.Use(mid.RiderAuthMiddleware)
 	{
 		group.POST("/ride/create", httpHandler.RiderCreateNewRide)
-		group.POST("/ride/confirm", httpHandler.RiderConfirmRide)
+		group.PATCH("/ride/confirm", httpHandler.RiderConfirmRide)
 	}
 }

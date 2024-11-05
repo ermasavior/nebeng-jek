@@ -3,10 +3,10 @@ package handler
 import (
 	"context"
 	handler_http "nebeng-jek/internal/location/handler/http"
-	"nebeng-jek/internal/location/handler/http/middleware"
 	handler_nats "nebeng-jek/internal/location/handler/nats"
 	"nebeng-jek/internal/location/usecase"
 	"nebeng-jek/internal/pkg/constants"
+	"nebeng-jek/internal/pkg/middleware"
 	nats_pkg "nebeng-jek/internal/pkg/nats"
 	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/messaging/nats"

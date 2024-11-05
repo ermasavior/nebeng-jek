@@ -16,6 +16,7 @@ type RidesLocationRepository interface {
 type RidesRepository interface {
 	GetRiderDataByID(ctx context.Context, riderID int64) (model.RiderData, error)
 	GetDriverDataByID(ctx context.Context, driverID int64) (model.DriverData, error)
+	UpdateDriverStatus(ctx context.Context, req model.UpdateDriverStatusRequest) error
 	GetRiderMSISDNByID(ctx context.Context, id int64) (string, error)
 	GetDriverMSISDNByID(ctx context.Context, id int64) (string, error)
 	GetRideData(ctx context.Context, id int64) (model.RideData, error)

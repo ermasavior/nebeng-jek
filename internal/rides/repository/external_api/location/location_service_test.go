@@ -50,7 +50,7 @@ func TestLocationRepository_AddAvailableDriver(t *testing.T) {
 	successRes, _ := json.Marshal(responseMock)
 	failedJson, _ := json.Marshal(failedResponseMock)
 
-	t.Run("success - request deduct credit return success", func(t *testing.T) {
+	t.Run("success - request add available driver return success", func(t *testing.T) {
 		handlerMock := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
@@ -112,7 +112,7 @@ func TestLocationRepository_RemoveAvailableDriver(t *testing.T) {
 	successRes, _ := json.Marshal(responseMock)
 	failedJson, _ := json.Marshal(failedResponseMock)
 
-	t.Run("success - request add credit return success", func(t *testing.T) {
+	t.Run("success - request remove available driver return success", func(t *testing.T) {
 		handlerMock := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
@@ -178,7 +178,7 @@ func TestLocationRepository_GetNearestAvailableDrivers(t *testing.T) {
 	successRes, _ := json.Marshal(responseMock)
 	failedJson, _ := json.Marshal(failedResponseMock)
 
-	t.Run("success - request add credit return success", func(t *testing.T) {
+	t.Run("success - request get nearest available driver return success", func(t *testing.T) {
 		handlerMock := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)
@@ -265,7 +265,7 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 	successRes, _ := json.Marshal(responseMock)
 	failedJson, _ := json.Marshal(failedResponseMock)
 
-	t.Run("success - request add credit return success", func(t *testing.T) {
+	t.Run("success - request get ride path return success", func(t *testing.T) {
 		handlerMock := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write(successRes)

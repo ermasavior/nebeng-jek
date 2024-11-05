@@ -6,7 +6,7 @@ CREATE TABLE drivers (
     phone_number VARCHAR(15) NOT NULL UNIQUE,
     vehicle_type INT,
     vehicle_plate VARCHAR(20) NOT NULL UNIQUE,
-    status INT,
+    status INT DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -16,7 +16,6 @@ CREATE TABLE riders (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     phone_number VARCHAR(15) NOT NULL UNIQUE,
-    status INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

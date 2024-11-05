@@ -8,12 +8,14 @@ const (
 	ErrMsgFailGetDriverData         = "error get driver data"
 	ErrMsgFailGetDriverMSISDN       = "error get driver msisdn"
 	ErrMsgFailGetRiderMSISDN        = "error get rider msisdn"
+	ErrMsgFailUpdateStatusDriver    = "error updating driver status"
 	ErrMsgFailProcessPayment        = "error processing payment"
 
 	ErrMsgInvalidRideStatus  = "invalid ride status"
 	ErrMsgInvalidFare        = "invalid fare, must not be empty"
 	ErrMsgInvalidDistance    = "invalid distance, must not be empty"
 	ErrMsgInvalidCustomPrice = "custom price must be lower than fare price"
+	ErrMsgDriverUnavailable  = "driver status is unavailable"
 
 	ErrMsgFailedHTTPRequest = "error request http to client"
 )
