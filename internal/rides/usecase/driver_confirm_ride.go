@@ -27,6 +27,10 @@ func (u *ridesUsecase) DriverConfirmRide(ctx context.Context, req model.DriverCo
 		return pkgError.NewInternalServerError(model.ErrMsgFailGetDriverData)
 	}
 
+	if driver.Status != model.StatusDriverAvailable {
+		return pkgError.NewForbiddenError(model.ErrMsgDriverUnavailable)
+	}
+
 	rideData, err := u.ridesRepo.GetRideData(ctx, req.RideID)
 	if err == constants.ErrorDataNotFound {
 		return pkgError.NewNotFoundError(pkgError.ErrResourceNotFoundMsg)

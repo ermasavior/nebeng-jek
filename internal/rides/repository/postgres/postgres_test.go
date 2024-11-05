@@ -93,6 +93,7 @@ func TestRepository_GetDriverDataByID(t *testing.T) {
 	expectedData := model.DriverData{
 		ID:             driverID,
 		Name:           "Agus",
+		Status:         model.StatusDriverAvailable,
 		MSISDN:         "0811111",
 		VehicleType:    "CAR",
 		VehicleTypeInt: 1,
@@ -104,8 +105,8 @@ func TestRepository_GetDriverDataByID(t *testing.T) {
 	t.Run("should execute get query", func(t *testing.T) {
 		sqlMock.ExpectQuery(expectedQuery).
 			WithArgs(driverID).
-			WillReturnRows(sqlmock.NewRows([]string{"id", "name", "phone_number", "vehicle_type", "vehicle_plate"}).
-				AddRow(expectedData.ID, expectedData.Name, expectedData.MSISDN, expectedData.VehicleTypeInt, expectedData.VehiclePlate),
+			WillReturnRows(sqlmock.NewRows([]string{"id", "name", "phone_number", "vehicle_type", "vehicle_plate", "status"}).
+				AddRow(expectedData.ID, expectedData.Name, expectedData.MSISDN, expectedData.VehicleTypeInt, expectedData.VehiclePlate, expectedData.Status),
 			)
 
 		actualData, err := repoMock.GetDriverDataByID(ctx, driverID)
@@ -134,6 +135,48 @@ func TestRepository_GetDriverDataByID(t *testing.T) {
 		id, err := repoMock.GetDriverDataByID(ctx, driverID)
 
 		assert.Equal(t, model.DriverData{}, id)
+		assert.NotNil(t, err)
+	})
+}
+
+func TestRepository_UpdateDriverStatus(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	db, sqlMock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		panic("failed mocking sql")
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+	repoMock := NewRepository(sqlx.NewDb(db, "sqlmock"))
+
+	ctx := context.Background()
+	req := model.UpdateDriverStatusRequest{
+		DriverID: 1111,
+		Status:   model.StatusDriverAvailable,
+	}
+	expectedQuery := queryUpdateDriverStatus
+
+	t.Run("should execute update query", func(t *testing.T) {
+		sqlMock.ExpectExec(expectedQuery).
+			WithArgs(req.Status, req.DriverID).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		err := repoMock.UpdateDriverStatus(ctx, req)
+
+		assert.Nil(t, err)
+	})
+
+	t.Run("should return error when error from db", func(t *testing.T) {
+		rowErr := errors.New("error from db")
+		sqlMock.ExpectExec(expectedQuery).
+			WithArgs(req.Status, req.DriverID).
+			WillReturnError(rowErr)
+
+		err := repoMock.UpdateDriverStatus(ctx, req)
+
 		assert.NotNil(t, err)
 	})
 }
@@ -408,7 +451,7 @@ func TestRepository_UpdateRideData(t *testing.T) {
 
 		expectedQuery := `
 			UPDATE rides
-			SET status = $1, driver_id = $2
+			SET status = $1, driver_id = $2, updated_at = NOW()
 			WHERE id = $3
 		`
 		sqlMock.ExpectExec(expectedQuery).
@@ -430,7 +473,7 @@ func TestRepository_UpdateRideData(t *testing.T) {
 
 		expectedQuery := `
 			UPDATE rides
-			SET status = $1, distance = $2, fare = $3, final_price = $4
+			SET status = $1, distance = $2, fare = $3, final_price = $4, updated_at = NOW()
 			WHERE id = $5
 		`
 		sqlMock.ExpectExec(expectedQuery).
@@ -452,7 +495,7 @@ func TestRepository_UpdateRideData(t *testing.T) {
 
 		expectedQuery := `
 			UPDATE rides
-			SET status = $1, distance = $2, fare = $3, final_price = $4
+			SET status = $1, distance = $2, fare = $3, final_price = $4, updated_at = NOW()
 			WHERE id = $5
 		`
 		sqlMock.ExpectExec(expectedQuery).

@@ -221,6 +221,20 @@ func (mr *MockRidesRepositoryMockRecorder) StoreRideCommission(ctx, req interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreRideCommission", reflect.TypeOf((*MockRidesRepository)(nil).StoreRideCommission), ctx, req)
 }
 
+// UpdateDriverStatus mocks base method.
+func (m *MockRidesRepository) UpdateDriverStatus(ctx context.Context, req model.UpdateDriverStatusRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDriverStatus", ctx, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDriverStatus indicates an expected call of UpdateDriverStatus.
+func (mr *MockRidesRepositoryMockRecorder) UpdateDriverStatus(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDriverStatus", reflect.TypeOf((*MockRidesRepository)(nil).UpdateDriverStatus), ctx, req)
+}
+
 // UpdateRideData mocks base method.
 func (m *MockRidesRepository) UpdateRideData(ctx context.Context, req model.UpdateRideDataRequest) error {
 	m.ctrl.T.Helper()

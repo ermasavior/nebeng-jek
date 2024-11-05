@@ -17,7 +17,10 @@ func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.Driv
 		return pkgError.NewUnauthorizedError("invalid driver id")
 	}
 
+	var status int
+
 	if req.IsAvailable {
+		status = model.StatusDriverAvailable
 		err := u.locationRepo.AddAvailableDriver(ctx, driverID, req.CurrentLocation)
 		if err != nil {
 			logger.Error(ctx, "error adding available driver", map[string]interface{}{
@@ -26,16 +29,28 @@ func (u *ridesUsecase) DriverSetAvailability(ctx context.Context, req model.Driv
 			})
 			return pkgError.NewInternalServerError("error adding available driver")
 		}
-		return nil
+	} else {
+		status = model.StatusDriverOff
+		err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
+		if err != nil {
+			logger.Error(ctx, model.ErrMsgFailRemoveAvailableDriver, map[string]interface{}{
+				"driver_id": driverID,
+				"error":     err,
+			})
+			return pkgError.NewInternalServerError(model.ErrMsgFailRemoveAvailableDriver)
+		}
 	}
 
-	err = u.locationRepo.RemoveAvailableDriver(ctx, driverID)
+	err = u.ridesRepo.UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+		DriverID: driverID,
+		Status:   status,
+	})
 	if err != nil {
-		logger.Error(ctx, model.ErrMsgFailRemoveAvailableDriver, map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailUpdateStatusDriver, map[string]interface{}{
 			"driver_id": driverID,
 			"error":     err,
 		})
-		return pkgError.NewInternalServerError(model.ErrMsgFailRemoveAvailableDriver)
+		return pkgError.NewInternalServerError(model.ErrMsgFailUpdateStatusDriver)
 	}
 
 	return nil

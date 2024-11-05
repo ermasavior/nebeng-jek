@@ -58,10 +58,7 @@ func TestHandler_DriverSetAvailability(t *testing.T) {
 
 	t.Run("failed - returns 400 status code when invalid body params", func(t *testing.T) {
 		reqBody := model.DriverSetAvailabilityRequest{
-			CurrentLocation: pkgLocation.Coordinate{
-				Longitude: 11,
-				Latitude:  11,
-			},
+			IsAvailable: true,
 		}
 		reqBytes, _ := json.Marshal(reqBody)
 

@@ -9,7 +9,7 @@ type CreateNewRideRequest struct {
 }
 
 type DriverSetAvailabilityRequest struct {
-	IsAvailable     bool                   `json:"is_available" binding:"required"`
+	IsAvailable     bool                   `json:"is_available"`
 	CurrentLocation pkgLocation.Coordinate `json:"current_location" binding:"required"`
 }
 
@@ -29,24 +29,6 @@ type DriverStartRideRequest struct {
 
 type DriverEndRideRequest struct {
 	RideID int64 `json:"ride_id" binding:"required"`
-}
-
-type UpdateRideByDriverRequest struct {
-	DriverID   int64
-	RideID     int64
-	Distance   float64
-	Fare       float64
-	FinalPrice float64
-	Status     int
-}
-
-type UpdateRideDataRequest struct {
-	RideID     int64
-	DriverID   int64
-	Distance   *float64
-	Fare       *float64
-	FinalPrice *float64
-	Status     int
 }
 
 type DriverConfirmPaymentRequest struct {

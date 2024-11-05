@@ -55,6 +55,10 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 			RideID: req.RideID,
 			Status: model.StatusNumRideStarted,
 		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID,
+			Status:   model.StatusDriverOff,
+		}).Return(nil)
 
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverID).Return(nil)
 
@@ -106,12 +110,33 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		assert.Equal(t, model.RideData{}, res)
 	})
 
+	t.Run("failed - update status driver returns error", func(t *testing.T) {
+		expectedErr := errors.New("error from repo")
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
+			RideID: req.RideID,
+			Status: model.StatusNumRideStarted,
+		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID,
+			Status:   model.StatusDriverOff,
+		}).Return(expectedErr)
+
+		res, err := usecaseMock.DriverStartRide(ctx, req)
+		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
+		assert.Equal(t, model.RideData{}, res)
+	})
+
 	t.Run("failed - remove available driver returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID: req.RideID,
 			Status: model.StatusNumRideStarted,
+		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID,
+			Status:   model.StatusDriverOff,
 		}).Return(nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverID).Return(expectedErr)
 
@@ -126,6 +151,10 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
 			RideID: req.RideID,
 			Status: model.StatusNumRideStarted,
+		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID,
+			Status:   model.StatusDriverOff,
 		}).Return(nil)
 		locationRepoMock.EXPECT().RemoveAvailableDriver(ctx, driverID).Return(nil)
 

@@ -33,6 +33,7 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 			MSISDN:       "0811111",
 			VehicleType:  "CAR",
 			VehiclePlate: "B11111A",
+			Status:       model.StatusDriverAvailable,
 		}
 		rideData = model.RideData{
 			RideID:    111,
@@ -82,6 +83,15 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 			IsAccept: false,
 		})
 		assert.Nil(t, err)
+	})
+
+	t.Run("failed - driver is not available", func(t *testing.T) {
+		driverDataUnavail := driverData
+		driverDataUnavail.Status = model.StatusDriverOff
+		ridesRepoMock.EXPECT().GetDriverDataByID(ctx, driverID).Return(driverDataUnavail, nil)
+
+		err := usecaseMock.DriverConfirmRide(ctx, req)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
 	})
 
 	t.Run("failed - get driver data returns error", func(t *testing.T) {

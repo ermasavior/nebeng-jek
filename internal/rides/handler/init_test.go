@@ -34,28 +34,28 @@ func TestRegisterHandler(t *testing.T) {
 	RegisterHandler(context.Background(), reg)
 
 	expectedRoutes := map[string]gin.RouteInfo{
-		"PUT:/drivers/availability": {
-			Method:  "PUT",
+		"PATCH:/drivers/availability": {
+			Method:  "PATCH",
 			Path:    "/drivers/availability",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverSetAvailability-fm",
 		},
-		"POST:/drivers/ride/confirm": {
-			Method:  "POST",
+		"PATCH:/drivers/ride/confirm": {
+			Method:  "PATCH",
 			Path:    "/drivers/ride/confirm",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmRide-fm",
 		},
-		"POST:/drivers/ride/start": {
-			Method:  "POST",
+		"PATCH:/drivers/ride/start": {
+			Method:  "PATCH",
 			Path:    "/drivers/ride/start",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverStartRide-fm",
 		},
-		"POST:/drivers/ride/end": {
-			Method:  "POST",
+		"PATCH:/drivers/ride/end": {
+			Method:  "PATCH",
 			Path:    "/drivers/ride/end",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverEndRide-fm",
 		},
-		"POST:/drivers/ride/confirm-payment": {
-			Method:  "POST",
+		"PATCH:/drivers/ride/confirm-payment": {
+			Method:  "PATCH",
 			Path:    "/drivers/ride/confirm-payment",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).DriverConfirmPayment-fm",
 		},
@@ -64,8 +64,8 @@ func TestRegisterHandler(t *testing.T) {
 			Path:    "/riders/ride/create",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).RiderCreateNewRide-fm",
 		},
-		"POST:/riders/ride/confirm": {
-			Method:  "POST",
+		"PATCH:/riders/ride/confirm": {
+			Method:  "PATCH",
 			Path:    "/riders/ride/confirm",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).RiderConfirmRide-fm",
 		},

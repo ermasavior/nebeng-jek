@@ -44,6 +44,9 @@ func TestUsecase_DriverSetAvailability(t *testing.T) {
 		req.IsAvailable = true
 		repoLocMock.EXPECT().AddAvailableDriver(ctx, driverID, req.CurrentLocation).
 			Return(nil)
+		repoRidesMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID, Status: model.StatusDriverAvailable,
+		}).Return(nil)
 
 		err := usecaseMock.DriverSetAvailability(ctx, req)
 		assert.Nil(t, err)
@@ -55,6 +58,9 @@ func TestUsecase_DriverSetAvailability(t *testing.T) {
 		req.IsAvailable = false
 		repoLocMock.EXPECT().RemoveAvailableDriver(ctx, driverID).
 			Return(nil)
+		repoRidesMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID, Status: model.StatusDriverOff,
+		}).Return(nil)
 
 		err := usecaseMock.DriverSetAvailability(ctx, req)
 		assert.Nil(t, err)
@@ -88,6 +94,22 @@ func TestUsecase_DriverSetAvailability(t *testing.T) {
 
 		repoLocMock.EXPECT().RemoveAvailableDriver(ctx, driverID).
 			Return(expectedErr)
+
+		err := usecaseMock.DriverSetAvailability(ctx, req)
+		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)
+	})
+
+	t.Run("failed - should return error when update driver status failed", func(t *testing.T) {
+		repoRidesMock.EXPECT().GetDriverMSISDNByID(ctx, driverID).Return(driverMSISDN, nil)
+
+		req.IsAvailable = true
+		expectedErr := errors.New("error from repo")
+
+		repoLocMock.EXPECT().AddAvailableDriver(ctx, driverID, req.CurrentLocation).
+			Return(nil)
+		repoRidesMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
+			DriverID: driverID, Status: model.StatusDriverAvailable,
+		}).Return(expectedErr)
 
 		err := usecaseMock.DriverSetAvailability(ctx, req)
 		assert.Equal(t, err.GetCode(), pkgError.ErrInternalErrorCode)

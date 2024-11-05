@@ -69,6 +69,15 @@ type StoreRideCommissionRequest struct {
 	Commission float64
 }
 
+type UpdateRideDataRequest struct {
+	RideID     int64
+	DriverID   int64
+	Distance   *float64
+	Fare       *float64
+	FinalPrice *float64
+	Status     int
+}
+
 type NewRideRequestMessage struct {
 	RideID           int64               `json:"ride_id"`
 	Rider            RiderData           `json:"rider"`

@@ -71,6 +71,14 @@ func (r *ridesRepo) GetDriverMSISDNByID(ctx context.Context, id int64) (string, 
 	return msisdn, nil
 }
 
+func (r *ridesRepo) UpdateDriverStatus(ctx context.Context, req model.UpdateDriverStatusRequest) error {
+	_, err := r.db.ExecContext(ctx, queryUpdateDriverStatus, req.Status, req.DriverID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ridesRepo) CreateNewRide(ctx context.Context, req model.CreateNewRideRequest) (int64, error) {
 	var id int64
 	values := []interface{}{
