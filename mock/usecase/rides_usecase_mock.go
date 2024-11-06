@@ -109,6 +109,21 @@ func (mr *MockRidesUsecaseMockRecorder) DriverStartRide(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DriverStartRide", reflect.TypeOf((*MockRidesUsecase)(nil).DriverStartRide), arg0, arg1)
 }
 
+// GetRideData mocks base method.
+func (m *MockRidesUsecase) GetRideData(arg0 context.Context, arg1 int64) (model.RideData, error.AppError) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRideData", arg0, arg1)
+	ret0, _ := ret[0].(model.RideData)
+	ret1, _ := ret[1].(error.AppError)
+	return ret0, ret1
+}
+
+// GetRideData indicates an expected call of GetRideData.
+func (mr *MockRidesUsecaseMockRecorder) GetRideData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRideData", reflect.TypeOf((*MockRidesUsecase)(nil).GetRideData), arg0, arg1)
+}
+
 // RiderConfirmRide mocks base method.
 func (m *MockRidesUsecase) RiderConfirmRide(arg0 context.Context, arg1 model.RiderConfirmRideRequest) (model.RideData, error.AppError) {
 	m.ctrl.T.Helper()

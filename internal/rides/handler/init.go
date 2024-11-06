@@ -54,6 +54,7 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	group.Use(mid.RiderAuthMiddleware)
 	{
 		group.POST("/ride/create", httpHandler.RiderCreateNewRide)
+		group.GET("/ride/:ride_id", httpHandler.GetRideData)
 		group.PATCH("/ride/confirm", httpHandler.RiderConfirmRide)
 	}
 }

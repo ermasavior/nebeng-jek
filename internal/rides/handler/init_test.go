@@ -69,6 +69,11 @@ func TestRegisterHandler(t *testing.T) {
 			Path:    "/riders/ride/confirm",
 			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).RiderConfirmRide-fm",
 		},
+		"GET:/riders/ride/:ride_id": {
+			Method:  "GET",
+			Path:    "/riders/ride/:ride_id",
+			Handler: "nebeng-jek/internal/rides/handler/http.(*httpHandler).GetRideData-fm",
+		},
 	}
 
 	for _, r := range router.Routes() {

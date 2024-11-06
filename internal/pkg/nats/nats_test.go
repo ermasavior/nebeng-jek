@@ -53,7 +53,7 @@ func TestSubscribeMessage(t *testing.T) {
 
 	t.Run("failed - subscribe message failed", func(t *testing.T) {
 		expectedErr := errors.New("error from nats")
-		natsJS.EXPECT().Subscribe(topic, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, expectedErr)
+		natsJS.EXPECT().Subscribe(topic, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, expectedErr)
 
 		SubscribeMessage(natsJS, topic, msgHandler)
 	})
