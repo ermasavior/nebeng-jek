@@ -28,3 +28,13 @@
     make docker-build-rides
     make docker-run-rides
     ```
+
+## Load Test
+
+For load testing, we use `k6`.
+The load test target is PATCH set driver availability endpoint. The test scenario spawned 50-250 concurrent users that run gradually on stages.
+
+To run the load test:
+```sh
+cd loadtest && k6 run load_stages.js 
+```
