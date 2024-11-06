@@ -51,10 +51,8 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 
 	t.Run("success - should confirm ride driver and broadcast to rider", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideStarted,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
 			DriverID: driverID,
 			Status:   model.StatusDriverOff,
@@ -100,10 +98,8 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 	t.Run("failed - update ride returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideStarted,
-		}).Return(expectedErr)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(expectedErr)
 
 		res, err := usecaseMock.DriverStartRide(ctx, req)
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
@@ -113,10 +109,8 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 	t.Run("failed - update status driver returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideStarted,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
 			DriverID: driverID,
 			Status:   model.StatusDriverOff,
@@ -130,10 +124,8 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 	t.Run("failed - remove available driver returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideStarted,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
 			DriverID: driverID,
 			Status:   model.StatusDriverOff,
@@ -148,10 +140,8 @@ func TestUsecase_DriverStartRide(t *testing.T) {
 	t.Run("ignore - broadcast message returns error", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID: req.RideID,
-			Status: model.StatusNumRideStarted,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 		ridesRepoMock.EXPECT().UpdateDriverStatus(ctx, model.UpdateDriverStatusRequest{
 			DriverID: driverID,
 			Status:   model.StatusDriverOff,

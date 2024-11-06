@@ -29,7 +29,8 @@ const (
 	queryGetRideData = `
 		SELECT id, rider_id, driver_id, status, distance, fare,
 			   pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
-			   destination[0] AS "destination.latitude", destination[1] AS "destination.longitude"
+			   destination[0] AS "destination.latitude", destination[1] AS "destination.longitude",
+			   start_time, end_time
 		FROM rides
 		WHERE id = $1
 	`

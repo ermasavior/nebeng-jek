@@ -141,6 +141,16 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 		params = append(params, *req.FinalPrice)
 		querySet = append(querySet, fmt.Sprintf("final_price = $%d", paramNum))
 	}
+	if req.StartTime != nil {
+		paramNum += 1
+		params = append(params, *req.StartTime)
+		querySet = append(querySet, fmt.Sprintf("start_time = $%d", paramNum))
+	}
+	if req.EndTime != nil {
+		paramNum += 1
+		params = append(params, *req.EndTime)
+		querySet = append(querySet, fmt.Sprintf("end_time = $%d", paramNum))
+	}
 
 	paramNum += 1
 	queryWhere = fmt.Sprintf("id = $%d", paramNum)

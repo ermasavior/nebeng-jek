@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"nebeng-jek/internal/pkg/location"
+	"time"
 )
 
 type CreateNewRideResponse struct {
@@ -19,6 +20,8 @@ type RideDataResponse struct {
 	Fare           string              `json:"fare,omitempty"`
 	FinalPrice     string              `json:"final_price,omitempty"`
 	Status         string              `json:"status"`
+	StartTime      string              `json:"start_time,omitempty"`
+	EndTime        string              `json:"end_time,omitempty"`
 }
 
 func (r RideData) ToResponse() RideDataResponse {
@@ -38,6 +41,14 @@ func (r RideData) ToResponse() RideDataResponse {
 	if r.FinalPrice != nil {
 		finalPrice = fmt.Sprintf("%.2f", *r.FinalPrice)
 	}
+	var startTime string
+	if r.StartTime != nil {
+		startTime = r.StartTime.Format(time.RFC3339)
+	}
+	var endTime string
+	if r.EndTime != nil {
+		endTime = r.EndTime.Format(time.RFC3339)
+	}
 
 	return RideDataResponse{
 		RideID:         r.RideID,
@@ -49,5 +60,7 @@ func (r RideData) ToResponse() RideDataResponse {
 		Fare:           fare,
 		FinalPrice:     finalPrice,
 		Status:         mapStatusRide[r.StatusNum],
+		StartTime:      startTime,
+		EndTime:        endTime,
 	}
 }

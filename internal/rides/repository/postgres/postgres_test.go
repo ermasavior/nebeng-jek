@@ -8,6 +8,7 @@ import (
 	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/mock/gomock"
@@ -478,6 +479,27 @@ func TestRepository_UpdateRideData(t *testing.T) {
 		`
 		sqlMock.ExpectExec(expectedQuery).
 			WithArgs(req.Status, distance, fare, finalPrice, req.RideID).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		err := repoMock.UpdateRideData(ctx, req)
+		assert.Nil(t, err)
+	})
+
+	t.Run("should execute update returning query - update start & end time", func(t *testing.T) {
+		currTime := time.Now()
+		req := model.UpdateRideDataRequest{
+			RideID:    777,
+			StartTime: &currTime,
+			EndTime:   &currTime,
+		}
+
+		expectedQuery := `
+			UPDATE rides
+			SET start_time = $1, end_time = $2, updated_at = NOW()
+			WHERE id = $3
+		`
+		sqlMock.ExpectExec(expectedQuery).
+			WithArgs(currTime, currTime, req.RideID).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		err := repoMock.UpdateRideData(ctx, req)

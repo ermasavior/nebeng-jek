@@ -31,6 +31,8 @@ CREATE TABLE rides (
     distance DECIMAL(6, 2),
     fare DECIMAL(10, 2),
     final_price DECIMAL(10, 2),
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -9,6 +9,7 @@ import (
 	pkgError "nebeng-jek/pkg/error"
 	"nebeng-jek/pkg/haversine"
 	"nebeng-jek/pkg/logger"
+	"time"
 )
 
 func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRideRequest) (model.RideData, pkgError.AppError) {
@@ -42,11 +43,13 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 	distance := calculateTotalDistance(ridePath)
 	fare := calculateRideFare(distance)
 
+	now := time.Now()
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
 		RideID:   req.RideID,
 		Status:   model.StatusNumRideEnded,
 		Distance: &distance,
 		Fare:     &fare,
+		EndTime:  &now,
 	})
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{

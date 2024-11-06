@@ -3,6 +3,7 @@ package model
 import (
 	"nebeng-jek/internal/pkg/location"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,6 +13,7 @@ func TestRideData_ToResponse(t *testing.T) {
 	distance := float64(10)
 	fare := float64(10000)
 	finalPrice := float64(9000)
+	timeMock := time.Now()
 
 	r := RideData{
 		RideID:   111,
@@ -30,6 +32,8 @@ func TestRideData_ToResponse(t *testing.T) {
 		FinalPrice: &finalPrice,
 		StatusNum:  StatusNumRideCancelled,
 		Status:     StatusRideCancelled,
+		StartTime:  &timeMock,
+		EndTime:    &timeMock,
 	}
 	expected := RideDataResponse{
 		RideID:   111,
@@ -47,6 +51,8 @@ func TestRideData_ToResponse(t *testing.T) {
 		Fare:       "10000.00",
 		FinalPrice: "9000.00",
 		Status:     StatusRideCancelled,
+		StartTime:  timeMock.Format(time.RFC3339),
+		EndTime:    timeMock.Format(time.RFC3339),
 	}
 
 	t.Run("get driver path key", func(t *testing.T) {

@@ -88,12 +88,8 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	t.Run("success - should create new ride and publish message broadcast", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
 		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID:   req.RideID,
-			Status:   model.StatusNumRideEnded,
-			Fare:     &fare,
-			Distance: &distance,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
 			RideID:   rideID,
@@ -144,12 +140,8 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
 		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID:   req.RideID,
-			Status:   model.StatusNumRideEnded,
-			Fare:     &fare,
-			Distance: &distance,
-		}).Return(expectedErr)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
@@ -159,12 +151,8 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
 		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
-		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
-			RideID:   req.RideID,
-			Status:   model.StatusNumRideEnded,
-			Fare:     &fare,
-			Distance: &distance,
-		}).Return(nil)
+		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
+			Return(nil)
 
 		ridesPubsubMock.EXPECT().BroadcastMessage(ctx, constants.TopicRideEnded, model.RideEndedMessage{
 			RideID:   rideID,

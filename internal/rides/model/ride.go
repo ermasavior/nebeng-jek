@@ -1,6 +1,9 @@
 package model
 
-import "nebeng-jek/internal/pkg/location"
+import (
+	"nebeng-jek/internal/pkg/location"
+	"time"
+)
 
 const (
 	StatusNumRideNewRequest    = 1
@@ -45,6 +48,8 @@ type RideData struct {
 	Fare           *float64            `db:"fare" json:"fare"`
 	FinalPrice     *float64            `db:"final_price" json:"final_price"`
 	StatusNum      int                 `db:"status" json:"-"`
+	StartTime      *time.Time          `db:"start_time,omitempty"`
+	EndTime        *time.Time          `db:"end_time,omitempty"`
 	Status         string              `json:"status"`
 }
 
@@ -76,6 +81,8 @@ type UpdateRideDataRequest struct {
 	Fare       *float64
 	FinalPrice *float64
 	Status     int
+	StartTime  *time.Time
+	EndTime    *time.Time
 }
 
 type NewRideRequestMessage struct {

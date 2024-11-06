@@ -7,6 +7,7 @@ import (
 	"nebeng-jek/internal/rides/model"
 	pkgError "nebeng-jek/pkg/error"
 	"nebeng-jek/pkg/logger"
+	"time"
 )
 
 func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStartRideRequest) (model.RideData, pkgError.AppError) {
@@ -28,9 +29,11 @@ func (u *ridesUsecase) DriverStartRide(ctx context.Context, req model.DriverStar
 		return model.RideData{}, err
 	}
 
+	now := time.Now()
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
-		RideID: req.RideID,
-		Status: model.StatusNumRideStarted,
+		RideID:    req.RideID,
+		Status:    model.StatusNumRideStarted,
+		StartTime: &now,
 	})
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
