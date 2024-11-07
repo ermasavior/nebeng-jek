@@ -1,0 +1,26 @@
+@startuml Ride Started Flow
+
+actor Rider
+actor Driver
+
+== End Ride ==
+Driver->Rides: Stop ride
+Rides->RidesDB: Update ride to RIDE_ENDED
+Rides->Riders: Publish ride update
+Riders-->Rider: Notify rider
+
+== Ride Payment Confirmation ==
+Driver->Rides: Confirm payment
+note left of Rides
+with custom price
+(optional)
+end note
+Rides->Rides: Calculate commission (5%)
+Rides->Payment: Deduct rider's credit
+Rides->Payment: Add rider's credit
+Rides->RidesDB: Store ride commission
+Rides->RidesDB: Update ride to RIDE_PAID
+Rides->Riders: Publish ride update
+Riders-->Rider: Notify rider
+
+@enduml
