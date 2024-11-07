@@ -1,0 +1,26 @@
+@startuml Driver-Rider Matching Flow
+
+actor Rider
+actor Driver
+
+alt Driver accepted the request 
+Driver->Rides: Accept request
+Rides->RidesDB: Update ride to MATCHED_DRIVER
+Rides-->Riders: Publish update to rider
+Riders->Rider: Notify rider
+
+alt Rider accepted the match
+Rider->Rides: Accept match
+Rides->RidesDB: Update ride to WAITING_FOR_PICKUP
+Rides->RidesDB: Set driver as inactive
+Rides->Location: Remove driver's current location
+Location->LocationDB: Delete driver's location
+Rides->Riders: Publish update to rider
+Riders-->Rider: Notify rider to wait for pickup
+else Rider rejected the match
+Rider->Rides: Reject match
+Rides->RidesDB: Update ride to CANCELLED
+end
+end
+
+@enduml

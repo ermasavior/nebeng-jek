@@ -1,0 +1,21 @@
+@startuml Ride Started Flow
+
+actor Rider
+actor Driver
+
+== Start Ride ==
+Driver->Rides: Start ride request
+Rides->RidesDB: Update ride to RIDE_STARTED
+Rides->Riders: Publish ride update
+Riders-->Rider: Notify rider
+
+== Ride Live Tracking ==
+Driver->Drivers: Send current location
+Drivers->Location: Track driver location
+Location->LocationDB: Store driver location
+
+Rider->Riders: Send current location
+Riders->Location: Track rider location
+Location->LocationDB: Store rider location
+
+@enduml
