@@ -13,8 +13,12 @@ const (
 	NearestRadius     = 1
 	NearestRadiusUnit = "km"
 
+	ProximityThreshold = 0.1
+
 	// longitude:latitude:timestamp
 	coordinateFormat = "%.8f:%.8f:%d"
+
+	EventRealTimeLocation = "real_time_location"
 )
 
 type Coordinate struct {
@@ -48,4 +52,12 @@ func ParseCoordinate(coordinateStr string) (Coordinate, error) {
 	}
 
 	return coor, nil
+}
+
+type TrackUserLocationMessage struct {
+	RideID    int64      `json:"ride_id"`
+	UserID    int64      `json:"user_id"`
+	Timestamp int64      `json:"timestamp"`
+	Location  Coordinate `json:"location"`
+	IsDriver  bool       `json:"is_driver"`
 }

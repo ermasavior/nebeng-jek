@@ -66,18 +66,18 @@ func (mr *MockLocationUsecaseMockRecorder) GetNearestAvailableDrivers(ctx, locat
 }
 
 // GetRidePath mocks base method.
-func (m *MockLocationUsecase) GetRidePath(ctx context.Context, rideID, driverID int64) ([]location.Coordinate, error) {
+func (m *MockLocationUsecase) GetRidePath(ctx context.Context, req model.GetRidePathRequest) (model.GetRidePathResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRidePath", ctx, rideID, driverID)
-	ret0, _ := ret[0].([]location.Coordinate)
+	ret := m.ctrl.Call(m, "GetRidePath", ctx, req)
+	ret0, _ := ret[0].(model.GetRidePathResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRidePath indicates an expected call of GetRidePath.
-func (mr *MockLocationUsecaseMockRecorder) GetRidePath(ctx, rideID, driverID interface{}) *gomock.Call {
+func (mr *MockLocationUsecaseMockRecorder) GetRidePath(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRidePath", reflect.TypeOf((*MockLocationUsecase)(nil).GetRidePath), ctx, rideID, driverID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRidePath", reflect.TypeOf((*MockLocationUsecase)(nil).GetRidePath), ctx, req)
 }
 
 // RemoveAvailableDriver mocks base method.

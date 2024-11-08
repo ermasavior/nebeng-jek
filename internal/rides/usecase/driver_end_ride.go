@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
 	pkgLocation "nebeng-jek/internal/pkg/location"
@@ -27,11 +29,11 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		return model.RideData{}, pkgError.NewInternalServerError(model.ErrMsgFailGetRideData)
 	}
 
-	if err := model.ValidateEndRide(rideData, driverID); err != nil {
-		return model.RideData{}, err
-	}
-
-	ridePath, err := u.locationRepo.GetRidePath(ctx, req.RideID, driverID)
+	ridePath, err := u.locationRepo.GetRidePath(ctx, model.GetRidePathRequest{
+		RideID:   rideData.RideID,
+		RiderID:  rideData.RiderID,
+		DriverID: driverID,
+	})
 	if err != nil {
 		logger.Error(ctx, "error get distance traversed", map[string]interface{}{
 			"driver_id": driverID,
@@ -40,7 +42,11 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		return model.RideData{}, pkgError.NewInternalServerError("error get distance traversed")
 	}
 
-	distance := calculateTotalDistance(ridePath)
+	if err := model.ValidateEndRide(rideData, driverID, ridePath); err != nil {
+		return model.RideData{}, err
+	}
+
+	distance := calculateTotalDistance(ridePath.DriverPath)
 	fare := calculateRideFare(distance)
 
 	now := time.Now()
@@ -51,6 +57,7 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		Fare:     &fare,
 		EndTime:  &now,
 	})
+	fmt.Println("cek", distance, ridePath)
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
 			"driver_id": driverID,
@@ -96,5 +103,5 @@ func calculateTotalDistance(path []pkgLocation.Coordinate) float64 {
 }
 
 func calculateRideFare(distance float64) float64 {
-	return distance * model.RidePricePerKm
+	return math.Ceil(distance) * model.RidePricePerKm
 }

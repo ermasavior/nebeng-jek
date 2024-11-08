@@ -3,10 +3,10 @@ package usecase
 import (
 	"context"
 	"errors"
-	"nebeng-jek/internal/drivers/model"
 	"nebeng-jek/internal/pkg/constants"
 	pkg_context "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/pkg/location"
+	"nebeng-jek/internal/riders/model"
 	mockRepo "nebeng-jek/mock/repository"
 	"testing"
 	"time"
@@ -20,9 +20,9 @@ func TestUsecase_TrackUserLocation(t *testing.T) {
 	defer ctrl.Finish()
 
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
-	usecaseMock := NewDriverUsecase(ridesPubsubMock)
+	usecaseMock := NewRiderUsecase(ridesPubsubMock)
 
-	ctx := pkg_context.SetDriverIDToContext(context.Background(), 1111)
+	ctx := pkg_context.SetRiderIDToContext(context.Background(), 1111)
 	req := model.TrackUserLocationRequest{
 		RideID:    1,
 		Timestamp: time.Now().Unix(),
@@ -39,7 +39,7 @@ func TestUsecase_TrackUserLocation(t *testing.T) {
 			Latitude:  11,
 			Longitude: 2,
 		},
-		IsDriver: true,
+		IsDriver: false,
 	}
 
 	t.Run("success - broadcast track user location", func(t *testing.T) {

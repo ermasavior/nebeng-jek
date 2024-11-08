@@ -7,5 +7,6 @@ type GetNearestAvailableDriversResponse struct {
 }
 
 type GetRidePathResponse struct {
-	Path []location.Coordinate `json:"path"`
+	DriverPath []location.Coordinate `json:"driver_path"`
+	RiderPath  []location.Coordinate `json:"rider_path"`
 }

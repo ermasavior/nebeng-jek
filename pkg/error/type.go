@@ -13,6 +13,7 @@ const (
 	ErrUnauthorizedCode
 	ErrResourceNotFoundCode
 	ErrForbiddenCode
+	ErrResourceUnprocessableCode
 )
 
 type AppError interface {

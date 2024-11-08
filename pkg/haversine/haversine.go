@@ -8,7 +8,7 @@ func toRadians(degrees float64) float64 {
 	return degrees * math.Pi / 180
 }
 
-// Function to calculate the distance between two coordinates
+// Function to calculate the distance between two coordinates in km
 func CalculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	const R = 6371 // Radius of the Earth in km
 

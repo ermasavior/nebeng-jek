@@ -21,7 +21,7 @@ func (h *httpHandler) GetRidePath(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	ridePath, err := h.usecase.GetRidePath(ctx, req.RideID, req.DriverID)
+	result, err := h.usecase.GetRidePath(ctx, req)
 	if err != nil {
 		logger.Error(ctx, "error from usecase", map[string]interface{}{
 			logger.ErrorKey: err.Error(),
@@ -33,8 +33,5 @@ func (h *httpHandler) GetRidePath(c *gin.Context) {
 		return
 	}
 
-	res := model.GetRidePathResponse{
-		Path: ridePath,
-	}
-	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(res))
+	c.JSON(http.StatusOK, httpUtils.NewSuccessResponse(result))
 }
