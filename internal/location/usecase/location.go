@@ -42,7 +42,7 @@ func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location pk
 
 	drivers, err := res.Result()
 	if err != nil {
-		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
+		logger.Error(ctx, model.ErrMsgFailedGetResult, map[string]interface{}{logger.ErrorKey: err})
 		return nil, err
 	}
 
@@ -62,7 +62,7 @@ func (r *locationUC) GetRidePath(ctx context.Context, req model.GetRidePathReque
 	driverRes := r.cache.ZRange(ctx, driverKey, 0, -1)
 	driverPath, err := driverRes.Result()
 	if err != nil {
-		logger.Error(ctx, "error get result", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedGetResult, map[string]interface{}{
 			logger.ErrorKey: err, "key": driverKey,
 		})
 		return res, err
@@ -72,7 +72,7 @@ func (r *locationUC) GetRidePath(ctx context.Context, req model.GetRidePathReque
 	riderRes := r.cache.ZRange(ctx, riderKey, 0, -1)
 	riderPath, err := riderRes.Result()
 	if err != nil {
-		logger.Error(ctx, "error get result", map[string]interface{}{
+		logger.Error(ctx, model.ErrMsgFailedGetResult, map[string]interface{}{
 			logger.ErrorKey: err, "key": riderKey,
 		})
 		return res, err
