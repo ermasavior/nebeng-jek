@@ -7,6 +7,7 @@ import (
 	nats_pkg "nebeng-jek/internal/pkg/nats"
 	handler_http "nebeng-jek/internal/riders/handler/http"
 	handler_nats "nebeng-jek/internal/riders/handler/nats"
+	"nebeng-jek/internal/riders/usecase"
 	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/messaging/nats"
 	"net/http"
@@ -23,13 +24,17 @@ type RegisterHandlerParam struct {
 }
 
 func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
+	repo := nats_pkg.NewPubsubRepository(reg.NatsJS)
+	uc := usecase.NewRiderUsecase(repo)
 	wsUpgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
 	connStorage := &sync.Map{}
-	httpHandler := handler_http.NewHandler(connStorage, wsUpgrader)
+
+	httpHandler := handler_http.NewHandler(connStorage, wsUpgrader, uc)
+
 	mid := middleware.NewRidesMiddleware(reg.JWTGen)
 	reg.Router.GET("/ws/riders", mid.RiderAuthMiddleware, httpHandler.RiderWebsocket)
 

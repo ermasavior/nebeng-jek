@@ -30,8 +30,3 @@ type RidePaidMessage struct {
 	FinalPrice float64 `json:"final_price"`
 	RiderID    int64   `json:"rider_id"`
 }
-
-type Coordinate struct {
-	Longitude float64 `json:"longitude" binding:"required"`
-	Latitude  float64 `json:"latitude" binding:"required"`
-}

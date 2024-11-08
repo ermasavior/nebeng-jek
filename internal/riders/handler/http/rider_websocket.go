@@ -1,7 +1,10 @@
 package handler_http
 
 import (
+	"context"
+	"encoding/json"
 	pkg_context "nebeng-jek/internal/pkg/context"
+	"nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/riders/model"
 	"nebeng-jek/pkg/logger"
 
@@ -43,6 +46,29 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 				logger.ErrorKey: err, "rider_id": riderID,
 			})
 			break
+		}
+
+		h.routeMessage(ctx, msg)
+	}
+}
+
+func (h *httpHandler) routeMessage(ctx context.Context, msg model.RiderMessage) {
+	if msg.Event == location.EventRealTimeLocation {
+		var req model.TrackUserLocationRequest
+		err := json.Unmarshal(msg.Data, &req)
+		if err != nil {
+			logger.Error(ctx, "error parsing track location request", map[string]interface{}{
+				"error": err,
+			})
+			return
+		}
+
+		err = h.usecase.TrackUserLocation(ctx, req)
+		if err != nil {
+			logger.Error(ctx, "track user location", map[string]interface{}{
+				"error": err,
+			})
+			return
 		}
 	}
 }
