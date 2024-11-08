@@ -6,6 +6,7 @@ import (
 	"errors"
 	"nebeng-jek/internal/drivers/model"
 	pkg_context "nebeng-jek/internal/pkg/context"
+	"nebeng-jek/internal/pkg/location"
 	mock_usecase "nebeng-jek/mock/usecase"
 	"net/http"
 	"net/http/httptest"
@@ -74,15 +75,14 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 
 	t.Run("route real time location", func(t *testing.T) {
 		msg := model.DriverMessage{
-			Event: model.EventRealTimeLocation,
+			Event: location.EventRealTimeLocation,
 			Data:  req,
 		}
 
 		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
 			RideID:    111,
-			UserID:    driverID,
 			Timestamp: 12345678,
-			Location: model.Coordinate{
+			Location: location.Coordinate{
 				Longitude: 1.111, Latitude: 2.0001,
 			},
 		}).Return(nil)
@@ -92,15 +92,14 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 
 	t.Run("route real time location", func(t *testing.T) {
 		msg := model.DriverMessage{
-			Event: model.EventRealTimeLocation,
+			Event: location.EventRealTimeLocation,
 			Data:  req,
 		}
 
 		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
 			RideID:    111,
-			UserID:    driverID,
 			Timestamp: 12345678,
-			Location: model.Coordinate{
+			Location: location.Coordinate{
 				Longitude: 1.111, Latitude: 2.0001,
 			},
 		}).Return(nil)
@@ -110,7 +109,7 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 
 	t.Run("ignore - invalid data", func(t *testing.T) {
 		msg := model.DriverMessage{
-			Event: model.EventRealTimeLocation,
+			Event: location.EventRealTimeLocation,
 			Data:  []byte("/"),
 		}
 
@@ -119,15 +118,14 @@ func TestHttpHandler_routeMessage(t *testing.T) {
 
 	t.Run("ignore - usecase returns error", func(t *testing.T) {
 		msg := model.DriverMessage{
-			Event: model.EventRealTimeLocation,
+			Event: location.EventRealTimeLocation,
 			Data:  req,
 		}
 
 		mockUC.EXPECT().TrackUserLocation(ctx, model.TrackUserLocationRequest{
 			RideID:    111,
-			UserID:    driverID,
 			Timestamp: 12345678,
-			Location: model.Coordinate{
+			Location: location.Coordinate{
 				Longitude: 1.111, Latitude: 2.0001,
 			},
 		}).Return(errors.New("error"))

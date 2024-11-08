@@ -5,6 +5,8 @@ import (
 	"nebeng-jek/internal/drivers/model"
 	"nebeng-jek/internal/drivers/repository"
 	"nebeng-jek/internal/pkg/constants"
+	pkg_context "nebeng-jek/internal/pkg/context"
+	"nebeng-jek/internal/pkg/location"
 	"nebeng-jek/pkg/logger"
 )
 
@@ -19,7 +21,14 @@ func NewDriverUsecase(repo repository.RidesPubsubRepository) DriverUsecase {
 }
 
 func (uc *driverUsecase) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
-	err := uc.repo.BroadcastMessage(ctx, constants.TopicUserLiveLocation, req)
+	msg := location.TrackUserLocationMessage{
+		RideID:    req.RideID,
+		Timestamp: req.Timestamp,
+		Location:  req.Location,
+		UserID:    pkg_context.GetDriverIDFromContext(ctx),
+		IsDriver:  true,
+	}
+	err := uc.repo.BroadcastMessage(ctx, constants.TopicUserLiveLocation, msg)
 	if err != nil {
 		logger.Error(ctx, "error broadcasting message", map[string]interface{}{
 			logger.ErrorKey: err,

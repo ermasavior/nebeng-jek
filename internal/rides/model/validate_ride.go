@@ -1,6 +1,10 @@
 package model
 
-import pkgError "nebeng-jek/pkg/error"
+import (
+	"nebeng-jek/internal/pkg/location"
+	pkgError "nebeng-jek/pkg/error"
+	"nebeng-jek/pkg/haversine"
+)
 
 func ValidateDriverConfirmRide(r RideData) pkgError.AppError {
 	if r.StatusNum != StatusNumRideNewRequest {
@@ -29,13 +33,31 @@ func ValidateStartRide(r RideData, driverID int64) pkgError.AppError {
 	return nil
 }
 
-func ValidateEndRide(r RideData, driverID int64) pkgError.AppError {
+func ValidateEndRide(r RideData, driverID int64, ridePath GetRidePathResponse) pkgError.AppError {
 	if r.DriverID == nil || *r.DriverID != driverID {
 		return pkgError.NewForbiddenError(pkgError.ErrForbiddenMsg)
 	}
 	if r.StatusNum != StatusNumRideStarted {
 		return pkgError.NewForbiddenError(ErrMsgInvalidRideStatus)
 	}
+	if len(ridePath.DriverPath) == 0 || len(ridePath.RiderPath) == 0 {
+		return pkgError.NewUnprocessableError(ErrMsgRideEmptyPath)
+	}
+
+	// compare initial positions
+	dp := ridePath.DriverPath[0]
+	rp := ridePath.RiderPath[0]
+	if haversine.CalculateDistance(dp.Latitude, dp.Longitude, rp.Latitude, rp.Longitude) > location.ProximityThreshold {
+		return pkgError.NewUnprocessableError(ErrMsgUnmatchedDriverRiderInitPosition)
+	}
+
+	// compare last position
+	dp = ridePath.DriverPath[len(ridePath.DriverPath)-1]
+	rp = ridePath.RiderPath[len(ridePath.RiderPath)-1]
+	if haversine.CalculateDistance(dp.Latitude, dp.Longitude, rp.Latitude, rp.Longitude) > location.ProximityThreshold {
+		return pkgError.NewUnprocessableError(ErrMsgUnmatchedDriverRiderLastPosition)
+	}
+
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"nebeng-jek/internal/pkg/location"
 	pkgError "nebeng-jek/pkg/error"
 	"testing"
 
@@ -103,10 +104,18 @@ func TestValidateEndRide(t *testing.T) {
 			DriverID:  &driverID,
 			StatusNum: StatusNumRideStarted,
 		}
+
+		path = []location.Coordinate{
+			{Longitude: 1, Latitude: 1.5}, {Longitude: 1, Latitude: 1.56},
+		}
+		ridePath = GetRidePathResponse{
+			DriverPath: path,
+			RiderPath:  path,
+		}
 	)
 
 	t.Run("success - ride data is valid", func(t *testing.T) {
-		err := ValidateEndRide(r, driverID)
+		err := ValidateEndRide(r, driverID, ridePath)
 		assert.Nil(t, err)
 	})
 	t.Run("error - status is invalid", func(t *testing.T) {
@@ -115,11 +124,35 @@ func TestValidateEndRide(t *testing.T) {
 			DriverID:  &driverID,
 			StatusNum: StatusNumRideCancelled,
 		}
-		err := ValidateEndRide(r, driverID)
+		err := ValidateEndRide(r, driverID, ridePath)
 		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
 	})
+	t.Run("error - ride path is invalid", func(t *testing.T) {
+		ridePath = GetRidePathResponse{
+			DriverPath: []location.Coordinate{},
+			RiderPath:  []location.Coordinate{},
+		}
+		err := ValidateEndRide(r, driverID, ridePath)
+		assert.Equal(t, pkgError.ErrResourceUnprocessableCode, err.GetCode())
+	})
+	t.Run("error - driver and rider initial location does not match", func(t *testing.T) {
+		ridePath = GetRidePathResponse{
+			DriverPath: []location.Coordinate{{Longitude: 1, Latitude: 1}, {Longitude: 2, Latitude: 2}},
+			RiderPath:  []location.Coordinate{{Longitude: 1, Latitude: 2}, {Longitude: 2, Latitude: 2}},
+		}
+		err := ValidateEndRide(r, driverID, ridePath)
+		assert.Equal(t, pkgError.ErrResourceUnprocessableCode, err.GetCode())
+	})
+	t.Run("error - driver and rider last location does not match", func(t *testing.T) {
+		ridePath = GetRidePathResponse{
+			DriverPath: []location.Coordinate{{Longitude: 1, Latitude: 1}, {Longitude: 2, Latitude: 2}},
+			RiderPath:  []location.Coordinate{{Longitude: 1, Latitude: 1}, {Longitude: 2, Latitude: 1}},
+		}
+		err := ValidateEndRide(r, driverID, ridePath)
+		assert.Equal(t, pkgError.ErrResourceUnprocessableCode, err.GetCode())
+	})
 	t.Run("error - driver id is invalid", func(t *testing.T) {
-		err := ValidateEndRide(r, 999999)
+		err := ValidateEndRide(r, 999999, ridePath)
 		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
 	})
 }

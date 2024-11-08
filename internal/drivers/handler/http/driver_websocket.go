@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"nebeng-jek/internal/drivers/model"
 	pkg_context "nebeng-jek/internal/pkg/context"
+	"nebeng-jek/internal/pkg/location"
 	"nebeng-jek/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 }
 
 func (h *httpHandler) routeMessage(ctx context.Context, msg model.DriverMessage) {
-	if msg.Event == model.EventRealTimeLocation {
+	if msg.Event == location.EventRealTimeLocation {
 		var req model.TrackUserLocationRequest
 		err := json.Unmarshal(msg.Data, &req)
 		if err != nil {
@@ -59,7 +60,6 @@ func (h *httpHandler) routeMessage(ctx context.Context, msg model.DriverMessage)
 			return
 		}
 
-		req.UserID = pkg_context.GetDriverIDFromContext(ctx)
 		err = h.usecase.TrackUserLocation(ctx, req)
 		if err != nil {
 			logger.Error(ctx, "track user location", map[string]interface{}{

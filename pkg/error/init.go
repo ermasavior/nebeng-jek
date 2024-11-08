@@ -40,6 +40,13 @@ func NewUnauthorizedError(msg string) AppError {
 	}
 }
 
+func NewUnprocessableError(msg string) AppError {
+	return &appError{
+		code:    ErrResourceUnprocessableCode,
+		message: msg,
+	}
+}
+
 func (e appError) GetCode() int {
 	return e.code
 }

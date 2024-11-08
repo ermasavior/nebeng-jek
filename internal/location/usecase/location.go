@@ -55,38 +55,63 @@ func (r *locationUC) GetNearestAvailableDrivers(ctx context.Context, location pk
 	return driverIDs, nil
 }
 
-func (r *locationUC) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error) {
-	key := model.GetDriverPathKey(rideID, driverID)
-	res := r.cache.ZRange(ctx, key, 0, -1)
+func (r *locationUC) GetRidePath(ctx context.Context, req model.GetRidePathRequest) (model.GetRidePathResponse, error) {
+	res := model.GetRidePathResponse{}
 
-	coordinates, err := res.Result()
+	driverKey := model.GetDriverPathKey(req.RideID, req.DriverID)
+	driverRes := r.cache.ZRange(ctx, driverKey, 0, -1)
+	driverPath, err := driverRes.Result()
 	if err != nil {
-		logger.Error(ctx, "error get result", map[string]interface{}{logger.ErrorKey: err})
-		return nil, err
+		logger.Error(ctx, "error get result", map[string]interface{}{
+			logger.ErrorKey: err, "key": driverKey,
+		})
+		return res, err
 	}
 
-	result := make([]pkgLocation.Coordinate, 0, len(coordinates))
-
-	for _, coorString := range coordinates {
-		coor, err := pkgLocation.ParseCoordinate(coorString)
-		if err != nil {
-			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
-				"ride_id":       rideID,
-				"coordinate":    coorString,
-				logger.ErrorKey: err,
-			})
-			continue
-		}
-		result = append(result, coor)
+	riderKey := model.GetRiderPathKey(req.RideID, req.RiderID)
+	riderRes := r.cache.ZRange(ctx, riderKey, 0, -1)
+	riderPath, err := riderRes.Result()
+	if err != nil {
+		logger.Error(ctx, "error get result", map[string]interface{}{
+			logger.ErrorKey: err, "key": riderKey,
+		})
+		return res, err
 	}
-	return result, nil
+
+	res.DriverPath = parsePathCacheResult(ctx, driverKey, driverPath)
+	res.RiderPath = parsePathCacheResult(ctx, driverKey, riderPath)
+
+	return res, nil
 }
 
 func (r *locationUC) TrackUserLocation(ctx context.Context, req model.TrackUserLocationRequest) error {
-	key := model.GetDriverPathKey(req.RideID, req.UserID)
+	var key string
+	if req.IsDriver {
+		key = model.GetDriverPathKey(req.RideID, req.UserID)
+	} else {
+		key = model.GetRiderPathKey(req.RideID, req.UserID)
+	}
+
 	res := r.cache.ZAdd(ctx, key, &redis.Z{
 		Score:  float64(req.Timestamp),
 		Member: req.Location.ToStringValue(req.Timestamp),
 	})
 	return res.Err()
+}
+
+func parsePathCacheResult(ctx context.Context, key string, pathResult []string) []pkgLocation.Coordinate {
+	path := make([]pkgLocation.Coordinate, 0, len(pathResult))
+	for _, coorString := range pathResult {
+		coor, err := pkgLocation.ParseCoordinate(coorString)
+		if err != nil {
+			logger.Info(ctx, "failed parsing coordinate", map[string]interface{}{
+				"cache_key":     key,
+				"coordinate":    coorString,
+				logger.ErrorKey: err,
+			})
+			continue
+		}
+		path = append(path, coor)
+	}
+	return path
 }

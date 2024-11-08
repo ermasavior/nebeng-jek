@@ -42,22 +42,17 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 				Longitude: 2,
 			},
 		}
-		ridePath = []pkgLocation.Coordinate{
-			{
-				Longitude: 1,
-				Latitude:  1,
-			},
-			{
-				Longitude: 2,
-				Latitude:  2,
-			},
-			{
-				Longitude: 3,
-				Latitude:  3,
-			},
+		path = []pkgLocation.Coordinate{
+			{Longitude: 1, Latitude: 1},
+			{Longitude: 2, Latitude: 2},
+			{Longitude: 3, Latitude: 3},
+		}
+		ridePathRes = model.GetRidePathResponse{
+			DriverPath: path,
+			RiderPath:  path,
 		}
 
-		distance = calculateTotalDistance(ridePath)
+		distance = calculateTotalDistance(path)
 		fare     = calculateRideFare(distance)
 
 		expectedRes = model.RideData{
@@ -77,6 +72,9 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 			Fare:     &fare,
 		}
 
+		ridePathReq = model.GetRidePathRequest{
+			RideID: rideID, DriverID: driverID, RiderID: rideData.RiderID,
+		}
 		req = model.DriverEndRideRequest{
 			RideID: rideID,
 		}
@@ -87,7 +85,9 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 
 	t.Run("success - should create new ride and publish message broadcast", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, model.GetRidePathRequest{
+			RideID: rideID, RiderID: rideData.RiderID, DriverID: driverID,
+		}).Return(ridePathRes, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
 			Return(nil)
 
@@ -103,20 +103,23 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		assert.Equal(t, expectedRes, actual)
 	})
 
-	t.Run("failed - invalid ride data", func(t *testing.T) {
-		invalidRide := rideData
-		invalidRide.StatusNum = model.StatusNumRideCancelled
-		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
-
-		_, err := usecaseMock.DriverEndRide(ctx, req)
-		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
-	})
-
 	t.Run("failed - ride data is not found", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(model.RideData{}, constants.ErrorDataNotFound)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
 		assert.Equal(t, pkgError.ErrResourceNotFoundCode, err.GetCode())
+	})
+
+	t.Run("failed - invalid ride data", func(t *testing.T) {
+		invalidRide := rideData
+		invalidRide.StatusNum = model.StatusNumRideCancelled
+		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(invalidRide, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, model.GetRidePathRequest{
+			RideID: rideID, RiderID: rideData.RiderID, DriverID: driverID,
+		}).Return(ridePathRes, nil)
+
+		_, err := usecaseMock.DriverEndRide(ctx, req)
+		assert.Equal(t, pkgError.ErrForbiddenCode, err.GetCode())
 	})
 
 	t.Run("failed - should return error when get ride data is failed", func(t *testing.T) {
@@ -130,7 +133,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	t.Run("failed - should return error when get ride path failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return([]pkgLocation.Coordinate{}, expectedErr)
+		locationRepoMock.EXPECT().GetRidePath(ctx, ridePathReq).Return(model.GetRidePathResponse{}, expectedErr)
 
 		_, err := usecaseMock.DriverEndRide(ctx, req)
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
@@ -139,7 +142,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	t.Run("failed - should return error when update ride data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, ridePathReq).Return(ridePathRes, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
 			Return(expectedErr)
 
@@ -150,7 +153,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	t.Run("ignore - broadcast data is failed", func(t *testing.T) {
 		expectedErr := errors.New("error from repo")
 		ridesRepoMock.EXPECT().GetRideData(ctx, rideID).Return(rideData, nil)
-		locationRepoMock.EXPECT().GetRidePath(ctx, rideID, driverID).Return(ridePath, nil)
+		locationRepoMock.EXPECT().GetRidePath(ctx, ridePathReq).Return(ridePathRes, nil)
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, gomock.AssignableToTypeOf(model.UpdateRideDataRequest{})).
 			Return(nil)
 

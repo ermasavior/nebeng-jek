@@ -113,11 +113,7 @@ func (s *locationRepo) GetNearestAvailableDrivers(ctx context.Context, location 
 	return data.DriverIDs, nil
 }
 
-func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID int64) ([]pkgLocation.Coordinate, error) {
-	req := model.GetRidePathRequest{
-		RideID:   rideID,
-		DriverID: driverID,
-	}
+func (s *locationRepo) GetRidePath(ctx context.Context, req model.GetRidePathRequest) (model.GetRidePathResponse, error) {
 	transport := http_client.RestTransport{
 		Url:    s.BaseUrl + getRidePath,
 		Method: http.MethodGet,
@@ -132,7 +128,7 @@ func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID i
 		logger.Error(ctx, model.ErrMsgFailedHTTPRequest, map[string]interface{}{
 			logger.ErrorKey: err,
 		})
-		return nil, err
+		return model.GetRidePathResponse{}, err
 	}
 
 	var data model.GetRidePathResponse
@@ -141,8 +137,8 @@ func (s *locationRepo) GetRidePath(ctx context.Context, rideID int64, driverID i
 		logger.Error(ctx, "error parsing response data", map[string]interface{}{
 			"error": err,
 		})
-		return nil, err
+		return model.GetRidePathResponse{}, err
 	}
 
-	return data.Path, nil
+	return data, nil
 }

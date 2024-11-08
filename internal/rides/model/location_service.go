@@ -12,8 +12,9 @@ type GetNearestAvailableDriversRequest struct {
 }
 
 type GetRidePathRequest struct {
-	RideID   int64 `json:"ride_id" binding:"required"`
-	DriverID int64 `json:"driver_id" binding:"required"`
+	RideID   int64 `json:"ride_id"`
+	DriverID int64 `json:"driver_id"`
+	RiderID  int64 `json:"rider_id"`
 }
 
 type TrackUserLocationRequest struct {
@@ -29,5 +30,6 @@ type GetNearestAvailableDriversResponse struct {
 }
 
 type GetRidePathResponse struct {
-	Path []location.Coordinate `json:"path"`
+	DriverPath []location.Coordinate `json:"driver_path"`
+	RiderPath  []location.Coordinate `json:"rider_path"`
 }

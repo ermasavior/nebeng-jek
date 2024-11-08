@@ -151,12 +151,28 @@ func TestLocationUsecase_GetRidePath(t *testing.T) {
 	var (
 		rideID   = int64(666)
 		driverID = int64(1111)
+		riderID  = int64(2222)
 
-		keyRedis    = model.GetDriverPathKey(rideID, driverID)
-		start, stop = int64(0), int64(-1)
+		driverCacheKey = model.GetDriverPathKey(rideID, driverID)
+		riderCacheKey  = model.GetRiderPathKey(rideID, riderID)
+		start, stop    = int64(0), int64(-1)
+
+		cacheRes = []string{
+			"0.00000001:-1.00000000:12345", "0.10000000:-1.10000000:12346", "0.20000000:-1.20000000:12347",
+		}
+
+		req = model.GetRidePathRequest{
+			RideID:   rideID,
+			DriverID: driverID,
+			RiderID:  riderID,
+		}
 
 		expectedPath = []pkgLocation.Coordinate{
 			{Longitude: 0.00000001, Latitude: -1}, {Longitude: 0.1, Latitude: -1.1}, {Longitude: 0.2, Latitude: -1.2},
+		}
+		expectedRes = model.GetRidePathResponse{
+			DriverPath: expectedPath,
+			RiderPath:  expectedPath,
 		}
 	)
 
@@ -164,36 +180,56 @@ func TestLocationUsecase_GetRidePath(t *testing.T) {
 
 	t.Run("success - should execute redis ZRange", func(t *testing.T) {
 		res := &redis.StringSliceCmd{}
-		res.SetVal([]string{
-			"0.00000001:-1.00000000:12345", "0.10000000:-1.10000000:12346", "0.20000000:-1.20000000:12347",
-		})
-		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
+		res.SetVal(cacheRes)
+		redisMock.EXPECT().ZRange(ctx, driverCacheKey, start, stop).Return(res)
+		redisMock.EXPECT().ZRange(ctx, riderCacheKey, start, stop).Return(res)
 
-		actual, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
+		actual, err := locationUCMock.GetRidePath(ctx, req)
 
 		assert.Nil(t, err)
-		assert.Equal(t, expectedPath, actual)
+		assert.Equal(t, expectedRes, actual)
 	})
 
-	t.Run("success - invalid coordinate - skip invalid coordinate", func(t *testing.T) {
+	t.Run("success - invalid coordinate driver - skip invalid coordinate", func(t *testing.T) {
 		res := &redis.StringSliceCmd{}
 		res.SetVal([]string{
 			"INVALID-COORDINATE", "0.29999999:-1.2111111:12347",
 		})
-		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
+		redisMock.EXPECT().ZRange(ctx, driverCacheKey, start, stop).Return(res)
 
-		actual, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
+		res2 := &redis.StringSliceCmd{}
+		res2.SetVal(cacheRes)
+		redisMock.EXPECT().ZRange(ctx, riderCacheKey, start, stop).Return(res2)
+
+		actual, err := locationUCMock.GetRidePath(ctx, req)
+		expected := model.GetRidePathResponse{
+			DriverPath: []pkgLocation.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}},
+			RiderPath:  expectedPath,
+		}
 
 		assert.Nil(t, err)
-		assert.Equal(t, []pkgLocation.Coordinate{{Longitude: 0.29999999, Latitude: -1.2111111}}, actual)
+		assert.Equal(t, expected, actual)
 	})
 
-	t.Run("failed - should return error when ZRange returns error", func(t *testing.T) {
+	t.Run("failed - driver - should return error when ZRange returns error", func(t *testing.T) {
 		res := &redis.StringSliceCmd{}
 		res.SetErr(redis.ErrClosed)
-		redisMock.EXPECT().ZRange(ctx, keyRedis, start, stop).Return(res)
+		redisMock.EXPECT().ZRange(ctx, driverCacheKey, start, stop).Return(res)
 
-		_, err := locationUCMock.GetRidePath(ctx, rideID, driverID)
+		_, err := locationUCMock.GetRidePath(ctx, req)
+		assert.EqualError(t, err, redis.ErrClosed.Error())
+	})
+
+	t.Run("failed - rider - should return error when ZRange returns error", func(t *testing.T) {
+		res := &redis.StringSliceCmd{}
+		res.SetVal(cacheRes)
+		redisMock.EXPECT().ZRange(ctx, driverCacheKey, start, stop).Return(res)
+
+		res2 := &redis.StringSliceCmd{}
+		res2.SetErr(redis.ErrClosed)
+		redisMock.EXPECT().ZRange(ctx, riderCacheKey, start, stop).Return(res2)
+
+		_, err := locationUCMock.GetRidePath(ctx, req)
 		assert.EqualError(t, err, redis.ErrClosed.Error())
 	})
 }
@@ -218,20 +254,32 @@ func TestLocationUsecase_TrackUserLocation(t *testing.T) {
 				Latitude:  2.3,
 			},
 		}
-
-		redisKey = model.GetDriverPathKey(req.RideID, req.UserID)
 	)
 
 	ctx := context.Background()
-	ctx = pkgContext.SetDriverIDToContext(ctx, driverID)
 
-	t.Run("success - should execute redis ZADD", func(t *testing.T) {
+	t.Run("success - should execute redis ZADD for driver", func(t *testing.T) {
+		redisKey := model.GetDriverPathKey(req.RideID, req.UserID)
 		res := &redis.IntCmd{}
 		redisMock.EXPECT().ZAdd(ctx, redisKey, &redis.Z{
 			Score:  123456789,
 			Member: "1.00000000:2.30000000:123456789",
 		}).Return(res)
 
+		req.IsDriver = true
+		err := locationUCMock.TrackUserLocation(ctx, req)
+		assert.Nil(t, err)
+	})
+
+	t.Run("success - should execute redis ZADD for rider", func(t *testing.T) {
+		redisKey := model.GetRiderPathKey(req.RideID, req.UserID)
+		res := &redis.IntCmd{}
+		redisMock.EXPECT().ZAdd(ctx, redisKey, &redis.Z{
+			Score:  123456789,
+			Member: "1.00000000:2.30000000:123456789",
+		}).Return(res)
+
+		req.IsDriver = false
 		err := locationUCMock.TrackUserLocation(ctx, req)
 		assert.Nil(t, err)
 	})

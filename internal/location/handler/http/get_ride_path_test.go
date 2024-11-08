@@ -33,7 +33,8 @@ func TestHandler_GetRidePath(t *testing.T) {
 
 	reqBody := model.GetRidePathRequest{
 		RideID:   666,
-		DriverID: 2222,
+		DriverID: 1111,
+		RiderID:  2222,
 	}
 	reqBytes, _ := json.Marshal(reqBody)
 
@@ -42,9 +43,13 @@ func TestHandler_GetRidePath(t *testing.T) {
 		{Longitude: 2, Latitude: 3},
 		{Longitude: 3, Latitude: 4},
 	}
+	ridePathResult := model.GetRidePathResponse{
+		RiderPath:  ridePath,
+		DriverPath: ridePath,
+	}
 
 	t.Run("success - returns status code 200 when successfully confirm new ride", func(t *testing.T) {
-		mockUsecase.EXPECT().GetRidePath(gomock.Any(), reqBody.RideID, reqBody.DriverID).Return(ridePath, nil)
+		mockUsecase.EXPECT().GetRidePath(gomock.Any(), reqBody).Return(ridePathResult, nil)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()
@@ -73,7 +78,7 @@ func TestHandler_GetRidePath(t *testing.T) {
 	t.Run("failed - returns 500 when usecase returns error", func(t *testing.T) {
 		expectedError := errors.New("error from usecase")
 
-		mockUsecase.EXPECT().GetRidePath(gomock.Any(), reqBody.RideID, reqBody.DriverID).Return(nil, expectedError)
+		mockUsecase.EXPECT().GetRidePath(gomock.Any(), reqBody).Return(model.GetRidePathResponse{}, expectedError)
 
 		req := httptest.NewRequest(http.MethodPost, url, bytes.NewReader(reqBytes))
 		w := httptest.NewRecorder()

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"nebeng-jek/internal/drivers/model"
+	"nebeng-jek/internal/pkg/location"
 	mock_ws "nebeng-jek/mock/pkg/websocket"
 	"sync"
 	"testing"
@@ -25,11 +26,11 @@ func Test_broadcastToDrivers(t *testing.T) {
 		Name:   "Mel",
 		MSISDN: "082222",
 	}
-	pickupLocation := model.Coordinate{
+	pickupLocation := location.Coordinate{
 		Latitude:  1,
 		Longitude: 2,
 	}
-	destination := model.Coordinate{
+	destination := location.Coordinate{
 		Latitude:  9,
 		Longitude: 10,
 	}

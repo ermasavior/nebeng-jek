@@ -238,15 +238,21 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 	}
 	serviceMock := NewLocationRepository(mockConfig, http_client.HttpClient())
 
-	rideID := int64(666)
-	driverID := int64(1111)
 	ridePath := []pkgLocation.Coordinate{
 		{Longitude: 1, Latitude: 2}, {Longitude: 2, Latitude: 3},
 	}
 
-	data, _ := json.Marshal(model.GetRidePathResponse{
-		Path: ridePath,
-	})
+	result := model.GetRidePathResponse{
+		DriverPath: ridePath,
+		RiderPath:  ridePath,
+	}
+	data, _ := json.Marshal(result)
+
+	req := model.GetRidePathRequest{
+		RideID:   666,
+		DriverID: 1111,
+		RiderID:  2222,
+	}
 
 	responseMock := http_utils.ClientResponse{
 		Meta: http_utils.MetaResponse{
@@ -273,9 +279,9 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
-		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
+		actual, err := serviceMock.GetRidePath(context.TODO(), req)
 		assert.NoError(t, err)
-		assert.Equal(t, ridePath, actual)
+		assert.Equal(t, result, actual)
 	})
 
 	t.Run("return error - error from server", func(t *testing.T) {
@@ -286,9 +292,9 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
-		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
+		actual, err := serviceMock.GetRidePath(context.TODO(), req)
 		assert.Error(t, err)
-		assert.Nil(t, actual)
+		assert.Equal(t, model.GetRidePathResponse{}, actual)
 	})
 
 	t.Run("return error - json response is broken", func(t *testing.T) {
@@ -300,9 +306,9 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
-		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
+		actual, err := serviceMock.GetRidePath(context.TODO(), req)
 		assert.Error(t, err)
-		assert.Nil(t, actual)
+		assert.Equal(t, model.GetRidePathResponse{}, actual)
 	})
 
 	t.Run("return error - json data response is broken", func(t *testing.T) {
@@ -317,15 +323,15 @@ func TestLocationRepository_GetRidePath(t *testing.T) {
 		server := utils.MockHTTPServer(t, baseURL, handlerMock)
 		defer server.Close()
 
-		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
+		actual, err := serviceMock.GetRidePath(context.TODO(), req)
 		assert.Error(t, err)
-		assert.Nil(t, actual)
+		assert.Equal(t, model.GetRidePathResponse{}, actual)
 	})
 
 	t.Run("return error - connection refused", func(t *testing.T) {
 		// no server running
-		actual, err := serviceMock.GetRidePath(context.TODO(), rideID, driverID)
+		actual, err := serviceMock.GetRidePath(context.TODO(), req)
 		assert.Error(t, err)
-		assert.Nil(t, actual)
+		assert.Equal(t, model.GetRidePathResponse{}, actual)
 	})
 }

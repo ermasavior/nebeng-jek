@@ -16,6 +16,8 @@ func ToHttpError(err AppError) int {
 		return http.StatusNotFound
 	case ErrForbiddenCode:
 		return http.StatusForbidden
+	case ErrResourceUnprocessableCode:
+		return http.StatusUnprocessableEntity
 	default:
 		return http.StatusInternalServerError
 	}

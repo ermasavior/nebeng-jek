@@ -16,6 +16,10 @@ const (
 	ErrMsgInvalidDistance    = "invalid distance, must not be empty"
 	ErrMsgInvalidCustomPrice = "custom price must be lower than fare price"
 	ErrMsgDriverUnavailable  = "driver status is unavailable"
+	ErrMsgRideEmptyPath      = "driver or rider location path is not found. ride path should be tracked"
+
+	ErrMsgUnmatchedDriverRiderInitPosition = "driver and rider's initial position does not match"
+	ErrMsgUnmatchedDriverRiderLastPosition = "driver and rider's last position does not match"
 
 	ErrMsgFailedHTTPRequest = "error request http to client"
 )
