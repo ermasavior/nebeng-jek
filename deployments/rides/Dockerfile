@@ -1,7 +1,7 @@
 FROM golang:1.22.4 AS golang
 
 WORKDIR /app
-COPY ./.. .
+COPY . .
 RUN make build-rides
 
 FROM alpine:3.18.2 AS alpine

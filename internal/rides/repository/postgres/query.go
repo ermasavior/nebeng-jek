@@ -27,7 +27,7 @@ const (
 		RETURNING id
 	`
 	queryGetRideData = `
-		SELECT id, rider_id, driver_id, status, distance, fare,
+		SELECT id, rider_id, driver_id, status, distance, fare, final_price,
 			   pickup_location[0] AS "pickup_location.latitude", pickup_location[1] AS "pickup_location.longitude",
 			   destination[0] AS "destination.latitude", destination[1] AS "destination.longitude",
 			   start_time, end_time

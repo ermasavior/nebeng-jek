@@ -15,7 +15,7 @@ services:
     restart: always
     volumes:
       - /data/rides/pg:/var/lib/postgresql/data
-      - ../db:/docker-entrypoint-initdb.d
+      - /db:/docker-entrypoint-initdb.d
     networks:
       local:
   redis:
@@ -43,16 +43,66 @@ services:
       - NATS_MAX_PAYLOAD=64MB  # Sets max message payload
     networks:
       local:
-  nats-cli:
-    image: synadia/nats-box
-    container_name: nats-cli
+  rides-service:
+    container_name: "nebengjek_rides"
+    build:
+      context: .
+      dockerfile: ./deployments/rides/Dockerfile
+    ports:
+      - "9999:9999"
+    env_file:
+      - ./configs/rides/.env
     depends_on:
+      - postgres
+      - redis
       - nats
     networks:
       local:
-    volumes:
-      - ./nats/create_streams.sh:/scripts/create_streams.sh  # Mount the script into the container
-    entrypoint: /bin/sh -c "/scripts/create_streams.sh"  # Execute the script
+  drivers-service:
+    container_name: "nebengjek_drivers"
+    build:
+      context: .
+      dockerfile: ./deployments/drivers/Dockerfile
+    ports:
+      - "9998:9998"
+    env_file:
+      - ./configs/drivers/.env
+    depends_on:
+      - postgres
+      - redis
+      - nats
+    networks:
+      local:
+  riders-service:
+    container_name: "nebengjek_riders"
+    build:
+      context: .
+      dockerfile: ./deployments/riders/Dockerfile
+    ports:
+      - "9997:9997"
+    env_file:
+      - ./configs/riders/.env
+    depends_on:
+      - postgres
+      - redis
+      - nats
+    networks:
+      local:
+  location-service:
+    container_name: "nebengjek_location"
+    build:
+      context: .
+      dockerfile: ./deployments/location/Dockerfile
+    ports:
+      - "9996:9996"
+    env_file:
+      - ./configs/location/.env
+    depends_on:
+      - postgres
+      - redis
+      - nats
+    networks:
+      local:
 
 volumes:
   postgres:
