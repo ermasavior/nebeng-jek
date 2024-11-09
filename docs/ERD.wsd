@@ -1,0 +1,58 @@
+@startuml Rides DB Schema
+' hide the spot
+' hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "drivers" as e01 {
+  *id : number <<generated>>
+  --
+  *name : varchar(255)
+  *phone_number : varchar(15)
+  *vehicle_type : int
+  *vehicle_plate : varchar(20)
+  *status : int
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "riders" as e02 {
+  *id : number <<generated>>
+  --
+  *name : varchar(255)
+  *phone_number : varchar(15)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "rides" as e03 {
+  *id : number <<generated>>
+  --
+  *rider_id : number <<FK>>
+  *driver_id : number <<FK>>
+  *pickup_location : point
+  *destination : point
+  *status : int
+  distance : decimal
+  fare : decimal
+  final_price : decimal
+  start_time : timestamp
+  end_time : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "ride_commissions" as e04 {
+  *id : number <<generated>>
+  --
+  *ride_id : number <<FK>>
+  commission : decimal
+  created_at : timestamp
+}
+
+e01 }o..|| e03
+e02 }o..|| e03
+e03 |o..|| e04
+
+@enduml

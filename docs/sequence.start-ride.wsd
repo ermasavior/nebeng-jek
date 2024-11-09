@@ -1,4 +1,4 @@
-@startuml Ride Started Flow
+@startuml Start Ride Flow
 
 actor Rider
 actor Driver
@@ -9,7 +9,7 @@ Rides->RidesDB: Update ride to RIDE_STARTED
 Rides->Riders: Publish ride update
 Riders-->Rider: Notify rider
 
-== Ride Live Tracking ==
+== Live Tracking Location ==
 Driver->Drivers: Send current location
 Drivers->Location: Track driver location
 Location->LocationDB: Store driver location

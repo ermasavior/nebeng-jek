@@ -1,4 +1,4 @@
-@startuml Ride Started Flow
+@startuml Stop Ride Flow
 
 actor Rider
 actor Driver
@@ -9,7 +9,7 @@ Rides->RidesDB: Update ride to RIDE_ENDED
 Rides->Riders: Publish ride update
 Riders-->Rider: Notify rider
 
-== Ride Payment Confirmation ==
+== Confirm Ride Payment ==
 Driver->Rides: Confirm payment
 note left of Rides
 with custom price
