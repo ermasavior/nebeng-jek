@@ -24,22 +24,13 @@ export default function () {
     headers: {
       "Content-Type": "application/json",
       Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJkcml2ZXJfaWQiOjJ9.tGaH3DFnWlPnt6eFzSVKoiMshouJ_w8iiTdTHvIEHJQ",
+        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyaWRlcl9pZCI6MX0.zdqgIG9PivvL4CiiDC7NrlGGDz6OyQ478KlVE2YmjKE",
     },
     timeout: "600s",
   };
 
-  const body = {
-      is_available: true,
-      current_location: {
-        longitude: 2,
-        latitude: 1
-      }
-  };
-
-  const set_driver_available = http.patch(
-    "http://localhost:9999/v1/drivers/availability",
-    JSON.stringify(body),
+  const set_driver_available = http.get(
+    "http://localhost:9999/v1/riders/ride/1",
     params
   );
   check(set_driver_available, {
@@ -50,7 +41,7 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    "result/load_stages.html": htmlReport(data),
+    "result/load_stages/get_ride_data.result.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }
