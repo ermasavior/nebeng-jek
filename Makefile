@@ -12,16 +12,16 @@ run-location:
 
 
 build-rides:
-	cd cmd/rides && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/rides main.go
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/rides ./cmd/rides/main.go
 
 build-drivers:
-	cd cmd/drivers && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/drivers main.go
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/drivers ./cmd/drivers/main.go
 
 build-riders:
-	cd cmd/riders && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/riders main.go
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/riders ./cmd/riders/main.go
 
 build-location:
-	cd cmd/location && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../../bin/location main.go
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/location ./cmd/location/main.go
 
 
 docker-build-drivers:

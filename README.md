@@ -16,15 +16,14 @@
 ### Using Docker
 
 1. Initialize `.env` file into each `./configs/*` folders
-2. Go to `/deployments`, then execute `docker-compose up -d` to run dependency services
-3. Run docker build and run for each services independently:
-    ```sh
-    make docker-build-drivers
-    make docker-run-drivers
+2. Go to `/deployments`, then execute `docker-compose up -d` to run all services (including the dependencies)
 
-    make docker-build-riders
-    make docker-run-riders
+## Load Test
 
-    make docker-build-rides
-    make docker-run-rides
-    ```
+For load testing, we use `k6`.
+The load test target is PATCH set driver availability endpoint. The test scenario spawned 50-250 concurrent users that run gradually on stages.
+
+To run the load test:
+```sh
+cd loadtest && k6 run load_stages.js 
+```

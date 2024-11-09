@@ -2,7 +2,7 @@
 
 # Create Ride Events Stream
 nats stream add RIDE_EVENTS \
-    --server nats://nats_container:4222 \
+    --server nats://localhost:4222 \
     --subjects "ride.*" \
     --storage file \
     --retention limits \
@@ -17,7 +17,7 @@ nats stream add RIDE_EVENTS \
 
 # Create User Live Location Stream
 nats stream add USER_LIVE_LOCATION \
-    --server nats://nats_container:4222 \
+    --server nats://localhost:4222 \
     --subjects "user.live_location" \
     --storage file \
     --retention limits \
