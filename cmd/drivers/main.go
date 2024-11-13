@@ -37,10 +37,11 @@ func main() {
 
 	jwtGen := jwt.NewJWTGenerator(24*time.Hour, cfg.JWTSecretKey)
 
-	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
+	apiPrefix := "/api/drivers"
+	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel, apiPrefix)
 
 	reg := driversHandler.RegisterHandlerParam{
-		Router: srv.Router.Group("/v1"),
+		Router: srv.Router.Group(apiPrefix + "/v1"),
 		NatsJS: natsJS,
 		JWTGen: jwtGen,
 	}

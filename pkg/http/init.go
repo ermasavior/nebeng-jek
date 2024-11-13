@@ -20,7 +20,7 @@ type Server struct {
 	Router  *gin.Engine
 }
 
-func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry) Server {
+func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry, apiPrefix string) Server {
 	if appEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
@@ -36,7 +36,8 @@ func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry)
 	router.Use(otelgin.Middleware(appName))
 
 	router.GET("/", healthCheck)
-	router.GET("/healthz", healthCheck)
+	router.GET(apiPrefix+"/", healthCheck)
+	router.GET(apiPrefix+"/healthz", healthCheck)
 
 	return Server{
 		address: ":" + appPort,
