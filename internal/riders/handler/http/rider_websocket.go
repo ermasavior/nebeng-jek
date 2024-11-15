@@ -35,7 +35,7 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 		var msg model.RiderMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
 				logger.Debug(ctx, "websocket connection closed", map[string]interface{}{
 					logger.ErrorKey: err, "rider_id": riderID,
 				})
