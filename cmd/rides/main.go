@@ -55,11 +55,10 @@ func main() {
 
 	httpClient := http_client.HttpClient()
 
-	apiPrefix := "/api/rides"
-	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel, apiPrefix)
+	srv := pkgHttp.NewHTTPServer(cfg, otel)
 
 	reg := ridesHandler.RegisterHandlerParam{
-		Router:     srv.Router.Group(apiPrefix + "/v1"),
+		Router:     srv.Router.Group(cfg.ApiPrefix + "/v1"),
 		DB:         pgDb,
 		NatsJS:     natsJS,
 		JWTGen:     jwtGen,
