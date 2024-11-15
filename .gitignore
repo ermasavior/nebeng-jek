@@ -5,7 +5,7 @@ bin/*
 
 api/.idea/
 secrets/*
-.env
+*.env
 data/pg
 
 *.out
