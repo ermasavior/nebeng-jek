@@ -15,7 +15,6 @@ import (
 	"nebeng-jek/pkg/logger"
 	"nebeng-jek/pkg/messaging/nats"
 	pkgOtel "nebeng-jek/pkg/otel"
-	"nebeng-jek/pkg/redis"
 	"os"
 )
 
@@ -50,20 +49,16 @@ func main() {
 		return
 	}
 
-	redisClient := redis.InitConnection(ctx, cfg.RedisDB, cfg.RedisHost, cfg.RedisPort,
-		cfg.RedisPassword, cfg.RedisAppConfig)
-
 	natsMsg := nats.NewNATSConnection(ctx, cfg.NatsURL)
 	defer natsMsg.Close()
 	natsJS := nats.NewNATSJSConnection(ctx, natsMsg)
 
 	httpClient := http_client.HttpClient()
 
-	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
+	srv := pkgHttp.NewHTTPServer(cfg, otel)
 
 	reg := ridesHandler.RegisterHandlerParam{
-		Router:     srv.Router.Group("/v1"),
-		Redis:      redisClient,
+		Router:     srv.Router.Group(cfg.ApiPrefix + "/v1"),
 		DB:         pgDb,
 		NatsJS:     natsJS,
 		JWTGen:     jwtGen,

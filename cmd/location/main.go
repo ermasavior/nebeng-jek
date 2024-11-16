@@ -40,10 +40,10 @@ func main() {
 	defer natsMsg.Close()
 	natsJS := nats.NewNATSJSConnection(ctx, natsMsg)
 
-	srv := pkgHttp.NewHTTPServer(cfg.AppName, cfg.AppEnv, cfg.AppPort, otel)
+	srv := pkgHttp.NewHTTPServer(cfg, otel)
 
 	reg := locationHandler.RegisterHandlerParam{
-		Router: srv.Router.Group("/v1"),
+		Router: srv.Router.Group(cfg.ApiPrefix + "/v1"),
 		Redis:  redisClient,
 		NatsJS: natsJS,
 		Cfg:    cfg,

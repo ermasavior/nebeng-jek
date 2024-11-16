@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	mock_nats "nebeng-jek/mock/pkg/messaging/nats"
-	mock_redis "nebeng-jek/mock/pkg/redis"
 	"nebeng-jek/pkg/configs"
 	"net/http"
 	"testing"
@@ -24,7 +23,6 @@ func TestRegisterHandler(t *testing.T) {
 
 	reg := RegisterHandlerParam{
 		Router:     &router.RouterGroup,
-		Redis:      mock_redis.NewMockCollections(ctrl),
 		DB:         nil, // no tests
 		NatsJS:     natsConn,
 		JWTGen:     nil, // no tests

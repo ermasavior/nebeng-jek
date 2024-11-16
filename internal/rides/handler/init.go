@@ -12,7 +12,6 @@ import (
 	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/jwt"
 	"nebeng-jek/pkg/messaging/nats"
-	"nebeng-jek/pkg/redis"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,6 @@ import (
 
 type RegisterHandlerParam struct {
 	Router     *gin.RouterGroup
-	Redis      redis.Collections
 	DB         *sqlx.DB
 	NatsJS     nats.JetStreamConnection
 	JWTGen     jwt.JWTInterface

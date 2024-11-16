@@ -1,0 +1,81 @@
+services:
+  redis:
+    image: "redis:alpine"
+    container_name: "redis_container"
+    ports:
+      - "6379:6379"
+    volumes:
+      - /data/rides/redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      local:
+  nats:
+    image: nats:latest
+    container_name: "nats_container"
+    ports:
+      - "4222:4222"  # NATS client connections
+      - "8222:8222"  # NATS monitoring interface
+      - "6222:6222"  # NATS clustering port (if needed)
+    command: ["-js"]  # Enables JetStream
+    volumes:
+      - /data/rides/redis-data:/data  # Persistent data storage for JetStream
+    environment:
+      - NATS_MAX_MEMORY=2GB  # Limits memory usage
+      - NATS_MAX_PAYLOAD=64MB  # Sets max message payload
+    networks:
+      local:
+  rides-service:
+    image: ermasavior/nebengjek-rides:latest
+    container_name: "nebengjek_rides"
+    ports:
+      - "9999:9999"
+    env_file:
+      - ./configs/rides/.env
+    depends_on:
+      - redis
+      - nats
+    networks:
+      local:
+  drivers-service:
+    image: ermasavior/nebengjek-drivers:latest
+    container_name: "nebengjek_drivers"
+    ports:
+      - "9998:9998"
+    env_file:
+      - ./configs/drivers/.env
+    depends_on:
+      - redis
+      - nats
+    networks:
+      local:
+  riders-service:
+    image: ermasavior/nebengjek-riders:latest
+    container_name: "nebengjek_riders"
+    ports:
+      - "9997:9997"
+    env_file:
+      - ./configs/riders/.env
+    depends_on:
+      - redis
+      - nats
+    networks:
+      local:
+  location-service:
+    image: ermasavior/nebengjek-location:latest
+    container_name: "nebengjek_location"
+    ports:
+      - "9996:9996"
+    env_file:
+      - ./configs/location/.env
+    depends_on:
+      - redis
+      - nats
+    networks:
+      local:
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  local:

@@ -4,6 +4,7 @@ type Config struct {
 	AppName        string `env:"APP_NAME"`
 	AppPort        string `env:"APP_PORT"`
 	AppEnv         string `env:"APP_ENV"`
+	ApiPrefix      string `env:"API_PREFIX"`
 	DbName         string `env:"DB_NAME"`
 	DbUsername     string `env:"DB_USERNAME"`
 	DbPassword     string `env:"DB_PASSWORD"`

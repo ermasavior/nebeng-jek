@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"nebeng-jek/pkg/configs"
 	"nebeng-jek/pkg/http/middleware"
 	httpUtils "nebeng-jek/pkg/http/utils"
 	"nebeng-jek/pkg/logger"
@@ -20,8 +21,8 @@ type Server struct {
 	Router  *gin.Engine
 }
 
-func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry) Server {
-	if appEnv == "production" {
+func NewHTTPServer(cfg *configs.Config, otel *pkgOtel.OpenTelemetry) Server {
+	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
@@ -33,13 +34,14 @@ func NewHTTPServer(appName, appEnv, appPort string, otel *pkgOtel.OpenTelemetry)
 
 	router.Use(gin.Recovery())
 	router.Use(middleware.CorsHandler())
-	router.Use(otelgin.Middleware(appName))
+	router.Use(otelgin.Middleware(cfg.AppName))
 
 	router.GET("/", healthCheck)
-	router.GET("/healthz", healthCheck)
+	router.GET(cfg.ApiPrefix+"/", healthCheck)
+	router.GET(cfg.ApiPrefix+"/healthz", healthCheck)
 
 	return Server{
-		address: ":" + appPort,
+		address: ":" + cfg.AppPort,
 		Router:  router,
 	}
 }
