@@ -85,6 +85,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} '
             # Now we have got the access of EC2 and we will start the deploy.
             cd ~/apps &&
-            IMAGE_TAG=${IMAGE_TAG} docker compose pull ${SERVICE_NAME}-service &&
-            IMAGE_TAG=${IMAGE_TAG} docker compose up -d --no-deps ${SERVICE_NAME}-service
+            IMAGE_TAG=${IMAGE_TAG} docker compose pull "${SERVICE_NAME}-service" &&
+            IMAGE_TAG=${IMAGE_TAG} docker compose up -d --no-deps "${SERVICE_NAME}-service"
           '
