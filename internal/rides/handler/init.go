@@ -33,7 +33,7 @@ func RegisterHandler(ctx context.Context, reg RegisterHandlerParam) {
 	repoCache := location.NewLocationRepository(reg.Cfg, reg.HttpClient)
 	paymentSvc := payment.NewPaymentRepository(reg.Cfg, reg.HttpClient)
 
-	uc := usecase.NewUsecase(repoCache, repoDB, ridesPubSub, paymentSvc)
+	uc := usecase.NewUsecase(reg.Cfg, repoCache, repoDB, ridesPubSub, paymentSvc)
 
 	httpHandler := handler_http.NewHandler(uc)
 	mid := middleware.NewRidesMiddleware(reg.JWTGen)

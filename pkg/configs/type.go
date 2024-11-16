@@ -28,4 +28,7 @@ type Config struct {
 	LocationServiceAPIKey string `env:"LOCATION_SERVICE_API_KEY"`
 
 	InternalAPIKey string `env:"INTERNAL_API_KEY"`
+
+	RidePricePerKm    float64 `env:"PRICE_PER_KM"`
+	RideFeePercentage int     `env:"RIDE_FEE_PERCENTAGE"`
 }

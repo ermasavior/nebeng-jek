@@ -101,7 +101,7 @@ func (u *ridesUsecase) DriverConfirmPayment(ctx context.Context, req model.Drive
 }
 
 func (u *ridesUsecase) processPayment(ctx context.Context, rideID int64, finalPrice float64, payerMSISDN, payeeMSISDN string) error {
-	commission := finalPrice * model.RideFeeDiscount
+	commission := finalPrice * float64(u.RideFeePercentage/100)
 	netPrice := finalPrice - commission
 
 	err := u.paymentRepo.DeductCredit(ctx, model.DeductCreditRequest{

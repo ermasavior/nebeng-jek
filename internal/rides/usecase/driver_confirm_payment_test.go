@@ -10,6 +10,7 @@ import (
 	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
+	"nebeng-jek/pkg/configs"
 	pkgError "nebeng-jek/pkg/error"
 
 	"github.com/golang/mock/gomock"
@@ -20,10 +21,14 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	cfg := &configs.Config{
+		RideFeePercentage: 30,
+		RidePricePerKm:    3000,
+	}
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
 	paymentRepoMock := mockRepo.NewMockPaymentRepository(ctrl)
-	usecaseMock := NewUsecase(nil, ridesRepoMock, ridesPubsubMock, paymentRepoMock)
+	usecaseMock := NewUsecase(cfg, nil, ridesRepoMock, ridesPubsubMock, paymentRepoMock)
 
 	var (
 		driverID     = int64(1111)
@@ -33,8 +38,8 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 		fare         = float64(20000)
 		distance     = float64(3)
 		customPrice  = float64(13000)
-		netPrice     = customPrice * (1 - model.RideFeeDiscount)
-		commission   = customPrice * model.RideFeeDiscount
+		commission   = customPrice * float64(cfg.RideFeePercentage/100)
+		netPrice     = customPrice - commission
 
 		rideData = model.RideData{
 			RideID:    111,

@@ -9,6 +9,7 @@ import (
 	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
+	"nebeng-jek/pkg/configs"
 	pkgError "nebeng-jek/pkg/error"
 
 	"github.com/golang/mock/gomock"
@@ -19,8 +20,9 @@ func TestUsecase_GetRideData(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	cfg := configs.NewMockConfig()
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
-	usecaseMock := NewUsecase(nil, ridesRepoMock, nil, nil)
+	usecaseMock := NewUsecase(cfg, nil, ridesRepoMock, nil, nil)
 
 	var (
 		rideID   = int64(666)

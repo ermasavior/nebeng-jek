@@ -10,6 +10,7 @@ import (
 	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
+	"nebeng-jek/pkg/configs"
 	pkgError "nebeng-jek/pkg/error"
 
 	"github.com/golang/mock/gomock"
@@ -20,10 +21,11 @@ func TestUsecase_DriverConfirmRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	cfg := configs.NewMockConfig()
 	locationRepoMock := mockRepo.NewMockRidesLocationRepository(ctrl)
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
-	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
+	usecaseMock := NewUsecase(cfg, locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
 		driverID   = int64(1111)
