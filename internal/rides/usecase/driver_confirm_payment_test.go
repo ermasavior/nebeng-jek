@@ -38,7 +38,8 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 		fare         = float64(20000)
 		distance     = float64(3)
 		customPrice  = float64(13000)
-		commission   = customPrice * float64(cfg.RideFeePercentage/100)
+		finalPrice   = float64(13000)
+		commission   = customPrice * float64(cfg.RideFeePercentage) / 100
 		netPrice     = customPrice - commission
 
 		rideData = model.RideData{
@@ -76,7 +77,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(nil)
 		paymentRepoMock.EXPECT().AddCredit(ctx, model.AddCreditRequest{
 			MSISDN: driverMSISDN,
@@ -157,7 +158,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(expectedErr)
 
 		_, err := usecaseMock.DriverConfirmPayment(ctx, req)
@@ -172,7 +173,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(nil)
 		paymentRepoMock.EXPECT().AddCredit(ctx, model.AddCreditRequest{
 			MSISDN: driverMSISDN,
@@ -191,7 +192,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(nil)
 		paymentRepoMock.EXPECT().AddCredit(ctx, model.AddCreditRequest{
 			MSISDN: driverMSISDN,
@@ -214,7 +215,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(nil)
 		paymentRepoMock.EXPECT().AddCredit(ctx, model.AddCreditRequest{
 			MSISDN: driverMSISDN,
@@ -243,7 +244,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 
 		paymentRepoMock.EXPECT().DeductCredit(ctx, model.DeductCreditRequest{
 			MSISDN: riderMSISDN,
-			Value:  netPrice,
+			Value:  finalPrice,
 		}).Return(nil)
 		paymentRepoMock.EXPECT().AddCredit(ctx, model.AddCreditRequest{
 			MSISDN: driverMSISDN,
