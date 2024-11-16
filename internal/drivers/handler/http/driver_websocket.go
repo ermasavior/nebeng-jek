@@ -32,17 +32,22 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 		var msg model.DriverMessage
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-				logger.Debug(ctx, "websocket connection closed", map[string]interface{}{
+			if _, ok := err.(*json.SyntaxError); ok {
+				logger.Error(ctx, "invalid json message from driver", map[string]interface{}{
 					logger.ErrorKey: err, "driver_id": driverID,
 				})
+			} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				logger.Error(ctx, "error unexpected closed connection", map[string]interface{}{
+					logger.ErrorKey: err, "driver_id": driverID,
+				})
+				break
+			} else if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				break
 			}
 
 			logger.Error(ctx, "error reading message from driver", map[string]interface{}{
 				logger.ErrorKey: err, "driver_id": driverID,
 			})
-			break
 		}
 
 		h.routeMessage(ctx, msg)
