@@ -43,6 +43,7 @@ func main() {
 		Password: cfg.DbPassword,
 		Port:     cfg.DbPort,
 		Db:       cfg.DbName,
+		Env:      cfg.AppEnv,
 	})
 	if err != nil {
 		logger.Error(ctx, "error initializing logger", map[string]interface{}{logger.ErrorKey: err})

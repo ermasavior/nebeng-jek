@@ -39,11 +39,11 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 				logger.Error(ctx, "invalid json message from rider", map[string]interface{}{
 					logger.ErrorKey: err, "rider_id": riderID,
 				})
+				continue
 			} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				logger.Error(ctx, "error unexpected closed connection", map[string]interface{}{
 					logger.ErrorKey: err, "rider_id": riderID,
 				})
-				break
 			} else if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				break
 			}
@@ -51,6 +51,7 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 			logger.Error(ctx, "error reading message from rider", map[string]interface{}{
 				logger.ErrorKey: err, "rider_id": riderID,
 			})
+			break
 		}
 
 		h.routeMessage(ctx, msg)

@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"nebeng-jek/pkg/configs"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -18,10 +19,16 @@ type PostgresDsn struct {
 	User     string
 	Password string
 	Db       string
+	Env      string
 }
 
 func (p PostgresDsn) ToString() string {
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", p.Host, p.User, p.Password, p.Db, p.Port)
+	sslMode := "disable"
+	if p.Env == configs.EnvProduction {
+		sslMode = "require"
+	}
+
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s", p.Host, p.User, p.Password, p.Db, p.Port, sslMode)
 }
 
 func NewPostgresDB(pgDsn PostgresDsn) (*sqlx.DB, error) {
