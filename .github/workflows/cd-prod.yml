@@ -1,4 +1,4 @@
-name: [Production] Continuous Delivery
+name: Production Continuous Delivery
 
 on:
   release:
@@ -18,7 +18,7 @@ jobs:
       - run: |
           echo "Processing deployment to Production..."
           echo "Service name: ${SERVICE_NAME}"
-          echo "Release tag: ${{ github.event.release.tag_name }}"
+          echo "Release tag: ${TAG_NAME}"
           if [[ ${SERVICE_NAME} != "rides" && \
                 ${SERVICE_NAME} != "riders" && \
                 ${SERVICE_NAME} != "location" && \
