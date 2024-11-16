@@ -1,5 +1,7 @@
 package configs
 
+const EnvProduction = "production"
+
 type Config struct {
 	AppName        string `env:"APP_NAME"`
 	AppPort        string `env:"APP_PORT"`
