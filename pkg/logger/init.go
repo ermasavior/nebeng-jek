@@ -16,7 +16,7 @@ func NewLogger(cfg *configs.Config) (func(), error) {
 		config = zap.NewProductionConfig()
 	}
 
-	// config.OutputPaths = []string{cfg.LogFilePath, "stderr"}
+	config.OutputPaths = []string{cfg.LogFilePath, "stderr"}
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	config.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
 	config.DisableStacktrace = true
