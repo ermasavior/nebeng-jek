@@ -11,7 +11,7 @@ services:
     networks:
       local:
   nats:
-    image: nats:latest
+    image: nats:${IMAGE_TAG}
     container_name: "nats_container"
     ports:
       - "4222:4222"  # NATS client connections
@@ -27,7 +27,7 @@ services:
     networks:
       local:
   rides-service:
-    image: ermasavior/nebengjek-rides:latest
+    image: ermasavior/nebengjek-rides:${IMAGE_TAG}
     container_name: "nebengjek_rides"
     ports:
       - "9999:9999"
@@ -42,7 +42,7 @@ services:
     networks:
       local:
   drivers-service:
-    image: ermasavior/nebengjek-drivers:latest
+    image: ermasavior/nebengjek-drivers:${IMAGE_TAG}
     container_name: "nebengjek_drivers"
     ports:
       - "9998:9998"
@@ -57,7 +57,7 @@ services:
     networks:
       local:
   riders-service:
-    image: ermasavior/nebengjek-riders:latest
+    image: ermasavior/nebengjek-riders:${IMAGE_TAG}
     container_name: "nebengjek_riders"
     ports:
       - "9997:9997"
@@ -72,7 +72,7 @@ services:
     networks:
       local:
   location-service:
-    image: ermasavior/nebengjek-location:latest
+    image: ermasavior/nebengjek-location:${IMAGE_TAG}
     container_name: "nebengjek_location"
     ports:
       - "9996:9996"
