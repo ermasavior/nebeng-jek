@@ -62,6 +62,7 @@ jobs:
           docker push ermasavior/nebengjek-${{ github.event.inputs.service_name }}:${{ github.event.inputs.version }}
   deploy:
     name: Deploy to EC2
+    needs: build-image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 
@@ -75,8 +76,8 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} '
-
-            # Now we have got the access of EC2 and we will start the deploy .
+            # Now we have got the access of EC2 and we will start the deploy.
             cd /apps &&
             docker compose pull ${SERVICE_NAME}-service &&
             docker compose up -d --no-deps ${SERVICE_NAME}-service
+          '
