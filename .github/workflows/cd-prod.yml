@@ -1,4 +1,4 @@
-name: Production Continuous Delivery
+name: [Production] Continuous Delivery
 
 on:
   release:
@@ -15,6 +15,18 @@ jobs:
         env:
           SERVICE_NAME: ${{ github.event.release.name }}
           TAG_NAME: ${{ github.event.release.tag_name }}
+      - run: |
+          echo "Processing deployment to Production..."
+          echo "Service name: ${SERVICE_NAME}"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+          if [[ ${SERVICE_NAME} != "rides" && \
+                ${SERVICE_NAME} != "riders" && \
+                ${SERVICE_NAME} != "location" && \
+                ${SERVICE_NAME} != "drivers" ]]; then
+            echo "Invalid service name specified: ${SERVICE_NAME} 😭"
+            exit 1
+          fi
+          echo "Building service: ${SERVICE_NAME} ദ്ദി(˵ •̀ ᴗ - ˵ )♡"
       - uses: docker/login-action@v3.3.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}

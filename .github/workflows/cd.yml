@@ -26,7 +26,7 @@ jobs:
             echo "Continuous Integration did not succeed or unfinished yet😭. Aborting."
             exit 1
           else
-            echo "Continuous Integration succeeded💗. Continuing..."
+            echo "Continuous Integration succeeded💗( ദ്ദി ˙ᗜ˙ ). Continuing..."
           fi
   build-image:
     name: Build and Push Docker Image
