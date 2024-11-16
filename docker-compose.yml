@@ -26,6 +26,7 @@ services:
     volumes:
       - /data/rides/redis-data:/data
     command: ["redis-server", "--appendonly", "yes"]
+    restart: always
     networks:
       local:
   nats:
@@ -41,6 +42,7 @@ services:
     environment:
       - NATS_MAX_MEMORY=2GB  # Limits memory usage
       - NATS_MAX_PAYLOAD=64MB  # Sets max message payload
+    restart: always
     networks:
       local:
   rides-service:
@@ -56,6 +58,9 @@ services:
       - postgres
       - redis
       - nats
+    volumes:
+      - ./logs:/app/logs
+    restart: always
     networks:
       local:
   drivers-service:
@@ -71,6 +76,9 @@ services:
       - postgres
       - redis
       - nats
+    volumes:
+      - ./logs:/app/logs
+    restart: always
     networks:
       local:
   riders-service:
@@ -86,6 +94,9 @@ services:
       - postgres
       - redis
       - nats
+    volumes:
+      - ./logs:/app/logs
+    restart: always
     networks:
       local:
   location-service:
@@ -101,6 +112,9 @@ services:
       - postgres
       - redis
       - nats
+    volumes:
+      - ./logs:/app/logs
+    restart: always
     networks:
       local:
 
