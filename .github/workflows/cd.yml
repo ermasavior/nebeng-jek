@@ -37,7 +37,6 @@ jobs:
       - name: Validate service name
         env:
           SERVICE_NAME: ${{ github.event.inputs.service_name }}
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           if [[ ${SERVICE_NAME} != "rides" && \
                 ${SERVICE_NAME} != "riders" && \
@@ -52,11 +51,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Install dependencies
+        env:
+          SERVICE_NAME: ${{ github.event.inputs.service_name }}
         run: make tidy-${SERVICE_NAME}
       - name: Build docker image
+        env:
+          SERVICE_NAME: ${{ github.event.inputs.service_name }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -f deployments/${SERVICE_NAME}/Dockerfile -t ermasavior/nebengjek-${SERVICE_NAME}:${IMAGE_TAG} .
       - name: Push docker image
+        env:
+          SERVICE_NAME: ${{ github.event.inputs.service_name }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker push ermasavior/nebengjek-${SERVICE_NAME}:${IMAGE_TAG}
   deploy:
