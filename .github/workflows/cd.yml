@@ -60,3 +60,23 @@ jobs:
       - name: Push docker image
         run: |
           docker push ermasavior/nebengjek-${{ github.event.inputs.service_name }}:${{ github.event.inputs.version }}
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 
+      - name: Build & Deploy
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOSTNAME: ${{secrets.SSH_HOSTNAME}}
+          USERNAME: ${{secrets.SSH_USERNAME}}
+          SERVICE_NAME: ${{ github.event.inputs.service_name }}
+      
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USERNAME}@${HOSTNAME} '
+
+            # Now we have got the access of EC2 and we will start the deploy .
+            cd /apps &&
+            docker compose pull ${SERVICE_NAME}-service &&
+            docker compose up -d --no-deps ${SERVICE_NAME}-service
