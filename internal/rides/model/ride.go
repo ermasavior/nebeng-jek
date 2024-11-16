@@ -21,9 +21,6 @@ const (
 	StatusRideEnded         = "RIDE_ENDED"
 	StatusRidePaid          = "RIDE_PAID"
 	StatusRideCancelled     = "RIDE_CANCELLED"
-
-	RidePricePerKm  = 3000
-	RideFeeDiscount = 0.3 // 30% percentage
 )
 
 var (

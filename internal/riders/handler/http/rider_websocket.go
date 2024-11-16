@@ -3,6 +3,7 @@ package handler_http
 import (
 	"context"
 	"encoding/json"
+	"io"
 	pkg_context "nebeng-jek/internal/pkg/context"
 	"nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/riders/model"
@@ -40,11 +41,14 @@ func (h *httpHandler) RiderWebsocket(c *gin.Context) {
 					logger.ErrorKey: err, "rider_id": riderID,
 				})
 				continue
+			} else if err == io.ErrUnexpectedEOF {
+				continue
+			} else if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+				break
 			} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				logger.Error(ctx, "error unexpected closed connection", map[string]interface{}{
 					logger.ErrorKey: err, "rider_id": riderID,
 				})
-			} else if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				break
 			}
 

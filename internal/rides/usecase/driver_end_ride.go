@@ -47,7 +47,11 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 	}
 
 	distance := calculateTotalDistance(ridePath.DriverPath)
-	fare := calculateRideFare(distance)
+	fare := u.calculateRideFare(distance)
+
+	if distance == 0 {
+		return model.RideData{}, pkgError.NewUnprocessableError(model.ErrMsgInvalidDistance)
+	}
 
 	now := time.Now()
 	err = u.ridesRepo.UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -102,6 +106,6 @@ func calculateTotalDistance(path []pkgLocation.Coordinate) float64 {
 	return distance
 }
 
-func calculateRideFare(distance float64) float64 {
-	return math.Ceil(distance) * model.RidePricePerKm
+func (u *ridesUsecase) calculateRideFare(distance float64) float64 {
+	return math.Ceil(distance) * u.RidePricePerKm
 }

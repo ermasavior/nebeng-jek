@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"math"
 	"testing"
 
 	"nebeng-jek/internal/pkg/constants"
@@ -10,6 +11,7 @@ import (
 	pkgLocation "nebeng-jek/internal/pkg/location"
 	"nebeng-jek/internal/rides/model"
 	mockRepo "nebeng-jek/mock/repository"
+	"nebeng-jek/pkg/configs"
 	pkgError "nebeng-jek/pkg/error"
 
 	"github.com/golang/mock/gomock"
@@ -20,10 +22,14 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	cfg := &configs.Config{
+		RidePricePerKm:    3000,
+		RideFeePercentage: 30,
+	}
 	locationRepoMock := mockRepo.NewMockRidesLocationRepository(ctrl)
 	ridesRepoMock := mockRepo.NewMockRidesRepository(ctrl)
 	ridesPubsubMock := mockRepo.NewMockRidesPubsubRepository(ctrl)
-	usecaseMock := NewUsecase(locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
+	usecaseMock := NewUsecase(cfg, locationRepoMock, ridesRepoMock, ridesPubsubMock, nil)
 
 	var (
 		driverID = int64(7777)
@@ -53,7 +59,7 @@ func TestUsecase_DriverEndRide(t *testing.T) {
 		}
 
 		distance = calculateTotalDistance(path)
-		fare     = calculateRideFare(distance)
+		fare     = math.Ceil(distance) * cfg.RidePricePerKm
 
 		expectedRes = model.RideData{
 			RideID:    rideID,
