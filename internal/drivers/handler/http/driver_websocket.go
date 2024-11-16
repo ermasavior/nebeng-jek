@@ -33,9 +33,10 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			if _, ok := err.(*json.SyntaxError); ok {
-				logger.Error(ctx, "invalid json message from driver", map[string]interface{}{
+				logger.Info(ctx, "invalid json message from driver", map[string]interface{}{
 					logger.ErrorKey: err, "driver_id": driverID,
 				})
+				continue
 			} else if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				logger.Error(ctx, "error unexpected closed connection", map[string]interface{}{
 					logger.ErrorKey: err, "driver_id": driverID,
@@ -48,6 +49,7 @@ func (h *httpHandler) DriverAllocationWebsocket(c *gin.Context) {
 			logger.Error(ctx, "error reading message from driver", map[string]interface{}{
 				logger.ErrorKey: err, "driver_id": driverID,
 			})
+			break
 		}
 
 		h.routeMessage(ctx, msg)
