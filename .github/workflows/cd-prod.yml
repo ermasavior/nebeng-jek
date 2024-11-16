@@ -7,7 +7,6 @@ on:
 jobs:
   build-image:
     name: Build and Push Docker Image
-    needs: check-ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
