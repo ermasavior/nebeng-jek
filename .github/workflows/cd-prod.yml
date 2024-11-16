@@ -15,7 +15,7 @@ jobs:
         env:
           SERVICE_NAME: ${{ github.event.release.name }}
           TAG_NAME: ${{ github.event.release.tag_name }}
-      - run: |
+        run: |
           echo "Processing deployment to Production..."
           echo "Service name: ${SERVICE_NAME}"
           echo "Release tag: ${TAG_NAME}"
