@@ -62,7 +62,7 @@ func initTracerProvider(ctx context.Context, res *resource.Resource) *sdktrace.T
 	}
 
 	tp := sdktrace.NewTracerProvider(
-		// sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithResource(res),
 		sdktrace.WithBatcher(exp),
 	)
@@ -84,9 +84,7 @@ func initMeterProvider(ctx context.Context, res *resource.Resource) *sdkmetric.M
 	mp := sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(
 			sdkmetric.NewPeriodicReader(
-				exp,
-				// Default is 1m. Set to 3s for demonstrative purposes.
-				sdkmetric.WithInterval(3*time.Second),
+				exp, sdkmetric.WithInterval(3*time.Minute),
 			),
 		),
 		sdkmetric.WithResource(res),
@@ -103,7 +101,9 @@ func initLoggerProvider(ctx context.Context, res *resource.Resource) *sdklogger.
 		log.Fatal(ctx, "error init logger provider", err)
 	}
 	lp := sdklogger.NewLoggerProvider(
-		sdklogger.WithProcessor(sdklogger.NewBatchProcessor(exp)),
+		sdklogger.WithProcessor(sdklogger.NewBatchProcessor(
+			exp, sdklogger.WithExportInterval(3*time.Minute),
+		)),
 		sdklogger.WithResource(res),
 	)
 
