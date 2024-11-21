@@ -31,7 +31,7 @@ func (r RideData) ToResponse() RideDataResponse {
 	}
 	var distance string
 	if r.Distance != nil {
-		distance = fmt.Sprintf("%.2f", *r.Distance)
+		distance = fmt.Sprintf("%.6f", *r.Distance)
 	}
 	var fare string
 	if r.Fare != nil {

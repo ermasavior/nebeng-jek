@@ -47,7 +47,7 @@ func TestRideData_ToResponse(t *testing.T) {
 			Longitude: 2,
 			Latitude:  2,
 		},
-		Distance:   "10.00",
+		Distance:   "10.000000",
 		Fare:       "10000.00",
 		FinalPrice: "9000.00",
 		Status:     StatusRideCancelled,
