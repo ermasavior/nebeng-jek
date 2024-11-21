@@ -167,7 +167,7 @@ func (r *ridesRepo) UpdateRideData(ctx context.Context, req model.UpdateRideData
 
 func (r *ridesRepo) StoreRideCommission(ctx context.Context, req model.StoreRideCommissionRequest) error {
 	values := []interface{}{
-		req.RideID, req.Commission,
+		req.RideID, req.PlatformFee, req.DriverCommission,
 	}
 	_, err := r.db.ExecContext(ctx, queryInsertRideCommission, values...)
 	if err != nil {

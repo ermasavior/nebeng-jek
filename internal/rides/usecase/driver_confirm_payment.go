@@ -101,8 +101,8 @@ func (u *ridesUsecase) DriverConfirmPayment(ctx context.Context, req model.Drive
 }
 
 func (u *ridesUsecase) processPayment(ctx context.Context, rideID int64, finalPrice float64, payerMSISDN, payeeMSISDN string) error {
-	commission := finalPrice * float64(u.RideFeePercentage) / 100
-	netPrice := finalPrice - commission
+	platformFee := finalPrice * float64(u.RideFeePercentage) / 100
+	netPrice := finalPrice - platformFee
 
 	err := u.paymentRepo.DeductCredit(ctx, model.DeductCreditRequest{
 		MSISDN: payerMSISDN,
@@ -125,8 +125,9 @@ func (u *ridesUsecase) processPayment(ctx context.Context, rideID int64, finalPr
 		return err
 	}
 	err = u.ridesRepo.StoreRideCommission(ctx, model.StoreRideCommissionRequest{
-		RideID:     rideID,
-		Commission: commission,
+		RideID:           rideID,
+		DriverCommission: netPrice,
+		PlatformFee:      platformFee,
 	})
 	if err != nil {
 		logger.Error(ctx, "error store ride commission", map[string]interface{}{

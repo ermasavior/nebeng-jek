@@ -39,8 +39,8 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 		distance     = float64(3)
 		customPrice  = float64(13000)
 		finalPrice   = float64(13000)
-		commission   = customPrice * float64(cfg.RideFeePercentage) / 100
-		netPrice     = customPrice - commission
+		platformFee  = customPrice * float64(cfg.RideFeePercentage) / 100
+		netPrice     = customPrice - platformFee
 
 		rideData = model.RideData{
 			RideID:    111,
@@ -84,8 +84,9 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			Value:  netPrice,
 		}).Return(nil)
 		ridesRepoMock.EXPECT().StoreRideCommission(ctx, model.StoreRideCommissionRequest{
-			RideID:     req.RideID,
-			Commission: commission,
+			RideID:           req.RideID,
+			PlatformFee:      platformFee,
+			DriverCommission: netPrice,
 		}).Return(nil)
 
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -184,7 +185,7 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 		assert.Equal(t, pkgError.ErrInternalErrorCode, err.GetCode())
 	})
 
-	t.Run("failed - failed store commission", func(t *testing.T) {
+	t.Run("failed - failed store platformFee", func(t *testing.T) {
 		ridesRepoMock.EXPECT().GetRideData(ctx, req.RideID).Return(rideData, nil)
 
 		ridesRepoMock.EXPECT().GetDriverMSISDNByID(ctx, driverID).Return(driverMSISDN, nil)
@@ -199,8 +200,9 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			Value:  netPrice,
 		}).Return(nil)
 		ridesRepoMock.EXPECT().StoreRideCommission(ctx, model.StoreRideCommissionRequest{
-			RideID:     req.RideID,
-			Commission: commission,
+			RideID:           req.RideID,
+			PlatformFee:      platformFee,
+			DriverCommission: netPrice,
 		}).Return(expectedErr)
 
 		_, err := usecaseMock.DriverConfirmPayment(ctx, req)
@@ -222,8 +224,9 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			Value:  netPrice,
 		}).Return(nil)
 		ridesRepoMock.EXPECT().StoreRideCommission(ctx, model.StoreRideCommissionRequest{
-			RideID:     req.RideID,
-			Commission: commission,
+			RideID:           req.RideID,
+			PlatformFee:      platformFee,
+			DriverCommission: netPrice,
 		}).Return(nil)
 
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{
@@ -251,8 +254,9 @@ func TestUsecase_DriverConfirmPayment(t *testing.T) {
 			Value:  netPrice,
 		}).Return(nil)
 		ridesRepoMock.EXPECT().StoreRideCommission(ctx, model.StoreRideCommissionRequest{
-			RideID:     req.RideID,
-			Commission: commission,
+			RideID:           req.RideID,
+			PlatformFee:      platformFee,
+			DriverCommission: netPrice,
 		}).Return(nil)
 
 		ridesRepoMock.EXPECT().UpdateRideData(ctx, model.UpdateRideDataRequest{

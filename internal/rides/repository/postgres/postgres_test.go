@@ -545,15 +545,16 @@ func TestRepository_StoreRideCommission(t *testing.T) {
 
 	ctx := context.Background()
 	req := model.StoreRideCommissionRequest{
-		RideID:     1111,
-		Commission: 20000,
+		RideID:           1111,
+		PlatformFee:      2000,
+		DriverCommission: 20000,
 	}
 
 	expectedQuery := queryInsertRideCommission
 
 	t.Run("should execute insert query", func(t *testing.T) {
 		sqlMock.ExpectExec(expectedQuery).
-			WithArgs(req.RideID, req.Commission).
+			WithArgs(req.RideID, req.PlatformFee, req.DriverCommission).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		err := repoMock.StoreRideCommission(ctx, req)
@@ -564,7 +565,7 @@ func TestRepository_StoreRideCommission(t *testing.T) {
 	t.Run("should return error when error from db", func(t *testing.T) {
 		rowErr := errors.New("error from db")
 		sqlMock.ExpectExec(expectedQuery).
-			WithArgs(req.RideID, req.Commission).
+			WithArgs(req.RideID, req.PlatformFee, req.DriverCommission).
 			WillReturnError(rowErr)
 
 		err := repoMock.StoreRideCommission(ctx, req)

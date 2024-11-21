@@ -67,8 +67,9 @@ func (r *RideData) SetStatus(statusNum int) {
 }
 
 type StoreRideCommissionRequest struct {
-	RideID     int64
-	Commission float64
+	RideID           int64
+	PlatformFee      float64
+	DriverCommission float64
 }
 
 type UpdateRideDataRequest struct {
