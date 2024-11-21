@@ -1,5 +1,5 @@
 -- vehicle type enum: 1 - CAR; 2 - MOTORCYCLE
--- status type enum: 0 - OFF; 1 - AVAILABLE; 2 - ON_RIDE
+-- status type enum: 0 - OFF; 1 - AVAILABLE
 CREATE TABLE drivers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -11,7 +11,6 @@ CREATE TABLE drivers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- status type enum: 0 - OFF; 1 - WAITING_FOR_DRIVER; 2 - ON_RIDE
 CREATE TABLE riders (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -35,6 +34,14 @@ CREATE TABLE rides (
     end_time TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ride_commissions (
+    id BIGSERIAL PRIMARY KEY,
+    ride_id BIGINT NOT NULL,
+    platform_fee DECIMAL(10, 2),
+    driver_commission DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO drivers (name, phone_number, vehicle_type, vehicle_plate) 
