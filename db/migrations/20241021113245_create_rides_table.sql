@@ -6,7 +6,7 @@ CREATE TABLE rides (
     pickup_location POINT NOT NULL,
     destination POINT NOT NULL,
     status INT NOT NULL, -- enum: 1 - 'WAITING_FOR_DRIVER'; 2 - 'CANCELLED'; 3 - 'WAITING_FOR_PICKUP'; 4 - 'IN_PROGRESS'; 5 - 'FINISHED'
-    distance DECIMAL(6, 2),
+    distance DECIMAL(10, 6),
     fare DECIMAL(10, 2),
     final_price DECIMAL(10, 2),
     start_time TIMESTAMP,
