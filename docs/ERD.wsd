@@ -47,7 +47,8 @@ entity "ride_commissions" as e04 {
   *id : number <<generated>>
   --
   *ride_id : number <<FK>>
-  commission : decimal
+  platform_fee : decimal
+  driver_commission : decimal
   created_at : timestamp
 }
 

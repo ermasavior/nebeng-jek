@@ -50,7 +50,7 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    "result/load_stages/patch_availability.result.html": htmlReport(data),
+    "result.patch_driver_availability.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }

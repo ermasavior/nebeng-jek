@@ -41,7 +41,7 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    "result/load_stages/get_ride_data.result.html": htmlReport(data),
+    "result.get_ride_data.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }

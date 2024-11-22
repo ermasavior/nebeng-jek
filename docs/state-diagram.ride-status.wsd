@@ -1,0 +1,15 @@
+@startuml Ride Status Diagram
+hide empty description
+
+[*] --> NEW_RIDE_REQUEST : [Rider] creates ride request
+
+NEW_RIDE_REQUEST --> MATCHED_DRIVER : [Driver] accepts ride request
+MATCHED_DRIVER --> RIDE_CANCELLED : [Rider] rejects
+MATCHED_DRIVER --> READY_TO_PICKUP : [Rider] accepts
+READY_TO_PICKUP --> RIDE_STARTED : [Driver] starts ride in pickup location
+RIDE_STARTED --> RIDE_ENDED : [Driver] ends ride
+RIDE_ENDED --> RIDE_PAID : [Driver] confirms price
+
+RIDE_PAID --> [*]
+RIDE_CANCELLED --> [*]
+@enduml
