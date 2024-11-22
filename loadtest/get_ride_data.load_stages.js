@@ -6,11 +6,11 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 //scenario 2 (load test based on stages)
 export const options = {
   stages: [
-    { duration: "0.3m", target: 100 }, // simulate ramp-up of traffic from 1 to 100 users over 0.3 minute
-    { duration: "0.4m", target: 100 }, // stay at 100 users for 0.4 minute
-    { duration: "0.6m", target: 150 }, // simulate ramp-up of traffic from 100 to 200 users over 0.6 minute
-    { duration: "1m", target: 250 }, // simulate ramp-up to 300 users over 1 minute
-    { duration: "1.4m", target: 0 }, // simulate ramp-down to 0 users over 1.4 minute
+    { duration: "0.3m", target: 50 },
+    { duration: "0.4m", target: 100 },
+    { duration: "0.6m", target: 150 },
+    { duration: "1m", target: 200 },
+    { duration: "1.4m", target: 0 },
   ],
   thresholds: {
     http_req_failed: ["rate<0.001"], // the error rate must be lower than 0.1%
@@ -41,7 +41,7 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    "result/load_stages/get_ride_data.result.html": htmlReport(data),
+    "result.get_ride_data.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }

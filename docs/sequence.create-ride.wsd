@@ -1,0 +1,24 @@
+@startuml Create New Ride Flow
+
+actor Rider
+actor Driver
+
+== Create New Ride ==
+Rider->Rides: Create new ride request
+Rides->Location: Get nearest available drivers
+Location->LocationDB: Query drivers
+LocationDB-->Location: Return driver list
+Location-->Rides: Return driver list
+Rides->RidesDB: Store ride with status WAITING_FOR_DRIVER
+Rides->Drivers: Publish ride request to driver list
+Drivers-->Driver: Notify drivers
+
+
+== Set Driver Availability ==
+Driver->Rides: Set as active
+Rides->RidesDB: Update as active driver
+Rides->Location: Update driver's current location
+Location->LocationDB: Store driver location
+
+
+@enduml
