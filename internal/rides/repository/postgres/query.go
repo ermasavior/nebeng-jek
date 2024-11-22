@@ -40,7 +40,7 @@ const (
 		WHERE %s 
 	`
 	queryInsertRideCommission = `
-		INSERT INTO ride_commissions(ride_id, commission)
-		VALUES($1, $2)
+		INSERT INTO ride_commissions(ride_id, platform_fee, driver_commission)
+		VALUES($1, $2, $3)
 	`
 )
