@@ -115,7 +115,7 @@ Postman version: https://www.postman.com/ermasavior/nebengjek-public/overview
 
 ## Load Test
 
-The load test scenario will spawn a number of concurrent users that send requests on multiple stages. The load test target is GET ride data endpoint (with target of 200 Transaction per Second) PATCH driver availability endpoint (with target of 100 Transaction per Second). 
+The load test scenario will spawn a number of concurrent users that send requests on multiple stages. The load test target is GET ride data endpoint (with target of 400 Transaction per Second or) PATCH driver availability endpoint (with target of 200 Transaction per Second).
 
 ## Prerequisites
 1. [K6](https://github.com/grafana/k6)
@@ -133,7 +133,11 @@ k6 run patch_driver_availability.load_stages.js
 ```
 
 ## Result
-TBD
+The load test for GET endpoint reached 491 Transaction per Second (TPS) average, with 176 ms average latency. All test thresholds were passed, with 99% success rate. 1% error (121 request) occured because of maximum database connection reached. For future scaling, we can utilize in-memory storage (Redis) to reduce database connection.
+
+PATCH endpoint load test reached 243 TPS average, with 175 ms average latency. All test thresholds were passed as well (100% success rate).
+
+See result and test evidence in `loadtest/result` for detailed information. 
 
 ## Author
 Erma Safira Nurmasyita

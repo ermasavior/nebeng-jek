@@ -16,7 +16,7 @@ info:
 
 
     <img
-    src="https://github.com/ermasavior/nebeng-jek/blob/main/docs/pictures/sequence.start-stop-ride.png"
+    src="https://raw.githubusercontent.com/ermasavior/nebeng-jek/refs/heads/main/docs/pictures/sequence.start-stop-ride.png"
     alt="Flow%20for%20Ride%20Start-Stop">
   version: 1.0.0
 servers:
