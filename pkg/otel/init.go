@@ -3,7 +3,6 @@ package pkg_otel
 import (
 	"context"
 	"log"
-	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -62,7 +61,7 @@ func initTracerProvider(ctx context.Context, res *resource.Resource) *sdktrace.T
 	}
 
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		// sdktrace.WithSampler(sdktrace.AlwaysSample()), sample request
 		sdktrace.WithResource(res),
 		sdktrace.WithBatcher(exp),
 	)
@@ -83,9 +82,7 @@ func initMeterProvider(ctx context.Context, res *resource.Resource) *sdkmetric.M
 
 	mp := sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(
-			sdkmetric.NewPeriodicReader(
-				exp, sdkmetric.WithInterval(3*time.Minute),
-			),
+			sdkmetric.NewPeriodicReader(exp),
 		),
 		sdkmetric.WithResource(res),
 	)
@@ -101,9 +98,7 @@ func initLoggerProvider(ctx context.Context, res *resource.Resource) *sdklogger.
 		log.Fatal(ctx, "error init logger provider", err)
 	}
 	lp := sdklogger.NewLoggerProvider(
-		sdklogger.WithProcessor(sdklogger.NewBatchProcessor(
-			exp, sdklogger.WithExportInterval(3*time.Minute),
-		)),
+		sdklogger.WithProcessor(sdklogger.NewBatchProcessor(exp)),
 		sdklogger.WithResource(res),
 	)
 
