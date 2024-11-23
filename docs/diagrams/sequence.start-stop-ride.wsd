@@ -3,8 +3,17 @@
 actor Rider
 actor Driver
 
+== Start Ride ==
+Driver->Rides: Start ride request
+Rides->RidesDB: Update ride to RIDE_STARTED
+Rides->Riders: Publish ride update
+Riders-->Rider: Notify rider
+
 == End Ride ==
-Driver->Rides: Stop ride
+Driver->Rides: End ride
+Rides->Location: Get ride path
+Location-->Rides: Return ride path
+Rides->Rides: Validate ride
 Rides->RidesDB: Update ride to RIDE_ENDED
 Rides->Riders: Publish ride update
 Riders-->Rider: Notify rider

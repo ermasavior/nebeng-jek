@@ -1,0 +1,164 @@
+asyncapi: 3.0.0
+info:
+  title: Driver-Rider WebSocket APIs
+  version: 1.0.0
+  description: |
+    Websocket APIs for Drivers and Riders
+    
+    <img
+    src="https://raw.githubusercontent.com/ermasavior/nebeng-jek/refs/heads/main/docs/pictures/sequence.location-tracking.png"
+    alt="Flow%20for%20Real-time%20Location%20Tracking">
+servers:
+  drivers:
+    host: ermanebengjek-1324961190.ap-southeast-3.elb.amazonaws.com/api/drivers
+    pathname: /v1/ws
+    protocol: ws
+  riders:
+    host: ermanebengjek-1324961190.ap-southeast-3.elb.amazonaws.com/api/riders
+    pathname: /v1/ws
+    protocol: ws
+channels:
+  /drivers:
+    servers:
+      - $ref: "#/servers/drivers"
+    messages:
+      sendMessage.message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            event:
+              type: string
+              description: The message event.
+              example: real_time_location
+            data:
+              $ref: '#/components/schemas/location'
+      receiveMessage.message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            event:
+              type: string
+              description: The message event.
+              example: new_ride_request
+            data:
+              type: object
+              description: The message data.
+              properties:
+                ride_id:
+                  type: integer
+                  description: Ride ID update
+                  example: 111
+                rider_id:
+                  type: integer
+                  description: Rider ID
+                  example: 8989
+    description: Ride event changes broadcasting
+  /riders:
+    servers:
+      - $ref: "#/servers/riders"
+    messages:
+      sendMessage.message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            event:
+              type: string
+              description: The message event.
+              example: real_time_location
+            data:
+              $ref: '#/components/schemas/location'
+      receiveMessage.message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            event:
+              type: string
+              description: The message event.
+              example: new_ride_request
+            data:
+              type: object
+              description: The message data.
+              properties:
+                ride_id:
+                  type: integer
+                  description: Ride ID update
+                  example: 111
+                rider_id:
+                  type: integer
+                  description: Rider ID
+                  example: 8989
+    description: Ride event changes broadcasting
+
+operations:
+  driverSendMessage:
+    action: send
+    security:
+      - $ref: '#/components/securitySchemes/bearerAuth'
+    channel:
+      $ref: '#/channels/~1drivers'
+    summary: Send message to the server
+    messages:
+      - $ref: '#/channels/~1drivers/messages/sendMessage.message'
+  driverReceiveMessage:
+    action: receive
+    security:
+      - $ref: '#/components/securitySchemes/bearerAuth'
+    channel:
+      $ref: '#/channels/~1drivers'
+    summary: Receive message from the server
+    messages:
+      - $ref: '#/channels/~1drivers/messages/receiveMessage.message'
+  riderSendMessage:
+    action: send
+    security:
+      - $ref: '#/components/securitySchemes/bearerAuth'
+    channel:
+      $ref: '#/channels/~1riders'
+    summary: Send message to the server
+    messages:
+      - $ref: '#/channels/~1riders/messages/sendMessage.message'
+  riderReceiveMessage:
+    action: receive
+    security:
+      - $ref: '#/components/securitySchemes/bearerAuth'
+    channel:
+      $ref: '#/channels/~1riders'
+    summary: Receive message from the server
+    messages:
+      - $ref: '#/channels/~1riders/messages/receiveMessage.message'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Enter your JWT token
+  schemas:
+    location:
+      type: object
+      description: The message data.
+      properties:
+        ride_id:
+          type: integer
+          description: Driver's assigned ride ID
+          example: 111
+        timestamp:
+          type: number
+          description: Event timestamp
+          example: 1731763840
+        location:
+          type: object
+          description: Current location
+          properties:
+            latitude:
+              type: number
+              example: 106.81746604
+            longitude:
+              type: number
+              example: -6.23061572

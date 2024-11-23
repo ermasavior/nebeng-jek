@@ -1,0 +1,1242 @@
+openapi: 3.0.0
+info:
+  title: Rides Service
+  description: >-
+    This service manages ride data, status lifecycle, and rider-driver matching
+
+
+    <img
+    src="https://raw.githubusercontent.com/ermasavior/nebeng-jek/refs/heads/main/docs/pictures/sequence.create-ride.png"
+    alt="Flow%20for%20Create%20New%20Ride%20Request">
+
+
+    <img
+    src="https://raw.githubusercontent.com/ermasavior/nebeng-jek/refs/heads/main/docs/pictures/sequence.match-driver-rider.png"
+    alt="Flow%20for%20Driver-Rider%20Matching">
+
+
+    <img
+    src="https://github.com/ermasavior/nebeng-jek/blob/main/docs/pictures/sequence.start-stop-ride.png"
+    alt="Flow%20for%20Ride%20Start-Stop">
+  version: 1.0.0
+servers:
+  - url: http://ermanebengjek-1324961190.ap-southeast-3.elb.amazonaws.com/api/rides
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Enter your JWT token
+tags:
+  - name: drivers
+  - name: riders
+paths:
+  /v1/drivers/availability:
+    patch:
+      tags:
+        - drivers
+      summary: Set Availability
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                is_available: true
+                current_location:
+                  longitude: 2
+                  latitude: 1
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:14:16 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '41'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:14:39 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '186'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key:
+                    'DriverSetAvailabilityRequest.CurrentLocation.Longitude'
+                    Error:Field validation for 'Longitude' failed on the
+                    'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:15:13 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '47'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: invalid token
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:15:13 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '47'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error updating driver status
+  /v1/drivers/ride/confirm:
+    patch:
+      tags:
+        - drivers
+      summary: Confirm Ride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ride_id: 8
+                is_accept: true
+      security:
+        - bearerAuth: []
+      responses:
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:49:44 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '160'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Bad Request
+                  value:
+                    meta:
+                      code: 400
+                      message: >-
+                        error reading request: Key:
+                        'DriverConfirmRideRequest.RideID' Error:Field validation
+                        for 'RideID' failed on the 'required' tag
+                example-1:
+                  summary: Internal Server Error
+                  value:
+                    meta:
+                      code: 400
+                      message: >-
+                        error reading request: Key:
+                        'DriverConfirmRideRequest.RideID' Error:Field validation
+                        for 'RideID' failed on the 'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:13:57 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '403':
+          description: Forbidden
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:16:38 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '63'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4010
+                  message: driver status is unavailable
+  /v1/drivers/ride/start:
+    patch:
+      tags:
+        - drivers
+      summary: Start Ride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ride_id: 8
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:16:51 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '207'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 8
+                  rider_id: 1
+                  driver_id: 1
+                  pickup_location:
+                    longitude: 2
+                    latitude: 1
+                  destination:
+                    longitude: 2
+                    latitude: 1.045
+                  status: RIDE_STARTED
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:50:06 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '158'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Bad Request
+                  value:
+                    meta:
+                      code: 400
+                      message: >-
+                        error reading request: Key:
+                        'DriverStartRideRequest.RideID' Error:Field validation
+                        for 'RideID' failed on the 'required' tag
+                example-1:
+                  summary: Internal Server Error
+                  value:
+                    meta:
+                      code: 400
+                      message: >-
+                        error reading request: Key:
+                        'DriverStartRideRequest.RideID' Error:Field validation
+                        for 'RideID' failed on the 'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:00:13 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '403':
+          description: Forbidden
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:16:59 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '54'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4010
+                  message: invalid ride status
+  /v1/drivers/ride/end:
+    patch:
+      tags:
+        - drivers
+      summary: End Ride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ride_id: 8
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:20:08 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '281'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 8
+                  rider_id: 1
+                  driver_id: 1
+                  pickup_location:
+                    longitude: 2
+                    latitude: 1
+                  destination:
+                    longitude: 2
+                    latitude: 1.045
+                  distance: '5.003772'
+                  fare: '18000.00'
+                  status: RIDE_ENDED
+                  start_time: '2024-11-23T02:16:51Z'
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:51:17 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '156'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key: 'DriverEndRideRequest.RideID'
+                    Error:Field validation for 'RideID' failed on the 'required'
+                    tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:51:37 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '403':
+          description: Forbidden
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:17:18 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '54'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4010
+                  message: invalid ride status
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:17:33 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '106'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4011
+                  message: >-
+                    driver or rider location path is not found. ride path should
+                    be tracked
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:52:05 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '63'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error get distance traversed
+  /v1/drivers/ride/confirm-payment:
+    patch:
+      tags:
+        - drivers
+      summary: Confirm Payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ride_id: 8
+                custom_price: null
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:09:00 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '339'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 4
+                  rider_id: 1
+                  driver_id: 1
+                  pickup_location:
+                    longitude: 2
+                    latitude: 1
+                  destination:
+                    longitude: 2
+                    latitude: 1.045
+                  distance: '5.000300'
+                  fare: '18000.00'
+                  final_price: '10000.00'
+                  status: RIDE_PAID
+                  start_time: '2024-11-21T06:25:56Z'
+                  end_time: '2024-11-21T06:30:39Z'
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 01:52:41 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '163'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key:
+                    'DriverConfirmPaymentRequest.RideID' Error:Field validation
+                    for 'RideID' failed on the 'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:12:08 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '403':
+          description: Forbidden
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:11:13 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '54'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4010
+                  message: invalid ride status
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:18:03 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '59'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error processing payment
+  /v1/riders/ride/create:
+    post:
+      tags:
+        - riders
+      summary: Create New Ride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                pickup_location:
+                  longitude: 2
+                  latitude: 1
+                destination:
+                  longitude: 2
+                  latitude: 1.045
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:02:36 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '62'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 5
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:14:50 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '172'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key:
+                    'CreateNewRideRequest.Destination.Latitude' Error:Field
+                    validation for 'Latitude' failed on the 'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:01:01 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:14:50 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '172'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error create ride data
+  /v1/riders/ride/{ride_id}:
+    get:
+      tags:
+        - riders
+      summary: Get Ride Data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ride_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: '4'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 16:54:38 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '340'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 4
+                  rider_id: 1
+                  driver_id: 1
+                  pickup_location:
+                    longitude: 2
+                    latitude: 1
+                  destination:
+                    longitude: 2
+                    latitude: 1.045
+                  distance: '5.000300'
+                  fare: '18000.00'
+                  final_price: '10000.00'
+                  status: RIDE_ENDED
+                  start_time: '2024-11-21T06:25:56Z'
+                  end_time: '2024-11-21T06:30:39Z'
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:17:34 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '49'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: invalid ride id
+        '404':
+          description: Not Found
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 16:55:09 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '56'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4009
+                  message: resource is not found
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:17:34 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '49'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error get ride data
+  /v1/riders/ride/confirm:
+    patch:
+      tags:
+        - riders
+      summary: Confirm Ride
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ride_id: 8
+                is_accept: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:14:57 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '210'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  ride_id: 8
+                  rider_id: 1
+                  driver_id: 1
+                  pickup_location:
+                    longitude: 2
+                    latitude: 1
+                  destination:
+                    longitude: 2
+                    latitude: 1.045
+                  status: READY_TO_PICKUP
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sat, 23 Nov 2024 02:02:02 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 401
+                  message: no token provided
+        '404':
+          description: Not Found
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:15:31 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '56'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Not Found
+                  value:
+                    meta:
+                      code: 4009
+                      message: resource is not found
+                example-1:
+                  summary: Forbidden
+                  value:
+                    meta:
+                      code: 4009
+                      message: resource is not found
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 17:15:31 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '56'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error update ride data
+  /healthz:
+    get:
+      tags:
+        - default
+      summary: Health Check
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 14:14:00 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '77'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data: Service is up and running.

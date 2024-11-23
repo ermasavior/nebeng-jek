@@ -1,0 +1,540 @@
+openapi: 3.0.0
+info:
+  title: Location Service
+  description: >
+    This service manages user location data--store and query nearest available drivers, and store real time location
+  version: 1.0.0
+servers:
+  - url: http://ermanebengjek-1324961190.ap-southeast-3.elb.amazonaws.com/api/location
+components:
+  securitySchemes:
+    apikeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header
+paths:
+  /healthz:
+    get:
+      tags:
+        - default
+      summary: Health Check
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:14:05 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '77'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data: Service is up and running.
+  /v1/drivers/ride-path:
+    get:
+      tags:
+        - default
+      summary: Get Ride Path
+      security:
+        - apikeyAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:16:57 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '269'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  driver_path:
+                    - longitude: 2
+                      latitude: 1
+                    - longitude: 2
+                      latitude: 1.02
+                    - longitude: 2
+                      latitude: 1.045
+                  rider_path:
+                    - longitude: 2
+                      latitude: 1
+                    - longitude: 2
+                      latitude: 1.02
+                    - longitude: 2
+                      latitude: 1.045
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:19:07 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '158'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key: 'GetRidePathRequest.DriverID'
+                    Error:Field validation for 'DriverID' failed on the
+                    'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:19:47 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4008
+                  message: unauthorized user
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:43:08 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '98'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error get result
+  /v1/drivers/available/nearby:
+    get:
+      tags:
+        - default
+      summary: Get Nearest Available Drivers
+      security:
+        - apikeyAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:20:20 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '67'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+                data:
+                  driver_ids:
+                    - 2
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:20:37 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '182'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key:
+                    'GetNearestAvailableDriversRequest.Location.Latitude'
+                    Error:Field validation for 'Latitude' failed on the
+                    'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:37:42 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4008
+                  message: unauthorized user
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:37:42 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: close
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: error get result
+  /v1/drivers/available:
+    post:
+      tags:
+        - default
+      summary: Add Available Driver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                driver_id: 1
+                location:
+                  longitude: 1
+                  latitude: 2
+      security:
+        - apikeyAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:37:12 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '41'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:38:04 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '165'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: >-
+                    error reading request: Key:
+                    'AddAvailableDriverRequest.DriverID' Error:Field validation
+                    for 'DriverID' failed on the 'required' tag
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:38:34 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4008
+                  message: unauthorized user
+        '500':
+          description: Internal Server Error
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:38:34 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 4007
+                  message: internal server error
+  /v1/drivers/available/{driver_id}:
+    delete:
+      tags:
+        - default
+      summary: Remove Available Driver
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: driver_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: '1'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:39:27 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '41'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 200
+                  message: success
+        '400':
+          description: Bad Request
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:39:45 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                meta:
+                  code: 400
+                  message: invalid driver_id
+        '401':
+          description: Unauthorized
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Fri, 22 Nov 2024 12:40:01 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '52'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Unauthorized
+                  value:
+                    meta:
+                      code: 4008
+                      message: unauthorized user
+                example-1:
+                  summary: Internal Server Error
+                  value:
+                    meta:
+                      code: 4007
+                      message: internal server error
