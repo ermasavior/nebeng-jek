@@ -111,6 +111,8 @@ The API contract is in `openapi` format for REST API and `asyncapi` for websocke
 | 3  | Drivers  | [docs/contracts/nebengjek-websockets.asyncapi.yml](docs/contracts/nebengjek-websockets.asyncapi.yml) |
 | 4  | Riders   | [docs/contracts/nebengjek-websockets.asyncapi.yml](docs/contracts/nebengjek-websockets.asyncapi.yml) |
 
+Postman version: https://www.postman.com/ermasavior/nebengjek-public/overview
+
 ## Load Test
 
 The load test scenario will spawn a number of concurrent users that send requests on multiple stages. The load test target is GET ride data endpoint (with target of 200 Transaction per Second) PATCH driver availability endpoint (with target of 100 Transaction per Second). 
