@@ -17,7 +17,7 @@ NebengJek is a ride-sharing app that connects users with shared rides. Users can
     The app takes 30% commission from each ride to support the service maintenance and growth. :)
 
 ## Architecture
-![LLD](docs/pictures/Nebengjek-LLD.png)
+![LLD](docs/pictures/low-level-design.png)
 
 This system contains of four internal services and one external service (mocked).
 
