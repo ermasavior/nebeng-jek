@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"nebeng-jek/internal/pkg/constants"
 	pkgContext "nebeng-jek/internal/pkg/context"
@@ -61,7 +60,6 @@ func (u *ridesUsecase) DriverEndRide(ctx context.Context, req model.DriverEndRid
 		Fare:     &fare,
 		EndTime:  &now,
 	})
-	fmt.Println("cek", distance, ridePath)
 	if err != nil {
 		logger.Error(ctx, model.ErrMsgFailUpdateRideData, map[string]interface{}{
 			"driver_id": driverID,

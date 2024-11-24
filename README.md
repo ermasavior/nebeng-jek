@@ -22,23 +22,23 @@ NebengJek is a ride-sharing app that connects users with shared rides. Users can
 This system contains of four internal services and one external service (mocked).
 
 1. Riders, responsible for maintaining Riders' connection for real-time location update and ride update broadcast
-2. Drivers, responsible for maintaining Drivers' connection for real-time location update and ride update broadcast
+2. Drivers, responsible for maintaining Drivers' connection for real-time location update and new ride broadcast
 3. Rides, responsible for managing Ride data, including driver-rider assignments and ride status lifecycle
 4. Location, responsible for managing users' real time locations
 5. (External) Tsel-payment service, responsible for maintaining users' credits (mocked)
 
 ### Technologies Used ###
 **Communication Protocols**
-- Websocket, for real-time communication between users and our services, to broadcast ride event changes and real-time location tracking
-- REST API, for stateless ride data updates
+- Websocket, for real-time communication between users and our services, to broadcast ride event changes and real-time location tracking.
+- REST API, for stateless ride data updates.
 - NATS protocol, for event-driven communication between services. We are using NATS JetStream message broker.
 
 **Databases**
-- Postgres, relational database for storing rides detail, drivers, riders, and ride commissions 
+- Postgres, relational database for storing rides detail, drivers, riders, and ride commissions .
 - Redis, key-value storage for location data, with built-in geo-location operations for location indexing and nearest distance searching.
 
 **High Availability Tools**
-- Load Balancer, distributes user traffic to ensure no single server is overload
+- Load Balancer, distributes user traffic to ensure no single server is overloaded.
 - Multi-Availability Zone (Multi-AZ) cloud service, where cloud resources are distributed to more than one area in a cloud region, for data backup and recovery
 
 ## Data Schema
@@ -80,8 +80,7 @@ dbmate --url 'postgres://YOUR_USERNAME:YOUR_PASSWORD@DB_HOST:5436/rides_db?sslmo
 2. **Postgres 16**, for ride data store
 3. **Redis**, for GeoLocation data store
 4. **NATS JetStream**, message broker for event streaming and queue group
-
-5. (Alternatively) **Docker**, for practical containerized environment
+5. **Docker**, to encapsulate applications and their dependencies in isolated environment
 
 ### Steps
 
@@ -102,7 +101,7 @@ dbmate --url 'postgres://YOUR_USERNAME:YOUR_PASSWORD@DB_HOST:5436/rides_db?sslmo
 2. In root path, execute `docker-compose up -d` to run all services (including the dependencies)
 
 ## API Contract
-The API contract is in `openapi` format for REST API and `asyncapi` for websocket APIs. To render the contracts,  utilize Swagger Viewer (VSCode extension) or (Redoc-cli)[https://redocly.com/docs/cli/quickstart], and asyncapi-preview (VSCode extension). 
+The API contract is in `openapi` format for REST API and `asyncapi` for websocket APIs. To render the contracts, utilize Swagger Viewer (VSCode extension), [Redoc-cli](https://redocly.com/docs/cli/quickstart), or asyncapi-preview (VSCode extension). 
 
 | No | Service  | Contract Link 	                                                                        |
 |----|--------  |-------------	                                                                            |
@@ -115,7 +114,7 @@ Postman version: https://www.postman.com/ermasavior/nebengjek-public/overview
 
 ## Load Test
 
-The load test scenario will spawn a number of concurrent users that send requests on multiple stages. The load test target is GET ride data endpoint (with target of 400 Transaction per Second or) PATCH driver availability endpoint (with target of 200 Transaction per Second).
+The load test scenario will spawn a number of concurrent users that send requests on multiple stages. The load test target is GET ride data endpoint (with target of 400 Transaction per Second) and PATCH driver availability endpoint (with target of 200 Transaction per Second).
 
 ## Prerequisites
 1. [K6](https://github.com/grafana/k6)
@@ -133,11 +132,11 @@ k6 run patch_driver_availability.load_stages.js
 ```
 
 ## Result
-The load test for GET endpoint reached 491 Transaction per Second (TPS) average, with 176 ms average latency. All test thresholds were passed, with 99% success rate. 1% error (121 request) occured because of maximum database connection reached. For future scaling, we can utilize in-memory storage (Redis) to reduce database connection.
+The load test for GET endpoint reached __491 Transaction per Second (TPS) average__, with 176 ms average latency. All test thresholds were passed, with 99% success rate. 1% error (121 request) occured because maximum database connections has reached. For future scaling, we could utilize in-memory storage (Redis) to reduce database connection.
 
-PATCH endpoint load test reached 243 TPS average, with 175 ms average latency. All test thresholds were passed as well (100% success rate).
+PATCH endpoint load test reached __243 TPS average__, with 175 ms average latency. All test thresholds were passed as well (with 100% success rate).
 
-See result and test evidence in `loadtest/result` for detailed information. 
+For further information, see result and test evidence in `loadtest/result`. 
 
 ## Author
 Erma Safira Nurmasyita
