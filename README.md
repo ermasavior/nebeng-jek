@@ -8,13 +8,14 @@ NebengJek is a ride-sharing app that connects users with shared rides. Users can
 ## Main Features
 1. __Ride Matching__
 
-    Riders can request a ride to nearest available drivers (in radius 1 km). Drivers can accept or ignore requests. Riders can also be selective on who offered the ride.
+    Riders can request a ride to nearest available drivers (in radius 1 km). Drivers can accept or ignore requests. Riders can also choose to accept or reject the matched driver, and re-request the ride.
 2. __Real-Time Location Tracking__
 
     Once the ride is matched and rider got picked up, driver could start the ride. Both users sending location updates every minute. The app tracks and calculates the distance traveled.
-3. __Ride Commissions__
-    
-    The app takes 30% commission from each ride to support the service maintenance and growth. :)
+3. __Ride Fare Calculation and Commission__
+
+    At the end of the ride, the app calculates the fare at 3000 IDR per km distance (rounded up) and deducts a 5% platform fee for service maintenance and growth. 😊
+    Driver can also set their own preferred price in a ride.
 
 ## Architecture
 ![LLD](docs/pictures/low-level-design.png)
@@ -46,7 +47,7 @@ The data consists of four tables
 1. Drivers: Store driver identity and availability status
 2. Riders: Store rider identity
 3. Rides: Store ride data (rider id and driver id matches, ride details, status)
-4. RideCommissions: Store platform and driver commissions at the end of the ride
+4. RideCommissions: Store platform fee and driver commissions at the end of the ride
 
 ![DB](docs/pictures/ERD.png)
 
@@ -78,7 +79,7 @@ dbmate --url 'postgres://YOUR_USERNAME:YOUR_PASSWORD@DB_HOST:5436/rides_db?sslmo
 ### Prerequisites
 1. **Golang >=1.22**, serves web API
 2. **Postgres 16**, for ride data store
-3. **Redis**, for GeoLocation data store
+3. **Redis**, GeoSpatial data store for real time location
 4. **NATS JetStream**, message broker for event streaming and queue group
 5. **Docker**, to encapsulate applications and their dependencies in isolated environment
 
