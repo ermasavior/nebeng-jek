@@ -18,29 +18,39 @@ NebengJek is a ride-sharing app that connects users with shared rides. Users can
     Driver can also set their own preferred price in a ride.
 
 ## Architecture
+
+### High Level Design
+![HLD](docs/pictures/high-level-design.png)
+
+**Database and Message Broker**
+- Postgres, relational database for storing rides detail, drivers, riders, and ride commissions .
+- Redis, key-value storage for location data, with built-in geo-location operations for location indexing and nearest distance searching.
+- NATS message broker, event-driven communication for asynchronous processes.
+
+**High Availability Tools**
+- Load Balancer, distributes user traffic to ensure no single server is overloaded.
+- Multi-Availability Zone (Multi-AZ) cloud service, where cloud resources are distributed to more than one area in a cloud region, for data backup and recovery.
+
+**Monitoring Tools**
+- New Relic cloud for telemetry data monitoring (traces, metrics, and logs).
+
+**Other Surrounding**
+- Tsel-payment service, responsible for maintaining users' credits (mocked service).
+
+### Low Level Design
 ![LLD](docs/pictures/low-level-design.png)
 
-This system contains of four internal services and one external service (mocked).
+This system contains of four internal services.
 
 1. Riders, responsible for maintaining Riders' connection for real-time location update and ride update broadcast
 2. Drivers, responsible for maintaining Drivers' connection for real-time location update and new ride broadcast
 3. Rides, responsible for managing Ride data, including driver-rider assignments and ride status lifecycle
 4. Location, responsible for managing users' real time locations
-5. (External) Tsel-payment service, responsible for maintaining users' credits (mocked)
 
-### Technologies Used ###
 **Communication Protocols**
 - Websocket, for real-time communication between users and our services, to broadcast ride event changes and real-time location tracking.
 - REST API, for stateless ride data updates.
 - NATS protocol, for event-driven communication between services. We are using NATS JetStream message broker.
-
-**Databases**
-- Postgres, relational database for storing rides detail, drivers, riders, and ride commissions .
-- Redis, key-value storage for location data, with built-in geo-location operations for location indexing and nearest distance searching.
-
-**High Availability Tools**
-- Load Balancer, distributes user traffic to ensure no single server is overloaded.
-- Multi-Availability Zone (Multi-AZ) cloud service, where cloud resources are distributed to more than one area in a cloud region, for data backup and recovery
 
 ## Data Schema
 The data consists of four tables
